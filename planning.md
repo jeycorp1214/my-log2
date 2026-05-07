@@ -1,4 +1,4 @@
-# mylog — 기술 기획서 v0.3
+# mylog — 기술 기획서 v0.4
 
 > "서버 없는 담백한 기록, 데이터의 주인은 나"
 
@@ -15,19 +15,22 @@
 
 ### 1.1 확정 기술 스택
 
-| 레이어       | 라이브러리                                | 선택 이유                                    |
-| ------------ | ----------------------------------------- | -------------------------------------------- |
-| 로컬 DB      | `expo-sqlite` v15                         | Expo 공식 지원, 추가 네이티브 모듈 없음      |
-| ORM          | `drizzle-orm`                             | 타입세이프, SQL-first, expo-sqlite 공식 통합 |
-| 마이그레이션 | `drizzle-kit`                             | SQL 파일 자동 생성, `drizzle/` 폴더로 관리   |
-| UI           | `@gluestack-ui/core` v3 + `nativewind` v4 | 현재 설치됨                                  |
-| 애니메이션   | `react-native-reanimated` v4              | Expo 공식 권장                               |
-| Worklets     | `react-native-worklets` v0.5              | reanimated v4 peer dep — **제거 금지**       |
-| 네비게이션   | `expo-router` v6                          | Expo 공식, 파일 기반 라우팅                  |
-| 결제         | `react-native-iap`                        | Android/iOS 공통 IAP, 검증된 OSS             |
-| 알림         | `expo-notifications`                      | Expo 공식, 로컬 알림                         |
-| 파일/공유    | `expo-file-system` + `expo-sharing`       | Expo 공식                                    |
-| 암호화       | `expo-crypto`                             | Expo 공식                                    |
+| 레이어       | 라이브러리                                | 선택 이유                                                      |
+| ------------ | ----------------------------------------- | -------------------------------------------------------------- |
+| 로컬 DB      | `expo-sqlite` v15                         | Expo 공식 지원, 추가 네이티브 모듈 없음                        |
+| ORM          | `drizzle-orm`                             | 타입세이프, SQL-first, expo-sqlite 공식 통합                   |
+| 마이그레이션 | `drizzle-kit`                             | SQL 파일 자동 생성, `drizzle/` 폴더로 관리                     |
+| UI           | `@gluestack-ui/core` v3 + `nativewind` v4 | 현재 설치됨                                                    |
+| 애니메이션   | `react-native-reanimated` v4              | Expo 공식 권장                                                 |
+| Worklets     | `react-native-worklets` v0.5              | reanimated v4 peer dep — **제거 금지**                         |
+| 네비게이션   | `expo-router` v6                          | Expo 공식, 파일 기반 라우팅                                    |
+| 결제         | `react-native-iap`                        | Android/iOS 공통 IAP, 검증된 OSS                               |
+| 알림         | `expo-notifications`                      | Expo 공식, 로컬 알림                                           |
+| 파일/공유    | `expo-file-system` + `expo-sharing`       | Expo 공식                                                      |
+| 암호화       | `expo-crypto`                             | Expo 공식                                                      |
+| 날짜 유틸    | `dayjs`                                   | 경량, 나이 계산/표시/관계 온도계/On This Day                   |
+| 비동기 상태  | `@tanstack/react-query`                   | Drive·IAP 뮤테이션 한정. 로컬 DB는 drizzle `useLiveQuery` 사용 |
+| 보안 저장소  | `expo-secure-store`                       | 프리미엄 구매 플래그 이중 저장 (AsyncStorage 보완)             |
 
 ### 1.2 WatermelonDB 제외 근거
 
@@ -66,10 +69,10 @@
 서버 없는 환경에서 멀티 디바이스 충돌을 막을 수 없다. **Last-Write-Wins + 타임스탬프 경고** 전략 채택.
 
 ```
-백업 시: { data: [...], backup_at: ISO8601, device_id: uuid }
+백업 시: { data: [...], backup_at: ISO8601, device_id: uuid, device_name: string }
 복원 시:
   ├─ local.updated_at > remote.backup_at → "로컬이 최신, 덮어쓸까요?"
-  ├─ remote.backup_at > local.updated_at → "드라이브가 최신, 복원할까요?"
+  ├─ remote.backup_at > local.updated_at → "다른 기기(Galaxy S24)에서 온 데이터가 최신입니다. 교체할까요?"
   └─ 동일 타임스탬프 → 자동 복원
 ```
 
@@ -85,7 +88,7 @@
 
 ```typescript
 // db/schema.ts
-import { int, text, sqliteTable } from "drizzle-orm/sqlite-core";
+import { int, text, sqliteTable, index } from "drizzle-orm/sqlite-core";
 
 export const groups = sqliteTable("groups", {
   id: text("id")
@@ -123,26 +126,33 @@ export const persons = sqliteTable("persons", {
     .$defaultFn(() => new Date()),
 });
 
-export const logs = sqliteTable("logs", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  title: text("title").notNull(),
-  logDate: int("log_date", { mode: "timestamp_ms" }).notNull(),
-  memo: text("memo"),
-  repeatType: text("repeat_type"), // none|daily|weekly|monthly|yearly
-  repeatInterval: int("repeat_interval"),
-  repeatUntil: int("repeat_until", { mode: "timestamp_ms" }),
-  groupId: text("group_id")
-    .notNull()
-    .references(() => groups.id),
-  createdAt: int("created_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: int("updated_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+export const logs = sqliteTable(
+  "logs",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    title: text("title").notNull(),
+    logDate: int("log_date", { mode: "timestamp_ms" }).notNull(),
+    memo: text("memo"),
+    repeatType: text("repeat_type"), // none|daily|weekly|monthly|yearly
+    repeatInterval: int("repeat_interval"),
+    repeatUntil: int("repeat_until", { mode: "timestamp_ms" }),
+    groupId: text("group_id")
+      .notNull()
+      .references(() => groups.id),
+    createdAt: int("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: int("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (table) => [
+    index("log_date_idx").on(table.logDate), // 캘린더 날짜 범위 조회 최적화
+    index("log_group_id_idx").on(table.groupId), // 그룹별 필터링 최적화
+  ],
+);
 
 export const logPersons = sqliteTable("log_persons", {
   id: text("id")
@@ -179,6 +189,8 @@ export async function runMigrations() {
 ```
 
 > `updatedAt`이 있는 레코드 수정 시 항상 `updatedAt: new Date()`를 명시적으로 포함.
+
+> 로컬 DB 조회는 `drizzle-orm/expo-sqlite`의 `useLiveQuery`를 사용하면 INSERT/UPDATE/DELETE 시 자동으로 리렌더링됩니다. `@tanstack/react-query`는 **Drive 백업·IAP 비동기 작업에만** 사용합니다.
 
 ### 3.2 기본 그룹 시드 데이터
 
@@ -243,6 +255,44 @@ export default defineConfig({
 
 > 생성된 마이그레이션 파일은 반드시 git 커밋. `runMigrations()`가 앱 시작 시 자동 적용.
 
+### 3.4 날짜 유틸리티 (dayjs)
+
+앱 전반에서 날짜 포맷·나이 계산·경과 시간을 일관되게 처리합니다.
+
+```typescript
+// utils/date.ts
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/ko";
+
+dayjs.extend(relativeTime);
+dayjs.locale("ko");
+
+// 나이 계산 (birthDate: "YYYY-MM-DD")
+export function calcAge(birthDate: string): number {
+  return dayjs().diff(dayjs(birthDate), "year");
+}
+
+// 관계 온도계: 마지막 기록으로부터 경과 시간
+// 예: "3일 전", "2개월 전"
+export function fromNow(date: Date): string {
+  return dayjs(date).fromNow();
+}
+
+// 캘린더 표시용 포맷
+export function formatLogDate(date: Date): string {
+  return dayjs(date).format("YYYY년 M월 D일");
+}
+
+// On This Day: 오늘 월/일과 같은 과거 기록 필터
+export function isSameMonthDay(date: Date): boolean {
+  const today = dayjs();
+  return (
+    dayjs(date).month() === today.month() && dayjs(date).date() === today.date()
+  );
+}
+```
+
 ---
 
 ## 4. 핵심 기술 구현
@@ -265,17 +315,34 @@ import {
   type ProductPurchase,
 } from "react-native-iap";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 const PREMIUM_SKU = "com.mylog.premium_lifetime";
 const PREMIUM_KEY = "@mylog/is_premium";
+
+// AsyncStorage(빠른 읽기) + SecureStore(변조 방어) 이중 저장
+async function savePremium() {
+  await Promise.all([
+    AsyncStorage.setItem(PREMIUM_KEY, "true"),
+    SecureStore.setItemAsync(PREMIUM_KEY, "true"),
+  ]);
+}
+
+async function loadPremium(): Promise<boolean> {
+  const [fast, secure] = await Promise.all([
+    AsyncStorage.getItem(PREMIUM_KEY),
+    SecureStore.getItemAsync(PREMIUM_KEY),
+  ]);
+  return fast === "true" || secure === "true";
+}
 
 export function useIAP() {
   const [isPremium, setIsPremium] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // AsyncStorage에서 구매 상태 복원
-    AsyncStorage.getItem(PREMIUM_KEY).then((v) => setIsPremium(v === "true"));
+    // SecureStore 우선, AsyncStorage fallback으로 구매 상태 복원
+    loadPremium().then(setIsPremium);
 
     initConnection();
 
@@ -283,7 +350,7 @@ export function useIAP() {
       async (purchase: ProductPurchase) => {
         if (!purchase.transactionReceipt) return;
         await finishTransaction({ purchase, isConsumable: false });
-        await AsyncStorage.setItem(PREMIUM_KEY, "true");
+        await savePremium();
         setIsPremium(true);
       },
     );
@@ -314,7 +381,7 @@ export function useIAP() {
       const purchases = await getAvailablePurchases();
       const has = purchases.some((p) => p.productId === PREMIUM_SKU);
       if (has) {
-        await AsyncStorage.setItem(PREMIUM_KEY, "true");
+        await savePremium();
         setIsPremium(true);
       }
       return has;
@@ -449,6 +516,42 @@ export async function sharePersonLog(personData: object, passphrase: string) {
 
 > 수신자는 mylog 앱에서 "가져오기" → 동일 passphrase 입력 → checksum 검증 → import.
 
+### 4.4 비동기 상태 관리 (@tanstack/react-query)
+
+> **사용 범위:** Drive 백업/복원, IAP 뮤테이션에만 한정. 로컬 SQLite 쿼리는 drizzle `useLiveQuery`를 사용합니다.
+
+```typescript
+// app/_layout.tsx (QueryClient 설정)
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: { mutations: { retry: 1 } },
+});
+
+export default function RootLayout() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* ... */}
+    </QueryClientProvider>
+  );
+}
+```
+
+```typescript
+// hooks/useDriveBackup.ts (Drive 백업 뮤테이션 예시)
+import { useMutation } from "@tanstack/react-query";
+import { flushBackup } from "../services/driveBackup";
+
+export function useDriveBackup() {
+  return useMutation({
+    mutationFn: ({ token, data }: { token: string; data: object }) =>
+      flushBackup(token, data),
+  });
+}
+
+// 사용: const { mutate, isPending, isError } = useDriveBackup();
+```
+
 ---
 
 ## 5. Gluestack v3 UI 패턴
@@ -543,15 +646,17 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 
 - [ ] `npx expo install expo-dev-client` + `eas build:configure`
 - [ ] `tailwind.config.js`에 Gluestack preset 등록
-- [ ] `expo-sqlite` + `drizzle-orm` + `drizzle-kit` 설치 및 Android 빌드 검증
-- [ ] `react-native-iap` 설치 및 Android 빌드 검증
+- [ ] `expo-sqlite` + `drizzle-orm` + `drizzle-kit` + `dayjs` + `@tanstack/react-query` + `expo-secure-store` 설치
+- [ ] `react-native-iap` 설치
+- [ ] **실기기(Android)** 에서 빌드 검증 — 에뮬레이터에서는 IAP·Google Drive 로그인 미동작
 
 ### Phase 1 — Core (4주, Android 우선)
 
 - [ ] drizzle Schema 정의 + 마이그레이션 파일 생성 + Seed 데이터 (기본 그룹 3개)
 - [ ] 그룹 CRUD (커스텀 그룹 추가/수정/삭제, 기본 그룹 삭제 방지)
 - [ ] 일정 CRUD + 반복 규칙 UI 동적 생성
-- [ ] 인물 CRUD + 목록 뷰
+- [ ] 인물 CRUD + 목록 뷰 (나이 표시: `calcAge(birthDate)`)
+- [ ] logPersons N:M 조회 시 drizzle **relational query** 사용 (`db.query.logs.findMany({ with: { logPersons: { with: { person: true } } } })`)
 - [ ] 캘린더 뷰 + 아코디언 목록 (Gluestack + NativeWind)
 
 ### Phase 2 — Premium (2주)
@@ -584,3 +689,4 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 | R3  | Google Drive App Data Folder 용량 제한 (10MB/app)                | Low          | 백업 파일 5개 FIFO 유지, 단건 파일 크기 모니터링                                   |
 | R4  | drizzle 스키마 변경 시 마이그레이션 파일 미커밋 → 유저 DB 오동작 | High         | 스키마 변경 후 `drizzle-kit generate` 실행 및 `drizzle/` 폴더 커밋 필수            |
 | R5  | react-native-worklets 의도적 제거 시 reanimated v4 오동작        | **Critical** | worklets는 reanimated v4 peer dep. **절대 제거 금지**                              |
+| R6  | 재설치 후 AsyncStorage 초기화 → 프리미엄 플래그 소실             | High         | `expo-secure-store` 이중 저장으로 보완. restore 플로우 반드시 QA 검증              |
