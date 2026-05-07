@@ -1,4 +1,4 @@
-# mylog — 기술 기획서 v0.2
+# mylog — 기술 기획서 v0.3
 
 > "서버 없는 담백한 기록, 데이터의 주인은 나"
 
@@ -13,6 +13,33 @@
 | 플랫폼    | **Android 우선** → iOS 후속 출시 (React Native + Expo EAS) |
 | 수익 모델 | Freemium → One-time Purchase (평생 소장권)                 |
 
+### 1.1 확정 기술 스택
+
+| 레이어       | 라이브러리                                | 선택 이유                                    |
+| ------------ | ----------------------------------------- | -------------------------------------------- |
+| 로컬 DB      | `expo-sqlite` v15                         | Expo 공식 지원, 추가 네이티브 모듈 없음      |
+| ORM          | `drizzle-orm`                             | 타입세이프, SQL-first, expo-sqlite 공식 통합 |
+| 마이그레이션 | `drizzle-kit`                             | SQL 파일 자동 생성, `drizzle/` 폴더로 관리   |
+| UI           | `@gluestack-ui/core` v3 + `nativewind` v4 | 현재 설치됨                                  |
+| 애니메이션   | `react-native-reanimated` v4              | Expo 공식 권장                               |
+| Worklets     | `react-native-worklets` v0.5              | reanimated v4 peer dep — **제거 금지**       |
+| 네비게이션   | `expo-router` v6                          | Expo 공식, 파일 기반 라우팅                  |
+| 결제         | `react-native-iap`                        | Android/iOS 공통 IAP, 검증된 OSS             |
+| 알림         | `expo-notifications`                      | Expo 공식, 로컬 알림                         |
+| 파일/공유    | `expo-file-system` + `expo-sharing`       | Expo 공식                                    |
+| 암호화       | `expo-crypto`                             | Expo 공식                                    |
+
+### 1.2 WatermelonDB 제외 근거
+
+> 직접 적용 시도 후 확인된 불안정 요인. 재도입 금지.
+
+| 문제                              | 상세                                                                    |
+| --------------------------------- | ----------------------------------------------------------------------- |
+| **네이티브 모듈 필수**            | JSI 기반 → Expo managed workflow에서 custom dev client 없으면 동작 불가 |
+| **Babel 플러그인 충돌**           | `@babel/plugin-proposal-decorators`가 다른 플러그인과 충돌 빈발         |
+| **Expo SDK 54 + React 19 미검증** | 커뮤니티 빌드 실패 이슈 다수 보고 중                                    |
+| **expo-sqlite 대비 이점 없음**    | expo-sqlite v15는 JSI 기반으로 성능 격차 거의 없음                      |
+
 ---
 
 ## 2. 아키텍처 설계
@@ -21,7 +48,7 @@
 
 ```
 [Device]
-  └─ WatermelonDB (SQLite)   ← 진실의 원천(Source of Truth)
+  └─ expo-sqlite + drizzle-orm   ← 진실의 원천(Source of Truth)
        ├─ UI Layer (Gluestack v3 + NativeWind)
        └─ Sync Layer
             └─ Google Drive App Data Folder  ← 백업 전용 (서버 X)
@@ -48,160 +75,173 @@
 
 **구현 규칙:**
 
-- `updated_at`은 WatermelonDB가 자동 관리 (`@date` decorator)
+- `updated_at`은 매 update 쿼리에서 `updatedAt: new Date()` 수동 갱신 (명시적 제어)
 - 백업 파일명: `mylog_backup_YYYYMMDD_HHmmss.json`
 - App Data Folder에 최대 5개 백업 보관 (FIFO 방식으로 오래된 것 삭제)
 
 ---
 
-## 3. 데이터 모델 (WatermelonDB Schema)
+## 3. 데이터 모델 (expo-sqlite + drizzle-orm)
 
 ```typescript
 // db/schema.ts
-import { appSchema, tableSchema } from "@nozbe/watermelondb";
+import { int, text, sqliteTable } from "drizzle-orm/sqlite-core";
 
-export default appSchema({
-  version: 1,
-  tables: [
-    // 유저 정의 그룹 (집안/친구/회사 + 커스텀 확장)
-    tableSchema({
-      name: "groups",
-      columns: [
-        { name: "name",       type: "string" },
-        { name: "color",      type: "string" },            // hex: "#FF5733"
-        { name: "emoji",      type: "string", isOptional: true }, // "👨‍👩‍👧" 시각 보조
-        { name: "is_default", type: "boolean" },           // true = 삭제 불가
-        { name: "sort_order", type: "number" },
-        { name: "created_at", type: "number" },
-        { name: "updated_at", type: "number" },
-      ],
-    }),
-    tableSchema({
-      name: "persons",
-      columns: [
-        { name: "name",       type: "string" },
-        { name: "birth_date", type: "string",  isOptional: true }, // YYYY-MM-DD
-        { name: "mbti",       type: "string",  isOptional: true },
-        { name: "memo",       type: "string",  isOptional: true },
-        { name: "group_id",   type: "string",  isIndexed: true }, // → groups.id
-        { name: "created_at", type: "number" },
-        { name: "updated_at", type: "number" },
-      ],
-    }),
-    tableSchema({
-      name: "logs",
-      columns: [
-        { name: "title",           type: "string" },
-        { name: "log_date",        type: "number" },                   // timestamp (ms)
-        { name: "memo",            type: "string",  isOptional: true },
-        // 반복: 규칙만 저장, UI에서 동적 생성 (Option A)
-        { name: "repeat_type",     type: "string",  isOptional: true }, // none|daily|weekly|monthly|yearly
-        { name: "repeat_interval", type: "number",  isOptional: true }, // 2 = 격주, 3 = 3개월마다
-        { name: "repeat_until",    type: "number",  isOptional: true }, // 종료 timestamp
-        { name: "group_id",        type: "string",  isIndexed: true }, // → groups.id
-        { name: "created_at",      type: "number" },
-        { name: "updated_at",      type: "number" },
-      ],
-    }),
-    tableSchema({
-      name: "log_persons", // N:M 연결 테이블
-      columns: [
-        { name: "log_id",    type: "string", isIndexed: true },
-        { name: "person_id", type: "string", isIndexed: true },
-      ],
-    }),
-  ],
+export const groups = sqliteTable("groups", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  color: text("color").notNull(),
+  emoji: text("emoji"),
+  isDefault: int("is_default", { mode: "boolean" }).notNull().default(false),
+  sortOrder: int("sort_order").notNull().default(0),
+  createdAt: int("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: int("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const persons = sqliteTable("persons", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  birthDate: text("birth_date"),
+  mbti: text("mbti"),
+  memo: text("memo"),
+  groupId: text("group_id")
+    .notNull()
+    .references(() => groups.id),
+  createdAt: int("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: int("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const logs = sqliteTable("logs", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  title: text("title").notNull(),
+  logDate: int("log_date", { mode: "timestamp_ms" }).notNull(),
+  memo: text("memo"),
+  repeatType: text("repeat_type"), // none|daily|weekly|monthly|yearly
+  repeatInterval: int("repeat_interval"),
+  repeatUntil: int("repeat_until", { mode: "timestamp_ms" }),
+  groupId: text("group_id")
+    .notNull()
+    .references(() => groups.id),
+  createdAt: int("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: int("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const logPersons = sqliteTable("log_persons", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  logId: text("log_id")
+    .notNull()
+    .references(() => logs.id, { onDelete: "cascade" }),
+  personId: text("person_id")
+    .notNull()
+    .references(() => persons.id, { onDelete: "cascade" }),
 });
 ```
 
-### 3.1 Model 정의
+### 3.1 DB 클라이언트 설정
 
 ```typescript
-// db/models/Group.ts
-import { Model, field, date, children } from "@nozbe/watermelondb";
+// db/client.ts
+import * as SQLite from "expo-sqlite";
+import { drizzle } from "drizzle-orm/expo-sqlite";
+import { migrate } from "drizzle-orm/expo-sqlite/migrator";
+import migrations from "../drizzle/migrations";
+import * as schema from "./schema";
 
-export default class Group extends Model {
-  static table = "groups";
-  static associations = {
-    logs:    { type: "has_many" as const, foreignKey: "group_id" },
-    persons: { type: "has_many" as const, foreignKey: "group_id" },
-  };
+const expo = SQLite.openDatabaseSync("mylog.db", {
+  enableChangeListener: true,
+});
+export const db = drizzle(expo, { schema });
 
-  @field("name")       name!: string;
-  @field("color")      color!: string;
-  @field("emoji")      emoji!: string;
-  @field("is_default") isDefault!: boolean;
-  @field("sort_order") sortOrder!: number;
-  @date("created_at")  createdAt!: Date;
-  @date("updated_at")  updatedAt!: Date;
+// 앱 시작 시 app/_layout.tsx에서 한 번 호출
+export async function runMigrations() {
+  await migrate(db, migrations);
 }
 ```
 
-```typescript
-// db/models/Log.ts
-import { Model, field, date, relation, lazy } from "@nozbe/watermelondb";
-import { Q } from "@nozbe/watermelondb";
-
-export default class Log extends Model {
-  static table = "logs";
-  static associations = {
-    groups:      { type: "belongs_to" as const, key: "group_id" },
-    log_persons: { type: "has_many"   as const, foreignKey: "log_id" },
-  };
-
-  @field("title")            title!: string;
-  @date("log_date")          logDate!: Date;
-  @field("memo")             memo!: string;
-  @field("repeat_type")      repeatType!: string;
-  @field("repeat_interval")  repeatInterval!: number;
-  @field("group_id")         groupId!: string;
-  @date("created_at")        createdAt!: Date;
-  @date("updated_at")        updatedAt!: Date;
-
-  @relation("groups", "group_id") group!: Group;
-
-  // 연결된 Person 목록 (reactive query)
-  @lazy persons = this.collections
-    .get("persons")
-    .query(Q.on("log_persons", "log_id", this.id));
-}
-```
+> `updatedAt`이 있는 레코드 수정 시 항상 `updatedAt: new Date()`를 명시적으로 포함.
 
 ### 3.2 기본 그룹 시드 데이터
 
-앱 최초 실행 시 `is_default: true` 3개 자동 생성. UI에서 삭제 버튼 비활성화.
+앱 최초 실행 시 `isDefault: true` 3개 자동 생성. UI에서 삭제 버튼 비활성화.
 
 ```typescript
 // db/seed.ts
+import { db } from "./client";
+import { groups } from "./schema";
+
 export const DEFAULT_GROUPS = [
-  { name: "집안", color: "#FF6B6B", emoji: "🏠", is_default: true,  sort_order: 0 },
-  { name: "친구", color: "#4ECDC4", emoji: "👥", is_default: true,  sort_order: 1 },
-  { name: "회사", color: "#45B7D1", emoji: "💼", is_default: true,  sort_order: 2 },
+  {
+    name: "집안",
+    color: "#FF6B6B",
+    emoji: "🏠",
+    isDefault: true,
+    sortOrder: 0,
+  },
+  {
+    name: "친구",
+    color: "#4ECDC4",
+    emoji: "👥",
+    isDefault: true,
+    sortOrder: 1,
+  },
+  {
+    name: "회사",
+    color: "#45B7D1",
+    emoji: "💼",
+    isDefault: true,
+    sortOrder: 2,
+  },
 ];
+
+export async function seedDefaultGroups() {
+  const existing = await db.select().from(groups);
+  if (existing.length > 0) return;
+  await db.insert(groups).values(DEFAULT_GROUPS);
+}
 ```
 
-### 3.2 스키마 마이그레이션 전략
+### 3.3 마이그레이션 전략 (drizzle-kit)
 
-WatermelonDB는 `version` 숫자로 마이그레이션 관리.
-컬럼 추가/삭제 시 반드시 `migrations.ts`에 등록. 앱 업데이트로 DB 버전 불일치 시 자동 마이그레이션 실행.
+컬럼 추가/수정 시 `db/schema.ts`만 수정 후 아래 명령을 실행하면 SQL 파일이 자동 생성됩니다.
+
+```bash
+# 스키마 변경 후 실행
+npx drizzle-kit generate  # → drizzle/migrations/ 에 SQL 파일 생성
+```
 
 ```typescript
-// db/migrations.ts
-import {
-  schemaMigrations,
-  addColumns,
-} from "@nozbe/watermelondb/Schema/migrations";
+// drizzle.config.ts
+import { defineConfig } from "drizzle-kit";
 
-export default schemaMigrations({
-  migrations: [
-    // v1 → v2: persons에 avatar_url 추가 예시
-    // {
-    //   toVersion: 2,
-    //   steps: [addColumns({ table: 'persons', columns: [{ name: 'avatar_url', type: 'string', isOptional: true }] })],
-    // },
-  ],
+export default defineConfig({
+  schema: "./db/schema.ts",
+  out: "./drizzle",
+  dialect: "sqlite",
+  driver: "expo",
 });
 ```
+
+> 생성된 마이그레이션 파일은 반드시 git 커밋. `runMigrations()`가 앱 시작 시 자동 적용.
 
 ---
 
@@ -309,38 +349,62 @@ const LATEST_FILE_ID_KEY = "@mylog/drive_latest_file_id";
 const FOLDER = "appDataFolder";
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-// WatermelonDB 저장 후 호출
+// DB 저장 후 호출
 export function scheduleBackup(accessToken: string, getData: () => object) {
   if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => executeBackup(accessToken, getData()), 30_000);
+  debounceTimer = setTimeout(
+    () => executeBackup(accessToken, getData()),
+    30_000,
+  );
 }
 
 // 앱 백그라운드 진입 시 강제 즉시 실행
 export async function flushBackup(accessToken: string, data: object) {
-  if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+    debounceTimer = null;
+  }
   await executeBackup(accessToken, data);
 }
 
 async function executeBackup(accessToken: string, data: object) {
   const fileId = await AsyncStorage.getItem(LATEST_FILE_ID_KEY);
-  const body   = JSON.stringify({ data, backup_at: new Date().toISOString(), version: 1 });
+  const body = JSON.stringify({
+    data,
+    backup_at: new Date().toISOString(),
+    version: 1,
+  });
 
   if (fileId) {
     // 기존 파일 덮어쓰기 (PATCH)
     const res = await fetch(
       `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
-      { method: "PATCH", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" }, body },
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body,
+      },
     );
     if (!res.ok) throw new Error(`Drive PATCH failed: ${res.status}`);
   } else {
     // 최초: 새 파일 생성 후 ID 캐시
     const metadata = { name: "mylog_latest.json", parents: [FOLDER] };
     const form = new FormData();
-    form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-    form.append("file",     new Blob([body],                      { type: "application/json" }));
-    const res  = await fetch(
+    form.append(
+      "metadata",
+      new Blob([JSON.stringify(metadata)], { type: "application/json" }),
+    );
+    form.append("file", new Blob([body], { type: "application/json" }));
+    const res = await fetch(
       "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-      { method: "POST", headers: { Authorization: `Bearer ${accessToken}` }, body: form },
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: form,
+      },
     );
     if (!res.ok) throw new Error(`Drive upload failed: ${res.status}`);
     const { id } = await res.json();
@@ -478,13 +542,13 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 ### Phase 0 — 환경 설정 (1일, 지금 바로)
 
 - [ ] `npx expo install expo-dev-client` + `eas build:configure`
-- [ ] `npm uninstall react-native-worklets` (reanimated v4 충돌 방지)
 - [ ] `tailwind.config.js`에 Gluestack preset 등록
-- [ ] WatermelonDB + RN-IAP 설치 및 Android 빌드 검증
+- [ ] `expo-sqlite` + `drizzle-orm` + `drizzle-kit` 설치 및 Android 빌드 검증
+- [ ] `react-native-iap` 설치 및 Android 빌드 검증
 
 ### Phase 1 — Core (4주, Android 우선)
 
-- [ ] WatermelonDB Schema + Model + Seed 데이터 (기본 그룹 3개)
+- [ ] drizzle Schema 정의 + 마이그레이션 파일 생성 + Seed 데이터 (기본 그룹 3개)
 - [ ] 그룹 CRUD (커스텀 그룹 추가/수정/삭제, 기본 그룹 삭제 방지)
 - [ ] 일정 CRUD + 반복 규칙 UI 동적 생성
 - [ ] 인물 CRUD + 목록 뷰
@@ -513,10 +577,10 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 
 ## 9. 리스크 레지스터
 
-| #   | 리스크                                                          | 심각도       | 완화 방안                                                           |
-| --- | --------------------------------------------------------------- | ------------ | ------------------------------------------------------------------- |
-| R1  | Expo 관리형 워크플로우 + WatermelonDB/RN-IAP 네이티브 모듈 충돌 | **Critical** | Phase 1 시작 전 EAS Build + custom dev client로 전환                |
-| R2  | 서버 없는 IAP → 영수증 위조                                     | Medium       | 허용 리스크. 피해 규모 소액. 스토어 자체 검증으로 일반 사용자 방어  |
-| R3  | Google Drive App Data Folder 용량 제한 (10MB/app)               | Low          | 백업 파일 5개 FIFO 유지, 단건 파일 크기 모니터링                    |
-| R4  | WatermelonDB 스키마 마이그레이션 누락 → 유저 DB 초기화          | High         | migrations.ts 필수 등록, 출시 전 버전 업 테스트                     |
-| R5  | react-native-worklets와 reanimated v4 충돌                      | Low          | `react-native-worklets` 제거 검토 (reanimated v4 내장 worklet 사용) |
+| #   | 리스크                                                           | 심각도       | 완화 방안                                                                          |
+| --- | ---------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------- |
+| R1  | RN-IAP 네이티브 모듈 + Expo managed workflow 충돌                | High         | EAS Build + custom dev client로 전환. expo-sqlite는 Expo 공식으로 별도 처리 불필요 |
+| R2  | 서버 없는 IAP → 영수증 위조                                      | Medium       | 허용 리스크. 피해 규모 소액. 스토어 자체 검증으로 일반 사용자 방어                 |
+| R3  | Google Drive App Data Folder 용량 제한 (10MB/app)                | Low          | 백업 파일 5개 FIFO 유지, 단건 파일 크기 모니터링                                   |
+| R4  | drizzle 스키마 변경 시 마이그레이션 파일 미커밋 → 유저 DB 오동작 | High         | 스키마 변경 후 `drizzle-kit generate` 실행 및 `drizzle/` 폴더 커밋 필수            |
+| R5  | react-native-worklets 의도적 제거 시 reanimated v4 오동작        | **Critical** | worklets는 reanimated v4 peer dep. **절대 제거 금지**                              |
