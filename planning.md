@@ -24,7 +24,7 @@
 | 애니메이션   | `react-native-reanimated` v4              | Expo 공식 권장                                                 |
 | Worklets     | `react-native-worklets` v0.5              | reanimated v4 peer dep — **제거 금지**                         |
 | 네비게이션   | `expo-router` v6                          | Expo 공식, 파일 기반 라우팅                                    |
-| 결제         | `react-native-iap`                        | Android/iOS 공통 IAP, 검증된 OSS                               |
+| 결제         | `react-native-iap`                        | Android/iOS 공통 IAP, 검증된 OSS (보류)                        |
 | 알림         | `expo-notifications`                      | Expo 공식, 로컬 알림                                           |
 | 파일/공유    | `expo-file-system` + `expo-sharing`       | Expo 공식                                                      |
 | 암호화       | `expo-crypto`                             | Expo 공식                                                      |
@@ -297,7 +297,7 @@ export function isSameMonthDay(date: Date): boolean {
 
 ## 4. 핵심 기술 구현
 
-### 4.1 인앱 결제 (react-native-iap)
+### 4.1 인앱 결제 (react-native-iap) - 보류
 
 > **주의:** 서버 검증 없음 → Android 루팅/iOS 탈옥 환경에서 영수증 위조 가능. 허용 리스크로 판단하고 진행.
 
@@ -647,7 +647,6 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 - [ ] `npx expo install expo-dev-client` + `eas build:configure`
 - [ ] `tailwind.config.js`에 Gluestack preset 등록
 - [ ] `expo-sqlite` + `drizzle-orm` + `drizzle-kit` + `dayjs` + `@tanstack/react-query` + `expo-secure-store` 설치
-- [ ] `react-native-iap` 설치
 - [ ] **실기기(Android)** 에서 빌드 검증 — 에뮬레이터에서는 IAP·Google Drive 로그인 미동작
 
 ### Phase 1 — Core (4주, Android 우선)
