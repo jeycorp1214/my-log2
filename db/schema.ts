@@ -1,10 +1,11 @@
 // 앱 전체 SQLite 스키마 정의 (groups, persons, logs, logPersons)
-import { int, text, sqliteTable, index } from "drizzle-orm/sqlite-core";
+import { index, int, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import * as Crypto from "expo-crypto"; // 1. 임포트 추가
 
 export const groups = sqliteTable("groups", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .$defaultFn(() => Crypto.randomUUID()),
   name: text("name").notNull(),
   color: text("color").notNull(),
   emoji: text("emoji"),
@@ -21,7 +22,7 @@ export const groups = sqliteTable("groups", {
 export const persons = sqliteTable("persons", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .$defaultFn(() => Crypto.randomUUID()),
   name: text("name").notNull(),
   birthDate: text("birth_date"),
   mbti: text("mbti"),
@@ -42,7 +43,7 @@ export const logs = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
+      .$defaultFn(() => Crypto.randomUUID()),
     title: text("title").notNull(),
     logDate: int("log_date", { mode: "timestamp_ms" }).notNull(),
     memo: text("memo"),
@@ -68,7 +69,7 @@ export const logs = sqliteTable(
 export const logPersons = sqliteTable("log_persons", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .$defaultFn(() => Crypto.randomUUID()),
   logId: text("log_id")
     .notNull()
     .references(() => logs.id, { onDelete: "cascade" }),
