@@ -92,14 +92,15 @@
 # Phase 3 체크리스트 — 반복 완성
 
 ## 반복 기능 완성
-- [ ] logs/new.tsx: repeatUntil 날짜 선택 UI (repeatType !== "none"일 때 "영구" / "종료일 지정" 토글 + DatePickerModal)
-- [ ] logs/[id].tsx: repeatUntil 수정 UI (수정 모드에서 동일 패턴)
+- [x] logs/new.tsx: repeatUntil 날짜 선택 UI ("영구" / "종료일 지정" 토글 + DatePickerModal)
+- [x] logs/[id].tsx: repeatUntil 수정 UI (수정 모드 동일 패턴)
 - [ ] settings/repeats.tsx: 반복 로그에 종료일 표시 개선
 
 ## 반복 단일/전체 수정
-- [ ] index.tsx: repeat occurrence 탭 시 occurrenceDate param 포함해서 push
-- [ ] logs/[id].tsx: occurrenceDate param 수신 시 "이 날만 수정" / "반복 전체 수정" 배너 표시
-- [ ] "이 날만 수정" → occurrenceDate 기준 새 단일 로그 생성 + router.back
+- [x] index.tsx: repeat occurrence 탭 시 occurrenceDate param 포함 push (LogItem 타입 도입)
+- [x] logs/[id].tsx: occurrenceDate param 수신 → isOccurrenceView 감지 + "🔄 반복 기록" 배너
+- [x] "수정" 탭 → Alert ("이 날만 별도 기록" / "반복 전체 수정") 분기
+- [x] copy mode: occurrenceDate 기준 새 단일 로그 INSERT + router.back
 
 ---
 

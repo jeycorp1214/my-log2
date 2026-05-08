@@ -20,7 +20,8 @@ import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 
 type Log = InferSelectModel<typeof logs>;
-type DaySection = { dateKey: string; date: Date; items: Log[] };
+type LogItem = { log: Log; isOccurrence: boolean };
+type DaySection = { dateKey: string; date: Date; items: LogItem[] };
 
 export default function CalendarScreen() {
   const router = useRouter();
@@ -68,28 +69,30 @@ export default function CalendarScreen() {
   function buildDaySections(): DaySection[] {
     const map = new Map<string, DaySection>();
 
-    const allItems: { log: Log; date: Date }[] = [
-      ...monthLogs.map((log) => ({ log, date: new Date(log.logDate) })),
-      ...repeatOccurrences,
+    const allItems: { log: Log; date: Date; isOccurrence: boolean }[] = [
+      ...monthLogs.map((log) => ({ log, date: new Date(log.logDate), isOccurrence: false })),
+      ...repeatOccurrences.map(({ log, date }) => ({ log, date, isOccurrence: true })),
     ];
 
-    for (const { log, date } of allItems) {
+    for (const { log, date, isOccurrence } of allItems) {
       if (date < monthStart || date > monthEnd) continue;
       const key = dayjs(date).format("YYYY-MM-DD");
       if (!map.has(key)) map.set(key, { dateKey: key, date, items: [] });
-      map.get(key)!.items.push(log);
+      map.get(key)!.items.push({ log, isOccurrence });
     }
 
     return Array.from(map.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
   // 날짜 선택 뷰: 해당 날짜 로그
-  const selectedLogs = selectedDate
+  const selectedLogs: LogItem[] = selectedDate
     ? [
-        ...monthLogs.filter((log) => isSameDay(new Date(log.logDate), selectedDate)),
+        ...monthLogs
+          .filter((log) => isSameDay(new Date(log.logDate), selectedDate))
+          .map((log) => ({ log, isOccurrence: false })),
         ...repeatOccurrences
           .filter(({ date }) => isSameDay(date, selectedDate))
-          .map(({ log }) => log),
+          .map(({ log }) => ({ log, isOccurrence: true })),
       ]
     : [];
 
@@ -193,11 +196,16 @@ export default function CalendarScreen() {
           selectedLogs.length === 0 ? (
             <Text className="text-app-muted text-center mt-6">기록이 없습니다.</Text>
           ) : (
-            selectedLogs.map((log) => (
+            selectedLogs.map((item) => (
               <LogCard
-                key={log.id}
-                log={log}
-                onPress={() => router.push({ pathname: "/logs/[id]", params: { id: log.id } })}
+                key={item.log.id}
+                log={item.log}
+                onPress={() => router.push({
+                  pathname: "/logs/[id]",
+                  params: item.isOccurrence
+                    ? { id: item.log.id, occurrenceDate: selectedDate!.toISOString() }
+                    : { id: item.log.id },
+                })}
               />
             ))
           )
@@ -210,11 +218,16 @@ export default function CalendarScreen() {
                 <Pressable onPress={() => setSelectedDate(section.date)} className="py-1.5 px-1 mt-2">
                   <Text className="text-app-teal text-xs font-semibold tracking-[0.3px]">{formatLogDate(section.date)}</Text>
                 </Pressable>
-                {section.items.map((log) => (
+                {section.items.map((item) => (
                   <LogCard
-                    key={`${section.dateKey}-${log.id}`}
-                    log={log}
-                    onPress={() => router.push({ pathname: "/logs/[id]", params: { id: log.id } })}
+                    key={`${section.dateKey}-${item.log.id}`}
+                    log={item.log}
+                    onPress={() => router.push({
+                      pathname: "/logs/[id]",
+                      params: item.isOccurrence
+                        ? { id: item.log.id, occurrenceDate: section.date.toISOString() }
+                        : { id: item.log.id },
+                    })}
                   />
                 ))}
               </View>

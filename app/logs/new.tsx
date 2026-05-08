@@ -24,10 +24,11 @@ export default function LogNewScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [memo, setMemo] = useState("");
   const [repeatType, setRepeatType] = useState("none");
+  const [repeatUntil, setRepeatUntil] = useState<Date | null>(null);
+  const [showRepeatUntilPicker, setShowRepeatUntilPicker] = useState(false);
   const [groupId, setGroupId] = useState("");
   const [selectedPersonIds, setSelectedPersonIds] = useState<string[]>([]);
 
-  // 그룹 목록 로드 시 첫 번째 그룹 자동 선택
   useEffect(() => {
     if (!groupId && allGroups.length > 0) {
       setGroupId(allGroups[0].id);
@@ -54,16 +55,14 @@ export default function LogNewScreen() {
         logDate,
         memo: memo.trim() || undefined,
         repeatType: repeatType !== "none" ? repeatType : undefined,
+        repeatUntil: repeatType !== "none" ? repeatUntil ?? undefined : undefined,
         groupId,
       })
       .returning({ id: logs.id });
 
     if (selectedPersonIds.length > 0) {
       await db.insert(logPersons).values(
-        selectedPersonIds.map((personId) => ({
-          logId: inserted.id,
-          personId,
-        })),
+        selectedPersonIds.map((personId) => ({ logId: inserted.id, personId })),
       );
     }
 
@@ -71,7 +70,11 @@ export default function LogNewScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-app-bg" contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      className="flex-1 bg-app-bg"
+      contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text className="text-app-label text-[13px] mt-3">날짜</Text>
       <Pressable
         onPress={() => setShowDatePicker(true)}
@@ -105,7 +108,7 @@ export default function LogNewScreen() {
         placeholderTextColor="#555"
         multiline
         numberOfLines={4}
-        style={{ minHeight: 100, textAlignVertical: 'top' }}
+        style={{ minHeight: 100, textAlignVertical: "top" }}
       />
 
       <Text className="text-app-label text-[13px] mt-3">반복</Text>
@@ -113,15 +116,52 @@ export default function LogNewScreen() {
         {REPEAT_OPTIONS.map(({ label, value }) => (
           <Pressable
             key={value}
-            onPress={() => setRepeatType(value)}
-            className={`rounded-[20px] px-3 py-1.5 ${repeatType === value ? 'bg-app-teal' : 'bg-app-surface'}`}
+            onPress={() => { setRepeatType(value); if (value === "none") setRepeatUntil(null); }}
+            className={`rounded-[20px] px-3 py-1.5 ${repeatType === value ? "bg-app-teal" : "bg-app-surface"}`}
           >
-            <Text className={`text-[13px] ${repeatType === value ? 'text-[#111] font-semibold' : 'text-app-label'}`}>
+            <Text className={`text-[13px] ${repeatType === value ? "text-[#111] font-semibold" : "text-app-label"}`}>
               {label}
             </Text>
           </Pressable>
         ))}
       </View>
+
+      {repeatType !== "none" && (
+        <View className="mt-1">
+          <Text className="text-app-label text-[13px] mb-2">반복 종료일</Text>
+          <View className="flex-row gap-2">
+            <Pressable
+              onPress={() => setRepeatUntil(null)}
+              className={`rounded-[20px] px-3 py-1.5 ${!repeatUntil ? "bg-app-teal" : "bg-app-surface"}`}
+            >
+              <Text className={`text-[13px] ${!repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}>
+                영구
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                if (!repeatUntil) {
+                  const d = new Date(logDate);
+                  d.setMonth(d.getMonth() + 3);
+                  setRepeatUntil(d);
+                }
+                setShowRepeatUntilPicker(true);
+              }}
+              className={`flex-1 rounded-[20px] px-3 py-1.5 ${repeatUntil ? "bg-app-teal" : "bg-app-surface"}`}
+            >
+              <Text className={`text-[13px] ${repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}>
+                {repeatUntil ? formatLogDate(repeatUntil) : "종료일 지정"}
+              </Text>
+            </Pressable>
+          </View>
+          <DatePickerModal
+            visible={showRepeatUntilPicker}
+            value={repeatUntil ?? logDate}
+            onChange={setRepeatUntil}
+            onClose={() => setShowRepeatUntilPicker(false)}
+          />
+        </View>
+      )}
 
       <Text className="text-app-label text-[13px] mt-3">그룹</Text>
       <View className="flex-row flex-wrap gap-2 mt-1">
@@ -129,9 +169,9 @@ export default function LogNewScreen() {
           <Pressable
             key={g.id}
             onPress={() => setGroupId(g.id)}
-            className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? 'bg-app-teal' : 'bg-app-surface'}`}
+            className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? "bg-app-teal" : "bg-app-surface"}`}
           >
-            <Text className={`text-[13px] ${groupId === g.id ? 'text-[#111] font-semibold' : 'text-app-label'}`}>
+            <Text className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}>
               {g.emoji} {g.name}
             </Text>
           </Pressable>
@@ -144,9 +184,9 @@ export default function LogNewScreen() {
           <Pressable
             key={p.id}
             onPress={() => togglePerson(p.id)}
-            className={`rounded-[20px] px-3 py-1.5 ${selectedPersonIds.includes(p.id) ? 'bg-app-teal' : 'bg-app-surface'}`}
+            className={`rounded-[20px] px-3 py-1.5 ${selectedPersonIds.includes(p.id) ? "bg-app-teal" : "bg-app-surface"}`}
           >
-            <Text className={`text-[13px] ${selectedPersonIds.includes(p.id) ? 'text-[#111] font-semibold' : 'text-app-label'}`}>
+            <Text className={`text-[13px] ${selectedPersonIds.includes(p.id) ? "text-[#111] font-semibold" : "text-app-label"}`}>
               {p.name}
             </Text>
           </Pressable>
