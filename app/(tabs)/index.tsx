@@ -1,4 +1,6 @@
 // 캘린더 탭 — 월별 달력 + 날짜 선택 or 월간 전체 로그 목록
+import dayjs from "dayjs";
+import "dayjs/locale/ko";
 import type { InferSelectModel } from "drizzle-orm";
 import { and, between, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -200,8 +202,9 @@ export default function CalendarScreen() {
             🔍 DEBUG
           </Text>
           <Text className="text-[10px] text-app-muted font-mono">
-            월: {formatMonthYear(currentMonth)} | 범위:{" "}
-            {formatLogDate(monthStart)} ~ {formatLogDate(monthEnd)}
+            월: {dayjs(currentMonth).format("YYYY년 M월")} | 범위:{" "}
+            {dayjs(monthStart).format("YYYY년 M월 D일")} ~{" "}
+            {dayjs(monthEnd).format("YYYY년 M월 D일")}
           </Text>
           <Text className="text-[10px] text-[#888] font-mono">
             monthLogs: {monthLogs.length} | allRepeatLogs:{" "}
@@ -212,7 +215,7 @@ export default function CalendarScreen() {
             <View className="mt-1 pl-2 border-l border-[#666]">
               {monthLogs.slice(0, 3).map((log) => (
                 <Text key={log.id} className="text-[9px] text-[#aaa] font-mono">
-                  • {formatLogDate(new Date(log.logDate))} - {log.title}
+                  • {dayjs(log.logDate).format("YYYY년 M월 D일")} - {log.title}
                 </Text>
               ))}
               {monthLogs.length > 3 && (

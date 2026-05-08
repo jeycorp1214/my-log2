@@ -63,6 +63,14 @@ export default function DataViewerScreen() {
     data: any[];
   }
 
+  // logs 테이블: viewMonth 범위에 맞게 필터링
+  const filteredLogs = allLogs.filter((log) => {
+    if (!log.logDate) return false;
+    const logMonth = dayjs(log.logDate).format("YYYY-MM");
+    const viewMonthStr = dayjs(viewMonth).format("YYYY-MM");
+    return logMonth === viewMonthStr;
+  });
+
   const tables: TableSection[] = [
     { name: "groups", label: `📁 그룹 (${allGroups.length})`, data: allGroups },
     {
@@ -70,7 +78,11 @@ export default function DataViewerScreen() {
       label: `👤 인물 (${allPersons.length})`,
       data: allPersons,
     },
-    { name: "logs", label: `📝 기록 (${allLogs.length})`, data: allLogs },
+    {
+      name: "logs",
+      label: `📝 기록 (${filteredLogs.length}/${allLogs.length})`,
+      data: filteredLogs,
+    },
     {
       name: "logPersons",
       label: `🔗 기록-인물 연결 (${allLogPersons.length})`,
@@ -153,17 +165,12 @@ export default function DataViewerScreen() {
                 ) : (
                   <View>
                     {table.data.map((item, idx) => {
-                      // 기록 테이블의 경우, logDate 기준으로 월 표시
+                      // 기록 테이블의 경우, logDate 월 표시
                       let recordMonth: string | null = null;
                       if (table.name === "logs" && item.logDate) {
                         const logDateObj = new Date(item.logDate);
                         recordMonth = dayjs(logDateObj).format("YYYY-MM");
                       }
-
-                      const isInCurrentRange =
-                        table.name === "logs" && recordMonth
-                          ? recordMonth === dayjs(viewMonth).format("YYYY-MM")
-                          : true;
 
                       return (
                         <View
@@ -171,15 +178,8 @@ export default function DataViewerScreen() {
                           className={`py-2 ${idx < table.data.length - 1 ? "border-b border-[#2a2a2a]" : ""}`}
                         >
                           {table.name === "logs" && recordMonth && (
-                            <Text
-                              className={`text-[10px] font-mono mb-1 ${
-                                isInCurrentRange
-                                  ? "text-app-teal"
-                                  : "text-[#ff9999]"
-                              }`}
-                            >
-                              {recordMonth}{" "}
-                              {isInCurrentRange ? "✓" : "✗ (다른 월)"}
+                            <Text className="text-[10px] font-mono mb-1 text-app-teal">
+                              📅 {recordMonth}
                             </Text>
                           )}
                           <View className="flex-row flex-wrap gap-1">
