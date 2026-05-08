@@ -85,3 +85,46 @@
 - [x] app/settings/groups.tsx — 그룹 목록 + FAB(→ /groups/new)
 - [x] app/settings/repeats.tsx — 반복 로그 목록 + FAB(→ /logs/new) + 해제 기능
 - [x] _layout.tsx에 settings/groups, settings/repeats Stack.Screen 등록
+- [x] 인물 타임라인 — persons/[id].tsx에 이미 구현됨 (personLogs + "함께한 기록" 섹션)
+
+---
+
+# Phase 3 체크리스트 — 반복 완성
+
+## 반복 기능 완성
+- [ ] logs/new.tsx: repeatUntil 날짜 선택 UI (repeatType !== "none"일 때 "영구" / "종료일 지정" 토글 + DatePickerModal)
+- [ ] logs/[id].tsx: repeatUntil 수정 UI (수정 모드에서 동일 패턴)
+- [ ] settings/repeats.tsx: 반복 로그에 종료일 표시 개선
+
+## 반복 단일/전체 수정
+- [ ] index.tsx: repeat occurrence 탭 시 occurrenceDate param 포함해서 push
+- [ ] logs/[id].tsx: occurrenceDate param 수신 시 "이 날만 수정" / "반복 전체 수정" 배너 표시
+- [ ] "이 날만 수정" → occurrenceDate 기준 새 단일 로그 생성 + router.back
+
+---
+
+# Phase 4 체크리스트 — 표준 캘린더 기능
+
+## 이벤트 시간 (선택)
+- [ ] logs/new.tsx: 온종일(기본) / 시간 지정 토글 + HH:MM 입력 — logDate에 시:분 포함하여 저장
+- [ ] logs/[id].tsx: 수정 모드 동일 패턴 + 뷰 모드에서 시간 표시
+- [ ] LogCard: 시간 지정된 기록은 HH:MM 표시
+- [ ] CalendarGrid: 시간 있는 기록은 dot 색상 구분 (선택)
+
+## 검색
+- [ ] app/search.tsx 신규 생성 — 제목/메모/인물명 full-text 검색
+- [ ] (tabs)/_layout.tsx: 검색 탭 추가 또는 캘린더 헤더 돋보기 아이콘
+- [ ] _layout.tsx: search Stack.Screen 등록
+
+## 알림/리마인더
+- [ ] migration 0003: logs 테이블에 reminder_type text 컬럼 추가 (null/"1h"/"1day"/"1week")
+- [ ] logs/new.tsx + logs/[id].tsx: 리마인더 선택 UI
+- [ ] app/_layout.tsx: expo-notifications 권한 요청 + 채널 설정
+- [ ] utils/notification.ts: scheduleLogReminder / cancelLogReminder 유틸
+- [ ] 기록 저장/수정 시 알림 스케줄링, 삭제 시 취소
+
+## 생일 알림
+- [ ] persons/new.tsx + persons/[id].tsx: 생일 알림 활성화 토글 (birthDate 있을 때)
+- [ ] utils/notification.ts: scheduleBirthdayReminder 유틸
+- [ ] 생일 있는 인물 저장 시 매년 알림 예약
+- [ ] 캘린더: 생일 날짜에 🎂 마커 표시
