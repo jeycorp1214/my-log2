@@ -71,7 +71,6 @@ export default function SettingsScreen() {
             await db.delete(persons);
             await db.delete(groups);
             await seedDefaultGroups();
-            router.replace("/(tabs)");
           },
         },
       ],

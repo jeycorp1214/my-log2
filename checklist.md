@@ -68,6 +68,12 @@
 - [x] NativeWind 전환: 모든 화면/컴포넌트 StyleSheet → className
 
 ## P2 — UX 고도화
-- [x] 년/월 타이틀 클릭 시 MonthPicker 모달 (Gluestack Modal)
+- [x] 년/월 타이틀 클릭 시 MonthPicker 모달 (Gluestack Modal → RN Modal로 교체, 즉시 닫힘 버그 수정)
 - [x] 반복 기록 관리 — 설정 탭 내 "반복 관리" 섹션 (Gluestack Card/VStack/HStack)
 - [x] Gluestack 우선 적용 방침 확립: VStack/HStack/Card/Modal → NativeWind className 보완
+
+## 실기기 버그 수정 2차 (2026-05-09)
+- [x] MonthPicker 모달 열렸다가 즉시 닫히는 버그 → RN Modal + 중첩 Pressable backdrop으로 교체
+- [x] FAB 날짜 버그 — 다른 달 조회 시 항상 오늘 날짜로 기록 생성됨 → currentMonth 기준 첫날 사용
+- [x] 6월 리스트에 5/8 원본 날짜 노출 → buildDaySections에 monthStart/monthEnd 범위 가드 추가
+- [x] 전체 데이터 초기화 후 UI 미갱신 → router.replace 제거, useLiveQuery 반응성으로 처리

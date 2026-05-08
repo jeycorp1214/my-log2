@@ -1,6 +1,6 @@
 // 캘린더 탭 — 월별 달력 + 날짜 선택 or 월간 전체 로그 목록
 import { useState } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, Modal } from "react-native";
 import { useRouter } from "expo-router";
 import { Plus } from "lucide-react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -16,7 +16,6 @@ import { formatLogDate, formatMonthYear, startOfMonth, endOfMonth, isSameDay } f
 import { expandRepeatInMonth } from "@/utils/repeat";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { LogCard } from "@/components/logs/LogCard";
-import { Modal, ModalBackdrop, ModalContent, ModalHeader, ModalBody } from "@/components/ui/modal";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 
@@ -75,6 +74,7 @@ export default function CalendarScreen() {
     ];
 
     for (const { log, date } of allItems) {
+      if (date < monthStart || date > monthEnd) continue;
       const key = dayjs(date).format("YYYY-MM-DD");
       if (!map.has(key)) map.set(key, { dateKey: key, date, items: [] });
       map.get(key)!.items.push(log);
@@ -139,7 +139,11 @@ export default function CalendarScreen() {
     });
 
   const daySections = buildDaySections();
-  const targetDate = selectedDate ?? new Date();
+  const today = new Date();
+  const isCurrentMonth =
+    today.getFullYear() === currentMonth.getFullYear() &&
+    today.getMonth() === currentMonth.getMonth();
+  const targetDate = selectedDate ?? (isCurrentMonth ? today : new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1));
 
   return (
     <View className="flex-1 bg-app-bg">
@@ -231,44 +235,53 @@ export default function CalendarScreen() {
       </Pressable>
 
       {/* MonthPicker 모달 */}
-      <Modal isOpen={showPicker} onClose={() => setShowPicker(false)} size="sm">
-        <ModalBackdrop />
-        <ModalContent className="bg-app-surface border-[#333] rounded-[16px] p-0">
-          <ModalHeader className="px-4 pt-4 pb-0">
-            <Pressable onPress={() => setPickerYear((y) => y - 1)} className="p-2">
-              <Text className="text-white text-xl">‹</Text>
-            </Pressable>
-            <Text className="text-white text-base font-semibold">{pickerYear}년</Text>
-            <Pressable onPress={() => setPickerYear((y) => y + 1)} className="p-2">
-              <Text className="text-white text-xl">›</Text>
-            </Pressable>
-          </ModalHeader>
-          <ModalBody className="mt-3 mb-4 px-4">
-            <VStack space="sm">
-              {([0, 3, 6, 9] as const).map((start) => (
-                <HStack key={start} className="gap-2">
-                  {[0, 1, 2, 3].map((offset) => {
-                    const m = start + offset;
-                    const isCurrent =
-                      pickerYear === currentMonth.getFullYear() &&
-                      m === currentMonth.getMonth();
-                    return (
-                      <Pressable
-                        key={m}
-                        onPress={() => selectMonth(m)}
-                        className={`flex-1 rounded-[10px] py-2 items-center ${isCurrent ? "bg-app-teal" : "bg-app-bg"}`}
-                      >
-                        <Text className={`text-[13px] font-semibold ${isCurrent ? "text-[#111]" : "text-white"}`}>
-                          {m + 1}월
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </HStack>
-              ))}
-            </VStack>
-          </ModalBody>
-        </ModalContent>
+      <Modal
+        visible={showPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowPicker(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-center items-center"
+          onPress={() => setShowPicker(false)}
+        >
+          <Pressable className="bg-app-surface rounded-[16px] w-72 overflow-hidden">
+            <View className="flex-row items-center justify-between px-4 pt-4 pb-2">
+              <Pressable onPress={() => setPickerYear((y) => y - 1)} className="p-2">
+                <Text className="text-white text-xl">‹</Text>
+              </Pressable>
+              <Text className="text-white text-base font-semibold">{pickerYear}년</Text>
+              <Pressable onPress={() => setPickerYear((y) => y + 1)} className="p-2">
+                <Text className="text-white text-xl">›</Text>
+              </Pressable>
+            </View>
+            <View className="px-4 pb-4">
+              <VStack space="sm">
+                {([0, 3, 6, 9] as const).map((start) => (
+                  <HStack key={start} className="gap-2">
+                    {[0, 1, 2, 3].map((offset) => {
+                      const m = start + offset;
+                      const isCurrent =
+                        pickerYear === currentMonth.getFullYear() &&
+                        m === currentMonth.getMonth();
+                      return (
+                        <Pressable
+                          key={m}
+                          onPress={() => selectMonth(m)}
+                          className={`flex-1 rounded-[10px] py-2 items-center ${isCurrent ? "bg-app-teal" : "bg-app-bg"}`}
+                        >
+                          <Text className={`text-[13px] font-semibold ${isCurrent ? "text-[#111]" : "text-white"}`}>
+                            {m + 1}월
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </HStack>
+                ))}
+              </VStack>
+            </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
