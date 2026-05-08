@@ -1,16 +1,4 @@
 // 캘린더 탭 — 월별 달력 + 날짜 선택 or 월간 전체 로그 목록
-import dayjs from "dayjs";
-import "dayjs/locale/ko";
-import type { InferSelectModel } from "drizzle-orm";
-import { isNotNull } from "drizzle-orm";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { runOnJS } from "react-native-reanimated";
-
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { LogCard } from "@/components/logs/LogCard";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
@@ -26,6 +14,17 @@ import {
   toDateKey,
 } from "@/utils/date";
 import { expandRepeatInMonth } from "@/utils/repeat";
+import dayjs from "dayjs";
+import "dayjs/locale/ko";
+import type { InferSelectModel } from "drizzle-orm";
+import { and, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { runOnJS } from "react-native-reanimated";
 
 type Log = InferSelectModel<typeof logs>;
 type LogItem = { log: Log; isOccurrence: boolean };
@@ -46,15 +45,37 @@ export default function CalendarScreen() {
     setSelectedDate(d);
   }, [savedDate]);
 
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
+  const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth]);
+  const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth]);
 
-  // 이번 달 logDate 기준 로그
-  const { data: monthLogs = [] } = useLiveQuery(db.select().from(logs));
+  // 이번 달 logDate 기준 로그 (반복 제외, 월 범위 필터)
+  const { data: monthLogs = [] } = useLiveQuery(
+    db
+      .select()
+      .from(logs)
+      .where(
+        and(
+          isNull(logs.repeatType),
+          gte(logs.logDate, monthStart),
+          lte(logs.logDate, monthEnd),
+        ),
+      ),
+    [monthStart.getTime(), monthEnd.getTime()],
+  );
 
-  // 반복 로그
+  // 반복 로그 (이번 달 범위와 겹치는 것만)
   const { data: allRepeatLogs = [] } = useLiveQuery(
-    db.select().from(logs).where(isNotNull(logs.repeatType)),
+    db
+      .select()
+      .from(logs)
+      .where(
+        and(
+          isNotNull(logs.repeatType),
+          lte(logs.logDate, monthEnd),
+          or(isNull(logs.repeatUntil), gte(logs.repeatUntil, monthStart)),
+        ),
+      ),
+    [monthStart.getTime(), monthEnd.getTime()],
   );
 
   // 반복 occurrence 확장
@@ -99,11 +120,15 @@ export default function CalendarScreen() {
     );
   }
 
-  // 날짜 선택 뷰: 해당 날짜 로그
+  // 날짜 선택 뷰: 해당 날짜 로그만
   const selectedLogs: LogItem[] = selectedDate
     ? [
-        ...monthLogs.map((log) => ({ log, isOccurrence: false })),
-        ...repeatOccurrences.map(({ log }) => ({ log, isOccurrence: true })),
+        ...monthLogs
+          .filter((log) => isSameDay(new Date(log.logDate), selectedDate))
+          .map((log) => ({ log, isOccurrence: false })),
+        ...repeatOccurrences
+          .filter(({ date }) => isSameDay(date, selectedDate))
+          .map(({ log }) => ({ log, isOccurrence: true })),
       ]
     : [];
 
@@ -226,7 +251,7 @@ export default function CalendarScreen() {
       <View className="flex-row items-center justify-between px-5 py-[10px]">
         <Text className="text-app-dim text-[14px] font-semibold">
           {selectedDate
-            ? formatLogDate(selectedDate)
+            ? formatLogDate(selectedDate) // 선택된 날짜가 있으면 해당 날짜
             : `${formatMonthYear(currentMonth)} 전체`}
         </Text>
         {selectedDate && (
