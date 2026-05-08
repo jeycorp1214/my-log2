@@ -1,5 +1,5 @@
 // 로그 추가 모달 화면
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -31,6 +31,13 @@ export default function LogNewScreen() {
   const [groupId, setGroupId] = useState("");
   const [selectedPersonIds, setSelectedPersonIds] = useState<string[]>([]);
 
+  // 그룹 목록 로드 시 첫 번째 그룹 자동 선택
+  useEffect(() => {
+    if (!groupId && allGroups.length > 0) {
+      setGroupId(allGroups[0].id);
+    }
+  }, [allGroups]);
+
   function togglePerson(pid: string) {
     setSelectedPersonIds((prev) =>
       prev.includes(pid) ? prev.filter((id) => id !== pid) : [...prev, pid],
@@ -39,7 +46,7 @@ export default function LogNewScreen() {
 
   async function save() {
     if (!title.trim()) { Alert.alert("제목을 입력해 주세요."); return; }
-    if (!groupId) { Alert.alert("그룹을 선택해 주세요."); return; }
+    if (!groupId) return; // allGroups 로드 전 방어 (정상 흐름에서는 미발생)
 
     const [inserted] = await db.insert(logs).values({
       title: title.trim(),
@@ -75,7 +82,7 @@ export default function LogNewScreen() {
         ))}
       </View>
 
-      <Text style={styles.label}>그룹 *</Text>
+      <Text style={styles.label}>그룹</Text>
       <View style={styles.chipRow}>
         {allGroups.map((g) => (
           <Pressable key={g.id} onPress={() => setGroupId(g.id)} style={[styles.chip, groupId === g.id && styles.chipSelected]}>
