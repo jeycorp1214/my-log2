@@ -2,7 +2,7 @@
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import type { InferSelectModel } from "drizzle-orm";
-import { and, between, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
+import { isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react-native";
@@ -50,32 +50,19 @@ export default function CalendarScreen() {
   const monthEnd = endOfMonth(currentMonth);
 
   // 이번 달 logDate 기준 로그
-  const { data: monthLogs = [] } = useLiveQuery(
-    db
-      .select()
-      .from(logs)
-      .where(between(logs.logDate, monthStart, monthEnd)),
-  );
+  const { data: monthLogs = [] } = useLiveQuery(db.select().from(logs));
 
-  // 반복 로그: 이번 달 이전에 시작했거나 이번 달 내에 시작했고, 이번 달까지 유효한 것
+  // 반복 로그
   const { data: allRepeatLogs = [] } = useLiveQuery(
-    db
-      .select()
-      .from(logs)
-      .where(
-        and(
-          isNotNull(logs.repeatType),
-          lte(logs.logDate, monthEnd),
-          or(isNull(logs.repeatUntil), gte(logs.repeatUntil, monthStart)),
-        ),
-      ),
+    db.select().from(logs).where(isNotNull(logs.repeatType)),
   );
 
-  // 반복 occurrence 확장 (원본 날짜 제외 → monthLogs와 중복 방지)
+  // 반복 occurrence 확장
   const repeatOccurrences = allRepeatLogs.flatMap((log) =>
-    expandRepeatInMonth(log, monthStart, monthEnd)
-      .filter((date) => !isSameDay(date, new Date(log.logDate)))
-      .map((date) => ({ log, date })),
+    expandRepeatInMonth(log, monthStart, monthEnd).map((date) => ({
+      log,
+      date,
+    })),
   );
 
   // 달력 마킹용 날짜 목록
@@ -102,7 +89,6 @@ export default function CalendarScreen() {
     ];
 
     for (const { log, date, isOccurrence } of allItems) {
-      if (date < monthStart || date > monthEnd) continue;
       const key = toDateKey(date);
       if (!map.has(key)) map.set(key, { dateKey: key, date, items: [] });
       map.get(key)!.items.push({ log, isOccurrence });
@@ -116,12 +102,8 @@ export default function CalendarScreen() {
   // 날짜 선택 뷰: 해당 날짜 로그
   const selectedLogs: LogItem[] = selectedDate
     ? [
-        ...monthLogs
-          .filter((log) => isSameDay(new Date(log.logDate), selectedDate))
-          .map((log) => ({ log, isOccurrence: false })),
-        ...repeatOccurrences
-          .filter(({ date }) => isSameDay(date, selectedDate))
-          .map(({ log }) => ({ log, isOccurrence: true })),
+        ...monthLogs.map((log) => ({ log, isOccurrence: false })),
+        ...repeatOccurrences.map(({ log }) => ({ log, isOccurrence: true })),
       ]
     : [];
 
