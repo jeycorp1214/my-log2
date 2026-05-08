@@ -1,10 +1,18 @@
 // 데이터 뷰어 화면 — 로컬 DB 전체 데이터 조회
+import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { db } from "@/db/client";
 import { groups, logPersons, logs, persons } from "@/db/schema";
+import {
+  addMonths,
+  endOfMonth,
+  formatLogDate,
+  startOfMonth,
+} from "@/utils/date";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
 
 export default function DataViewerScreen() {
   const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
@@ -15,13 +23,27 @@ export default function DataViewerScreen() {
   );
 
   const [expanded, setExpanded] = useState<string | null>("groups");
+  const [viewMonth, setViewMonth] = useState(new Date()); // 데이터 뷰어에서 보는 월
+
+  // viewMonth 기준 범위
+  const viewMonthStart = startOfMonth(viewMonth);
+  const viewMonthEnd = endOfMonth(viewMonth);
 
   function toggleTable(tableName: string) {
     setExpanded(expanded === tableName ? null : tableName);
   }
 
-  function renderJson(value: any): string {
+  function renderJson(value: any, key?: string): string {
     if (value === null || value === undefined) return "null";
+
+    // logDate 필드 특별 처리
+    if (key === "logDate" && typeof value === "number") {
+      return `${dayjs(value).format("YYYY-MM-DD HH:mm")} (${value})`;
+    }
+    if (key === "logDate" && typeof value === "string") {
+      return `${dayjs(value).format("YYYY-MM-DD HH:mm")} (${value})`;
+    }
+
     if (
       typeof value === "string" ||
       typeof value === "number" ||
@@ -63,6 +85,36 @@ export default function DataViewerScreen() {
         <Text className="text-app-muted text-xs mt-1">
           로컬 DB의 모든 테이블 데이터
         </Text>
+
+        {/* 월 선택 */}
+        <View className="flex-row items-center justify-between bg-app-surface rounded-[8px] p-2 mt-2 mb-2">
+          <Pressable
+            onPress={() => setViewMonth(addMonths(viewMonth, -1))}
+            className="p-1"
+          >
+            <ChevronLeft size={16} color="#aaa" />
+          </Pressable>
+          <Text className="text-white text-[13px] font-semibold flex-1 text-center">
+            {formatLogDate(viewMonthStart).substring(0, 7)} {/* YYYY-MM 형식 */}
+          </Text>
+          <Pressable
+            onPress={() => setViewMonth(addMonths(viewMonth, 1))}
+            className="p-1"
+          >
+            <ChevronRight size={16} color="#aaa" />
+          </Pressable>
+        </View>
+
+        {/* 범위 정보 */}
+        <View className="bg-[#1a2a2a] rounded-[8px] p-2">
+          <Text className="text-[#888] text-[10px] font-mono">
+            📅 보는 기간: {formatLogDate(viewMonthStart)} ~{" "}
+            {formatLogDate(viewMonthEnd)}
+          </Text>
+          <Text className="text-[#666] text-[10px] font-mono mt-1">
+            💡 이 범위 내의 logDate를 가진 기록을 확인할 수 있습니다.
+          </Text>
+        </View>
       </View>
 
       <ScrollView
@@ -100,29 +152,55 @@ export default function DataViewerScreen() {
                   </Text>
                 ) : (
                   <View>
-                    {table.data.map((item, idx) => (
-                      <View
-                        key={idx}
-                        className={`py-2 ${idx < table.data.length - 1 ? "border-b border-[#2a2a2a]" : ""}`}
-                      >
-                        <View className="flex-row flex-wrap gap-1">
-                          {Object.entries(item).map(([key, value]) => (
-                            <View key={key} className="w-full mb-1">
-                              <Text className="text-[#666] text-[11px] font-mono">
-                                {key}
-                              </Text>
-                              <Text
-                                className="text-app-label text-[11px] font-mono"
-                                numberOfLines={3}
-                                selectable
-                              >
-                                {renderJson(value)}
-                              </Text>
-                            </View>
-                          ))}
+                    {table.data.map((item, idx) => {
+                      // 기록 테이블의 경우, logDate 기준으로 월 표시
+                      let recordMonth: string | null = null;
+                      if (table.name === "logs" && item.logDate) {
+                        const logDateObj = new Date(item.logDate);
+                        recordMonth = dayjs(logDateObj).format("YYYY-MM");
+                      }
+
+                      const isInCurrentRange =
+                        table.name === "logs" && recordMonth
+                          ? recordMonth === dayjs(viewMonth).format("YYYY-MM")
+                          : true;
+
+                      return (
+                        <View
+                          key={idx}
+                          className={`py-2 ${idx < table.data.length - 1 ? "border-b border-[#2a2a2a]" : ""}`}
+                        >
+                          {table.name === "logs" && recordMonth && (
+                            <Text
+                              className={`text-[10px] font-mono mb-1 ${
+                                isInCurrentRange
+                                  ? "text-app-teal"
+                                  : "text-[#ff9999]"
+                              }`}
+                            >
+                              {recordMonth}{" "}
+                              {isInCurrentRange ? "✓" : "✗ (다른 월)"}
+                            </Text>
+                          )}
+                          <View className="flex-row flex-wrap gap-1">
+                            {Object.entries(item).map(([key, value]) => (
+                              <View key={key} className="w-full mb-1">
+                                <Text className="text-[#666] text-[11px] font-mono">
+                                  {key}
+                                </Text>
+                                <Text
+                                  className="text-app-label text-[11px] font-mono"
+                                  numberOfLines={4}
+                                  selectable
+                                >
+                                  {renderJson(value, key)}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
                         </View>
-                      </View>
-                    ))}
+                      );
+                    })}
                   </View>
                 )}
               </View>

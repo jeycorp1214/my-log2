@@ -193,6 +193,38 @@ export default function CalendarScreen() {
         </Pressable>
       </View>
 
+      {/* 디버그 정보 (개발용) */}
+      {__DEV__ && (
+        <View className="bg-[#2a1a1a] px-3 py-2 border-b border-[#444]">
+          <Text className="text-[10px] text-app-teal font-mono font-bold">
+            🔍 DEBUG
+          </Text>
+          <Text className="text-[10px] text-app-muted font-mono">
+            월: {formatMonthYear(currentMonth)} | 범위:{" "}
+            {formatLogDate(monthStart)} ~ {formatLogDate(monthEnd)}
+          </Text>
+          <Text className="text-[10px] text-[#888] font-mono">
+            monthLogs: {monthLogs.length} | allRepeatLogs:{" "}
+            {allRepeatLogs.length} | selectedDate:{" "}
+            {selectedDate ? "있음" : "없음"}
+          </Text>
+          {monthLogs.length > 0 && (
+            <View className="mt-1 pl-2 border-l border-[#666]">
+              {monthLogs.slice(0, 3).map((log) => (
+                <Text key={log.id} className="text-[9px] text-[#aaa] font-mono">
+                  • {formatLogDate(new Date(log.logDate))} - {log.title}
+                </Text>
+              ))}
+              {monthLogs.length > 3 && (
+                <Text className="text-[9px] text-[#666] font-mono">
+                  ... +{monthLogs.length - 3} more
+                </Text>
+              )}
+            </View>
+          )}
+        </View>
+      )}
+
       {/* 스와이프 가능한 달력 */}
       <GestureDetector gesture={swipe}>
         <View>
