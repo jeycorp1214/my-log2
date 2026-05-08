@@ -4,32 +4,39 @@ import { groups } from "./schema";
 
 export const DEFAULT_GROUPS = [
   {
+    name: "미설정",
+    color: "#ADB5BD", // 회색톤으로 설정하여 '없음'의 느낌을 강조
+    emoji: "✖️", // 비어있는 것보다 기본 이모지가 있는 것이 UI상 깔끔합니다
+    isDefault: true,
+    sortOrder: 0,
+  },
+  {
     name: "가족",
     color: "#FF6B6B",
     emoji: "🏠",
     isDefault: true,
-    sortOrder: 0,
+    sortOrder: 1,
   },
   {
     name: "친구",
     color: "#4ECDC4",
     emoji: "👥",
     isDefault: true,
-    sortOrder: 1,
+    sortOrder: 2,
   },
   {
     name: "회사",
     color: "#45B7D1",
     emoji: "💼",
     isDefault: true,
-    sortOrder: 2,
+    sortOrder: 3,
   },
   {
     name: "지인",
-    color: "#FFD93D",
+    color: "#FFA07A", // 기존 노란색보다 가독성이 좋은 살구색 계열 추천
     emoji: "🤝",
     isDefault: true,
-    sortOrder: 3,
+    sortOrder: 4,
   },
 ];
 
@@ -38,3 +45,11 @@ export async function seedDefaultGroups() {
   if (existing.length > 0) return;
   await db.insert(groups).values(DEFAULT_GROUPS);
 }
+
+export const REPEAT_OPTIONS = [
+  { label: "없음", value: "none" },
+  { label: "매일", value: "daily" },
+  { label: "매주", value: "weekly" },
+  { label: "매월", value: "monthly" },
+  { label: "매년", value: "yearly" },
+];

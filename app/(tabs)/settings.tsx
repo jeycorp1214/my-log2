@@ -1,4 +1,4 @@
-// 설정 탭 — 그룹 관리 + 추후 백업/결제 설정
+// 설정 탭 — 그룹 관리 + 개발 도구(데이터 초기화)
 import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { Plus, Trash2 } from "lucide-react-native";
@@ -6,7 +6,8 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db/client";
-import { groups } from "@/db/schema";
+import { groups, logs, logPersons, persons } from "@/db/schema";
+import { seedDefaultGroups } from "@/db/seed";
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -29,6 +30,28 @@ export default function SettingsScreen() {
     ]);
   }
 
+  async function resetAllData() {
+    Alert.alert(
+      "전체 데이터 초기화",
+      "모든 기록, 인물, 그룹이 삭제되고 기본 그룹이 재생성됩니다.",
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "초기화",
+          style: "destructive",
+          onPress: async () => {
+            await db.delete(logPersons);
+            await db.delete(logs);
+            await db.delete(persons);
+            await db.delete(groups);
+            await seedDefaultGroups();
+            router.replace("/(tabs)");
+          },
+        },
+      ],
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -36,6 +59,7 @@ export default function SettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        {/* 그룹 관리 */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>그룹 관리</Text>
@@ -57,6 +81,14 @@ export default function SettingsScreen() {
             </View>
           ))}
         </View>
+
+        {/* 개발 도구 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>개발 도구</Text>
+          <Pressable onPress={resetAllData} style={styles.resetBtn}>
+            <Text style={styles.resetBtnText}>전체 데이터 초기화</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );
@@ -69,10 +101,12 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingBottom: 24 },
   section: { marginBottom: 32 },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-  sectionTitle: { color: "#aaa", fontSize: 13, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
+  sectionTitle: { color: "#aaa", fontSize: 13, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 },
   addBtn: { backgroundColor: "#4ECDC4", borderRadius: 16, padding: 4 },
   groupRow: { flexDirection: "row", alignItems: "center", backgroundColor: "#1e1e1e", borderRadius: 12, padding: 14, marginBottom: 8 },
   colorDot: { width: 12, height: 12, borderRadius: 6, marginRight: 10 },
   groupName: { flex: 1, color: "#fff", fontSize: 15 },
   deleteBtn: { padding: 4 },
+  resetBtn: { backgroundColor: "#2a1a1a", borderRadius: 12, padding: 14, alignItems: "center" },
+  resetBtnText: { color: "#ff6b6b", fontSize: 15, fontWeight: "600" },
 });

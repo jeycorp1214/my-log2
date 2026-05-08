@@ -8,11 +8,11 @@ type Log = InferSelectModel<typeof logs>;
 export function expandRepeatInMonth(log: Log, monthStart: Date, monthEnd: Date): Date[] {
   const { repeatType, repeatInterval, repeatUntil } = log;
 
-  // repeatUntil 없으면 원본 날짜만 표시 (무한 계산 방지)
-  if (!repeatType || repeatType === "none" || !repeatUntil) return [];
+  if (!repeatType || repeatType === "none") return [];
 
   const origin = new Date(log.logDate);
-  const until = new Date(repeatUntil);
+  // repeatUntil null → 영구 반복, 이번 달 끝까지 계산
+  const until = repeatUntil ? new Date(repeatUntil) : monthEnd;
   const step = repeatInterval ?? 1;
 
   if (origin > monthEnd || until < monthStart) return [];

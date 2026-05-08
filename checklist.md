@@ -51,6 +51,17 @@
 - [x] 오늘로 돌아가기 버튼 (Today button)
 - [x] 그룹 선택 → 자동 pre-select 첫 번째 그룹, 필수 검증 제거
 
+## 실기기 피드백 반영 (2026-05-08)
+- [x] 캘린더: 월 이동 시 selectedDate null → 월간 전체 뷰
+- [x] 캘린더: 날짜 탭 → 선택, 재탭 → 전체 뷰 토글
+- [x] 캘린더: 월간 전체 뷰에 날짜별 섹션 헤더 추가
+- [x] 반복: repeatUntil null → 영구 반복 (monthEnd까지 계산)
+- [x] 반복: 현재 월 내 시작한 반복 로그도 이후 occurrence 표시
+- [x] 그룹: 자동 pre-select 제거, 기본값 미선택, 재탭 시 해제
+- [x] 스키마: logs.groupId nullable 변경 + migration 0001 수동 생성
+- [x] UI: 인물 탭 FAB 교체 (헤더 버튼 → 우측 하단 FAB)
+- [x] 설정: 전체 데이터 초기화 버튼 (개발 도구 섹션)
+
 ## P2 — UX 고도화
 - [ ] 년/월 타이틀 클릭 시 MonthPicker 모달
 - [ ] 반복 기록 관리 — 설정 탭 내 "반복 관리" 섹션 (별도 탭 대신)
