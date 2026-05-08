@@ -3,6 +3,8 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -35,50 +37,58 @@ export default function GroupNewScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-app-bg"
-      contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
-      keyboardShouldPersistTaps="handled"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
     >
-      <Text className="text-app-label text-[13px] mt-3">그룹 이름 *</Text>
-      <TextInput
-        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
-        value={name}
-        onChangeText={setName}
-        placeholder="그룹 이름"
-        placeholderTextColor="#555"
-      />
-
-      <Text className="text-app-label text-[13px] mt-3">이모지</Text>
-      <TextInput
-        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
-        value={emoji}
-        onChangeText={setEmoji}
-        placeholder="🎯"
-        placeholderTextColor="#555"
-      />
-
-      <Text className="text-app-label text-[13px] mt-3">색상</Text>
-      <View className="flex-row flex-wrap gap-3 mt-2">
-        {PRESET_COLORS.map((c) => (
-          <Pressable
-            key={c}
-            onPress={() => setColor(c)}
-            className="w-9 h-9 rounded-full"
-            style={[
-              { backgroundColor: c },
-              color === c && { borderWidth: 3, borderColor: "#fff" },
-            ]}
-          />
-        ))}
-      </View>
-
-      <Pressable
-        onPress={save}
-        className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
+      <ScrollView
+        className="flex-1 bg-app-bg"
+        contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
       >
-        <Text className="text-[#111] text-base font-bold">저장</Text>
-      </Pressable>
-    </ScrollView>
+        <Text className="text-app-label text-[13px] mt-3">그룹 이름 *</Text>
+        <TextInput
+          className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+          value={name}
+          onChangeText={setName}
+          placeholder="그룹 이름"
+          placeholderTextColor="#555"
+        />
+
+        <Text className="text-app-label text-[13px] mt-3">이모지</Text>
+        <TextInput
+          className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+          value={emoji}
+          onChangeText={setEmoji}
+          placeholder="🎯"
+          placeholderTextColor="#555"
+        />
+
+        <Text className="text-app-label text-[13px] mt-3">색상</Text>
+        <View className="flex-row flex-wrap gap-3 mt-2">
+          {PRESET_COLORS.map((c) => (
+            <Pressable
+              key={c}
+              onPress={() => setColor(c)}
+              className="w-9 h-9 rounded-full"
+              style={[
+                { backgroundColor: c },
+                color === c && { borderWidth: 3, borderColor: "#fff" },
+              ]}
+            />
+          ))}
+        </View>
+
+        <Pressable
+          onPress={save}
+          className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
+        >
+          <Text className="text-[#111] text-base font-bold">저장</Text>
+        </Pressable>
+        <Pressable onPress={() => router.back()} className="items-center py-3">
+          <Text className="text-app-muted text-[14px]">취소</Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

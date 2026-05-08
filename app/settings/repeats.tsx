@@ -1,16 +1,15 @@
 // 반복 관리 화면 — 반복 로그 목록 조회/해제 + FAB 추가
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
-import { useRouter } from "expo-router";
-import { Plus } from "lucide-react-native";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { eq, isNotNull } from "drizzle-orm";
 import dayjs from "dayjs";
+import { eq, isNotNull } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useRouter } from "expo-router";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
+import { Card } from "@/components/ui/card";
+import { HStack } from "@/components/ui/hstack";
+import { VStack } from "@/components/ui/vstack";
 import { db } from "@/db/client";
 import { logs } from "@/db/schema";
-import { Card } from "@/components/ui/card";
-import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
 
 const REPEAT_LABEL: Record<string, string> = {
   daily: "매일",
@@ -31,7 +30,10 @@ export default function RepeatsScreen() {
       {
         text: "해제",
         onPress: async () => {
-          await db.update(logs).set({ repeatType: null }).where(eq(logs.id, id));
+          await db
+            .update(logs)
+            .set({ repeatType: null })
+            .where(eq(logs.id, id));
         },
       },
     ]);
@@ -39,9 +41,17 @@ export default function RepeatsScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 96 }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: 16,
+          paddingBottom: 96,
+        }}
+      >
         {repeatLogs.length === 0 ? (
-          <Text className="text-app-muted text-center mt-8">반복 기록이 없습니다.</Text>
+          <Text className="text-app-muted text-center mt-8">
+            반복 기록이 없습니다.
+          </Text>
         ) : (
           <VStack space="sm">
             {repeatLogs.map((log) => (
@@ -51,7 +61,12 @@ export default function RepeatsScreen() {
                 className="bg-app-surface rounded-[12px] p-0 overflow-hidden"
               >
                 <Pressable
-                  onPress={() => router.push({ pathname: "/logs/[id]", params: { id: log.id } })}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/logs/[id]",
+                      params: { id: log.id },
+                    })
+                  }
                   className="p-[14px]"
                 >
                   <HStack className="items-center justify-between">
@@ -86,14 +101,6 @@ export default function RepeatsScreen() {
           </VStack>
         )}
       </ScrollView>
-
-      <Pressable
-        onPress={() => router.push("/logs/new")}
-        className="absolute right-5 bottom-8 w-14 h-14 rounded-full bg-app-teal items-center justify-center"
-        style={{ elevation: 6 }}
-      >
-        <Plus size={24} color="#111" />
-      </Pressable>
     </View>
   );
 }

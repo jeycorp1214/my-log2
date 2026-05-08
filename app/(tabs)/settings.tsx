@@ -1,10 +1,10 @@
 // 설정 탭 — 관리 항목 네비게이션 + 개발 도구
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
 import { db } from "@/db/client";
-import { groups, logs, logPersons, persons } from "@/db/schema";
+import { groups, logPersons, logs, persons } from "@/db/schema";
 import { seedDefaultGroups } from "@/db/seed";
 
 export default function SettingsScreen() {
@@ -37,15 +37,19 @@ export default function SettingsScreen() {
         <Text className="text-white text-2xl font-bold">설정</Text>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+      >
         {/* 관리 섹션 */}
         <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">관리</Text>
+          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+            관리
+          </Text>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
             <Pressable
               onPress={() => router.push("/settings/groups")}
               className="flex-row items-center px-[14px] py-[16px]"
-              style={({ pressed }) => pressed ? { opacity: 0.7 } : undefined}
+              style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
             >
               <Text className="flex-1 text-white text-[15px]">그룹 관리</Text>
               <ChevronRight size={16} color="#666" />
@@ -54,7 +58,7 @@ export default function SettingsScreen() {
             <Pressable
               onPress={() => router.push("/settings/repeats")}
               className="flex-row items-center px-[14px] py-[16px]"
-              style={({ pressed }) => pressed ? { opacity: 0.7 } : undefined}
+              style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
             >
               <Text className="flex-1 text-white text-[15px]">반복 관리</Text>
               <ChevronRight size={16} color="#666" />
@@ -62,13 +66,22 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* 개발 도구 */}
-        <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">개발 도구</Text>
-          <Pressable onPress={resetAllData} className="bg-app-danger-bg rounded-[12px] p-[14px] items-center">
-            <Text className="text-app-danger text-[15px] font-semibold">전체 데이터 초기화</Text>
-          </Pressable>
-        </View>
+        {/* 개발 도구 — 개발 빌드에서만 표시 */}
+        {__DEV__ && (
+          <View className="mb-8">
+            <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+              개발 도구
+            </Text>
+            <Pressable
+              onPress={resetAllData}
+              className="bg-app-danger-bg rounded-[12px] p-[14px] items-center"
+            >
+              <Text className="text-app-danger text-[15px] font-semibold">
+                전체 데이터 초기화
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

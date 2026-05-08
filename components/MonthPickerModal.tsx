@@ -1,4 +1,5 @@
 // 연도·월 선택 모달 컴포넌트
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 
@@ -41,7 +42,7 @@ export function MonthPickerModal({
               onPress={() => setPickerYear((y) => y - 1)}
               className="p-2"
             >
-              <Text className="text-white text-xl">‹</Text>
+              <ChevronLeft size={20} color="#e0e0e0" />
             </Pressable>
             <Text className="text-white text-base font-semibold">
               {pickerYear}년
@@ -50,7 +51,7 @@ export function MonthPickerModal({
               onPress={() => setPickerYear((y) => y + 1)}
               className="p-2"
             >
-              <Text className="text-white text-xl">›</Text>
+              <ChevronRight size={20} color="#e0e0e0" />
             </Pressable>
           </View>
           <View className="px-4 pb-4">

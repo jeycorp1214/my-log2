@@ -3,7 +3,7 @@ import type { InferSelectModel } from "drizzle-orm";
 import { and, between, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Plus } from "lucide-react-native";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -175,7 +175,7 @@ export default function CalendarScreen() {
       {/* 월 헤더 */}
       <View className="flex-row items-center px-3 pt-14 pb-1 gap-1">
         <Pressable onPress={prevMonth} className="p-2">
-          <Text className="text-white text-2xl">‹</Text>
+          <ChevronLeft size={22} color="#e0e0e0" />
         </Pressable>
         <Pressable onPress={openPicker} className="flex-1 items-center py-2">
           <Text className="text-white text-[18px] font-semibold">
@@ -189,7 +189,7 @@ export default function CalendarScreen() {
           <Text className="text-app-teal text-xs font-semibold">오늘</Text>
         </Pressable>
         <Pressable onPress={nextMonth} className="p-2">
-          <Text className="text-white text-2xl">›</Text>
+          <ChevronRight size={22} color="#e0e0e0" />
         </Pressable>
       </View>
 
