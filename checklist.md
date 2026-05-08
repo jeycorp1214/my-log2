@@ -68,5 +68,6 @@
 - [x] NativeWind 전환: 모든 화면/컴포넌트 StyleSheet → className
 
 ## P2 — UX 고도화
-- [ ] 년/월 타이틀 클릭 시 MonthPicker 모달
-- [ ] 반복 기록 관리 — 설정 탭 내 "반복 관리" 섹션 (별도 탭 대신)
+- [x] 년/월 타이틀 클릭 시 MonthPicker 모달 (Gluestack Modal)
+- [x] 반복 기록 관리 — 설정 탭 내 "반복 관리" 섹션 (Gluestack Card/VStack/HStack)
+- [x] Gluestack 우선 적용 방침 확립: VStack/HStack/Card/Modal → NativeWind className 보완

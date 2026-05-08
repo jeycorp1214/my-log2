@@ -16,6 +16,9 @@ import { formatLogDate, formatMonthYear, startOfMonth, endOfMonth, isSameDay } f
 import { expandRepeatInMonth } from "@/utils/repeat";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { LogCard } from "@/components/logs/LogCard";
+import { Modal, ModalBackdrop, ModalContent, ModalHeader, ModalBody } from "@/components/ui/modal";
+import { VStack } from "@/components/ui/vstack";
+import { HStack } from "@/components/ui/hstack";
 
 type Log = InferSelectModel<typeof logs>;
 type DaySection = { dateKey: string; date: Date; items: Log[] };
@@ -24,6 +27,8 @@ export default function CalendarScreen() {
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
+  const [pickerYear, setPickerYear] = useState(new Date().getFullYear());
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -105,6 +110,17 @@ export default function CalendarScreen() {
     setSelectedDate(new Date());
   }
 
+  function openPicker() {
+    setPickerYear(currentMonth.getFullYear());
+    setShowPicker(true);
+  }
+
+  function selectMonth(month: number) {
+    setCurrentMonth(new Date(pickerYear, month, 1));
+    setSelectedDate(null);
+    setShowPicker(false);
+  }
+
   // 날짜 탭: 선택/재탭 시 해제(전체 뷰)
   function handleSelectDate(date: Date) {
     if (selectedDate && isSameDay(selectedDate, date)) {
@@ -132,9 +148,9 @@ export default function CalendarScreen() {
         <Pressable onPress={prevMonth} className="p-2">
           <Text className="text-white text-2xl">‹</Text>
         </Pressable>
-        <View className="flex-1 items-center">
+        <Pressable onPress={openPicker} className="flex-1 items-center py-2">
           <Text className="text-white text-[18px] font-semibold">{formatMonthYear(currentMonth)}</Text>
-        </View>
+        </Pressable>
         <Pressable onPress={goToday} className="bg-app-surface rounded-[12px] px-[10px] py-[5px]">
           <Text className="text-app-teal text-xs font-semibold">오늘</Text>
         </Pressable>
@@ -213,6 +229,47 @@ export default function CalendarScreen() {
       >
         <Plus size={24} color="#111" />
       </Pressable>
+
+      {/* MonthPicker 모달 */}
+      <Modal isOpen={showPicker} onClose={() => setShowPicker(false)} size="sm">
+        <ModalBackdrop />
+        <ModalContent className="bg-app-surface border-[#333] rounded-[16px] p-0">
+          <ModalHeader className="px-4 pt-4 pb-0">
+            <Pressable onPress={() => setPickerYear((y) => y - 1)} className="p-2">
+              <Text className="text-white text-xl">‹</Text>
+            </Pressable>
+            <Text className="text-white text-base font-semibold">{pickerYear}년</Text>
+            <Pressable onPress={() => setPickerYear((y) => y + 1)} className="p-2">
+              <Text className="text-white text-xl">›</Text>
+            </Pressable>
+          </ModalHeader>
+          <ModalBody className="mt-3 mb-4 px-4">
+            <VStack space="sm">
+              {([0, 3, 6, 9] as const).map((start) => (
+                <HStack key={start} className="gap-2">
+                  {[0, 1, 2, 3].map((offset) => {
+                    const m = start + offset;
+                    const isCurrent =
+                      pickerYear === currentMonth.getFullYear() &&
+                      m === currentMonth.getMonth();
+                    return (
+                      <Pressable
+                        key={m}
+                        onPress={() => selectMonth(m)}
+                        className={`flex-1 rounded-[10px] py-2 items-center ${isCurrent ? "bg-app-teal" : "bg-app-bg"}`}
+                      >
+                        <Text className={`text-[13px] font-semibold ${isCurrent ? "text-[#111]" : "text-white"}`}>
+                          {m + 1}월
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </HStack>
+              ))}
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </View>
   );
 }
