@@ -4,12 +4,12 @@
 - [x] drizzle.config.ts 생성
 - [x] db/schema.ts — groups, persons, logs, logPersons
 - [x] db/client.ts — SQLite + drizzle 초기화
-- [x] db/seed.ts — 기본 그룹 3개
-- [x] npx drizzle-kit generate — 마이그레이션 파일 생성
+- [x] db/seed.ts — 기본 그룹 3개 + "미설정" 그룹 (sortOrder:0) + REPEAT_OPTIONS export
+- [x] 마이그레이션 파일 수동 생성 (drizzle-kit generate는 expo-crypto import 문제로 사용 불가)
 - [x] utils/date.ts — dayjs 유틸
 
 ## 앱 구조
-- [x] app/_layout.tsx — migrations + QueryClient + seed 호출
+- [x] app/_layout.tsx — migrations + QueryClient + seed 호출 + GestureHandlerRootView
 - [x] app/(tabs)/_layout.tsx — 탭 구조 (캘린더/인물/설정)
 - [x] app/(tabs)/index.tsx — 캘린더 뷰
 - [x] app/(tabs)/persons.tsx — 인물 목록
@@ -29,8 +29,8 @@
 ## 일정(로그) CRUD
 - [x] app/logs/new.tsx — 로그 추가
 - [x] app/logs/[id].tsx — 로그 상세/수정/삭제
-- [x] components/logs/LogCard.tsx — 카드 컴포넌트
-- [x] 반복 규칙 UI (none/daily/weekly/monthly/yearly)
+- [x] components/logs/LogCard.tsx — 카드 컴포넌트 (반복 배지 포함)
+- [x] 반복 규칙 UI (없음/매일/매주/매월/매년)
 - [x] logPersons N:M 연결 UI
 
 ## 캘린더 뷰
@@ -42,14 +42,15 @@
 # Phase 2 체크리스트 — 모바일 UX 최적화 + 반복 기능 완성
 
 ## P0 — 버그 수정 (즉시)
-- [x] 월 전환 시 selectedDate 자동 리셋 → 해당 월 1일로 변경
+- [x] 월 전환 시 selectedDate null로 리셋 → 월간 전체 뷰로 복귀
 - [x] 반복 기능: Virtual Occurrences 렌더링 로직 구현 (캘린더에 반복 dot 표시)
 
 ## P1 — 모바일 UX 핵심
-- [x] FAB (Floating Action Button) — 우측 하단, 기록 추가
+- [x] FAB (Floating Action Button) — 우측 하단, 기록 추가 / 인물 추가
 - [x] 스와이프로 월 이동 (GestureDetector + Gesture.Pan)
 - [x] 오늘로 돌아가기 버튼 (Today button)
-- [x] 그룹 선택 → 자동 pre-select 첫 번째 그룹, 필수 검증 제거
+- [x] logs/new.tsx — 그룹 첫 번째 자동 pre-select (useEffect)
+- [x] persons/new.tsx — 그룹 첫 번째 자동 pre-select (useEffect)
 
 ## 실기기 피드백 반영 (2026-05-08)
 - [x] 캘린더: 월 이동 시 selectedDate null → 월간 전체 뷰
@@ -57,12 +58,15 @@
 - [x] 캘린더: 월간 전체 뷰에 날짜별 섹션 헤더 추가
 - [x] 반복: repeatUntil null → 영구 반복 (monthEnd까지 계산)
 - [x] 반복: 현재 월 내 시작한 반복 로그도 이후 occurrence 표시
-- [x] 그룹: 자동 pre-select 제거, 기본값 미선택, 재탭 시 해제
+- [x] 반복: "없음" 항목 추가 (기본값 "none", REPEAT_OPTIONS에 포함)
 - [x] 스키마: logs.groupId nullable 변경 + migration 0001 수동 생성
+- [x] 스키마: persons.groupId nullable 변경 + migration 0002 수동 생성
+- [x] seed: "미설정" 그룹 추가 (sortOrder:0, gray #ADB5BD)
 - [x] UI: 인물 탭 FAB 교체 (헤더 버튼 → 우측 하단 FAB)
 - [x] 설정: 전체 데이터 초기화 버튼 (개발 도구 섹션)
+- [x] 설정: 초기화 후 router.replace → UI 즉시 갱신
+- [x] NativeWind 전환: 모든 화면/컴포넌트 StyleSheet → className
 
 ## P2 — UX 고도화
 - [ ] 년/월 타이틀 클릭 시 MonthPicker 모달
 - [ ] 반복 기록 관리 — 설정 탭 내 "반복 관리" 섹션 (별도 탭 대신)
-- [ ] LogCard에 반복 뱃지 표시 (repeatType != null 시)

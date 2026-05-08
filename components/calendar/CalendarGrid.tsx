@@ -1,18 +1,22 @@
 // 월별 달력 그리드 컴포넌트
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import dayjs from "dayjs";
+import { WEEKDAYS } from "@/db/seed";
 import { isSameDay } from "@/utils/date";
+import dayjs from "dayjs";
+import { Pressable, Text, View } from "react-native";
 
 interface Props {
   currentMonth: Date;
-  selectedDate: Date;
+  selectedDate: Date | null;
   markedDates: Date[];
   onSelectDate: (date: Date) => void;
 }
 
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
-
-export function CalendarGrid({ currentMonth, selectedDate, markedDates, onSelectDate }: Props) {
+export function CalendarGrid({
+  currentMonth,
+  selectedDate,
+  markedDates,
+  onSelectDate,
+}: Props) {
   const start = dayjs(currentMonth).startOf("month");
   const daysInMonth = start.daysInMonth();
   const startDow = start.day(); // 0=일
@@ -29,11 +33,14 @@ export function CalendarGrid({ currentMonth, selectedDate, markedDates, onSelect
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
 
   return (
-    <View style={styles.container}>
+    <View className="px-2">
       {/* 요일 헤더 */}
-      <View style={styles.row}>
+      <View className="flex-row">
         {WEEKDAYS.map((d) => (
-          <Text key={d} style={[styles.weekday, d === "일" && styles.sunday, d === "토" && styles.saturday]}>
+          <Text
+            key={d}
+            className={`flex-1 text-center text-xs py-[6px] ${d === "일" ? "text-[#ff6b6b]" : d === "토" ? "text-app-teal" : "text-app-muted"}`}
+          >
             {d}
           </Text>
         ))}
@@ -41,22 +48,37 @@ export function CalendarGrid({ currentMonth, selectedDate, markedDates, onSelect
 
       {/* 날짜 셀 */}
       {weeks.map((week, wi) => (
-        <View key={wi} style={styles.row}>
+        <View key={wi} className="flex-row">
           {week.map((day, di) => {
-            if (!day) return <View key={di} style={styles.cell} />;
+            if (!day)
+              return <View key={di} className="flex-1 items-center py-[2px]" />;
             const date = day.toDate();
-            const isSelected = isSameDay(date, selectedDate);
+            const isSelected = selectedDate
+              ? isSameDay(date, selectedDate)
+              : false;
             const isToday = isSameDay(date, new Date());
             const hasLog = markedDates.some((d) => isSameDay(d, date));
             const isWeekend = di === 0 || di === 6;
 
             return (
-              <Pressable key={di} style={styles.cell} onPress={() => onSelectDate(date)}>
-                <View style={[styles.dayInner, isSelected && styles.selected, isToday && !isSelected && styles.today]}>
-                  <Text style={[styles.dayText, isWeekend && styles.weekendText, isSelected && styles.selectedText]}>
+              <Pressable
+                key={di}
+                className="flex-1 items-center py-[2px]"
+                onPress={() => onSelectDate(date)}
+              >
+                <View
+                  className={`w-9 h-9 rounded-full items-center justify-center ${isSelected ? "bg-app-teal" : isToday ? "border border-app-teal" : ""}`}
+                >
+                  <Text
+                    className={`text-[14px] ${isSelected ? "text-[#111] font-bold" : isWeekend ? "text-[#aaa]" : "text-[#e0e0e0]"}`}
+                  >
                     {day.date()}
                   </Text>
-                  {hasLog && <View style={[styles.dot, isSelected && styles.dotSelected]} />}
+                  {hasLog && (
+                    <View
+                      className={`w-1 h-1 rounded-full mt-[1px] ${isSelected ? "bg-[#111]" : "bg-app-teal"}`}
+                    />
+                  )}
                 </View>
               </Pressable>
             );
@@ -66,20 +88,3 @@ export function CalendarGrid({ currentMonth, selectedDate, markedDates, onSelect
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { paddingHorizontal: 8 },
-  row: { flexDirection: "row" },
-  weekday: { flex: 1, textAlign: "center", color: "#666", fontSize: 12, paddingVertical: 6 },
-  sunday: { color: "#ff6b6b" },
-  saturday: { color: "#4ECDC4" },
-  cell: { flex: 1, alignItems: "center", paddingVertical: 2 },
-  dayInner: { width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center" },
-  selected: { backgroundColor: "#4ECDC4" },
-  today: { borderWidth: 1, borderColor: "#4ECDC4" },
-  dayText: { color: "#e0e0e0", fontSize: 14 },
-  weekendText: { color: "#aaa" },
-  selectedText: { color: "#111", fontWeight: "700" },
-  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: "#4ECDC4", marginTop: 1 },
-  dotSelected: { backgroundColor: "#111" },
-});

@@ -1,5 +1,5 @@
 // 설정 탭 — 그룹 관리 + 개발 도구(데이터 초기화)
-import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { Plus, Trash2 } from "lucide-react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -53,28 +53,26 @@ export default function SettingsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>설정</Text>
+    <View className="flex-1 bg-app-bg">
+      <View className="px-5 pt-14 pb-3">
+        <Text className="text-white text-2xl font-bold">설정</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}>
         {/* 그룹 관리 */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>그룹 관리</Text>
-            <Pressable onPress={() => router.push("/groups/new")} style={styles.addBtn}>
+        <View className="mb-8">
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px]">그룹 관리</Text>
+            <Pressable onPress={() => router.push("/groups/new")} className="bg-app-teal rounded-[16px] p-1">
               <Plus size={16} color="#fff" />
             </Pressable>
           </View>
           {allGroups.map((group) => (
-            <View key={group.id} style={styles.groupRow}>
-              <View style={[styles.colorDot, { backgroundColor: group.color }]} />
-              <Text style={styles.groupName}>
-                {group.emoji} {group.name}
-              </Text>
+            <View key={group.id} className="flex-row items-center bg-app-surface rounded-[12px] p-[14px] mb-2">
+              <View className="w-3 h-3 rounded-full mr-[10px]" style={{ backgroundColor: group.color }} />
+              <Text className="flex-1 text-white text-[15px]">{group.emoji} {group.name}</Text>
               {!group.isDefault && (
-                <Pressable onPress={() => deleteGroup(group.id, group.isDefault)} style={styles.deleteBtn}>
+                <Pressable onPress={() => deleteGroup(group.id, group.isDefault)} className="p-1">
                   <Trash2 size={16} color="#ff6b6b" />
                 </Pressable>
               )}
@@ -83,30 +81,13 @@ export default function SettingsScreen() {
         </View>
 
         {/* 개발 도구 */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>개발 도구</Text>
-          <Pressable onPress={resetAllData} style={styles.resetBtn}>
-            <Text style={styles.resetBtnText}>전체 데이터 초기화</Text>
+        <View className="mb-8">
+          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">개발 도구</Text>
+          <Pressable onPress={resetAllData} className="bg-app-danger-bg rounded-[12px] p-[14px] items-center">
+            <Text className="text-app-danger text-[15px] font-semibold">전체 데이터 초기화</Text>
           </Pressable>
         </View>
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#111" },
-  header: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 12 },
-  title: { color: "#fff", fontSize: 24, fontWeight: "700" },
-  content: { paddingHorizontal: 16, paddingBottom: 24 },
-  section: { marginBottom: 32 },
-  sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-  sectionTitle: { color: "#aaa", fontSize: 13, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 },
-  addBtn: { backgroundColor: "#4ECDC4", borderRadius: 16, padding: 4 },
-  groupRow: { flexDirection: "row", alignItems: "center", backgroundColor: "#1e1e1e", borderRadius: 12, padding: 14, marginBottom: 8 },
-  colorDot: { width: 12, height: 12, borderRadius: 6, marginRight: 10 },
-  groupName: { flex: 1, color: "#fff", fontSize: 15 },
-  deleteBtn: { padding: 4 },
-  resetBtn: { backgroundColor: "#2a1a1a", borderRadius: 12, padding: 14, alignItems: "center" },
-  resetBtnText: { color: "#ff6b6b", fontSize: 15, fontWeight: "600" },
-});

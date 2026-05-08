@@ -2,7 +2,7 @@
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Plus } from "lucide-react-native";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { PersonCard } from "@/components/persons/PersonCard";
 import { db } from "@/db/client";
@@ -24,19 +24,19 @@ export default function PersonsScreen() {
   const ungrouped = allPersons.filter((p) => !p.groupId);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>인물</Text>
+    <View className="flex-1 bg-app-bg">
+      <View className="px-5 pt-14 pb-3">
+        <Text className="text-white text-2xl font-bold">인물</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}>
         {allPersons.length === 0 ? (
-          <Text style={styles.emptyText}>인물을 추가해 보세요.</Text>
+          <Text className="text-app-muted text-center mt-12">인물을 추가해 보세요.</Text>
         ) : (
           <>
             {groupedPersons.map(({ group, members }) => (
-              <View key={group.id} style={styles.section}>
-                <Text style={styles.sectionTitle}>
+              <View key={group.id} className="mb-6">
+                <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px] mb-2">
                   {group.emoji} {group.name}
                 </Text>
                 {members.map((person) => (
@@ -56,8 +56,8 @@ export default function PersonsScreen() {
             ))}
 
             {ungrouped.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>분류 없음</Text>
+              <View className="mb-6">
+                <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px] mb-2">분류 없음</Text>
                 {ungrouped.map((person) => (
                   <PersonCard
                     key={person.id}
@@ -78,42 +78,13 @@ export default function PersonsScreen() {
       </ScrollView>
 
       {/* FAB — 인물 추가 */}
-      <Pressable onPress={() => router.push("/persons/new")} style={styles.fab}>
+      <Pressable
+        onPress={() => router.push("/persons/new")}
+        className="absolute right-5 bottom-8 w-14 h-14 rounded-full bg-app-teal items-center justify-center shadow-lg"
+        style={{ elevation: 6 }}
+      >
         <Plus size={24} color="#111" />
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#111" },
-  header: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 12 },
-  title: { color: "#fff", fontSize: 24, fontWeight: "700" },
-  content: { paddingHorizontal: 16, paddingBottom: 96 },
-  section: { marginBottom: 24 },
-  sectionTitle: {
-    color: "#aaa",
-    fontSize: 13,
-    fontWeight: "600",
-    marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  emptyText: { color: "#666", textAlign: "center", marginTop: 48 },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 32,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#4ECDC4",
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 6,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-});

@@ -1,12 +1,18 @@
 // 그룹 추가 모달 화면
-import { useState } from "react";
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import { db } from "@/db/client";
 import { groups } from "@/db/schema";
-
-const PRESET_COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD", "#98D8C8", "#F7DC6F"];
+import { PRESET_COLORS } from "@/db/seed";
 
 export default function GroupNewScreen() {
   const router = useRouter();
@@ -15,7 +21,10 @@ export default function GroupNewScreen() {
   const [emoji, setEmoji] = useState("");
 
   async function save() {
-    if (!name.trim()) { Alert.alert("그룹 이름을 입력해 주세요."); return; }
+    if (!name.trim()) {
+      Alert.alert("그룹 이름을 입력해 주세요.");
+      return;
+    }
     await db.insert(groups).values({
       name: name.trim(),
       color,
@@ -26,39 +35,50 @@ export default function GroupNewScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <Text style={styles.label}>그룹 이름 *</Text>
-      <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="그룹 이름" placeholderTextColor="#555" />
+    <ScrollView
+      className="flex-1 bg-app-bg"
+      contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Text className="text-app-label text-[13px] mt-3">그룹 이름 *</Text>
+      <TextInput
+        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+        value={name}
+        onChangeText={setName}
+        placeholder="그룹 이름"
+        placeholderTextColor="#555"
+      />
 
-      <Text style={styles.label}>이모지</Text>
-      <TextInput style={styles.input} value={emoji} onChangeText={setEmoji} placeholder="🎯" placeholderTextColor="#555" />
+      <Text className="text-app-label text-[13px] mt-3">이모지</Text>
+      <TextInput
+        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+        value={emoji}
+        onChangeText={setEmoji}
+        placeholder="🎯"
+        placeholderTextColor="#555"
+      />
 
-      <Text style={styles.label}>색상</Text>
-      <View style={styles.colorRow}>
+      <Text className="text-app-label text-[13px] mt-3">색상</Text>
+      <View className="flex-row flex-wrap gap-3 mt-2">
         {PRESET_COLORS.map((c) => (
           <Pressable
             key={c}
             onPress={() => setColor(c)}
-            style={[styles.colorDot, { backgroundColor: c }, color === c && styles.colorDotSelected]}
+            className="w-9 h-9 rounded-full"
+            style={[
+              { backgroundColor: c },
+              color === c && { borderWidth: 3, borderColor: "#fff" },
+            ]}
           />
         ))}
       </View>
 
-      <Pressable onPress={save} style={styles.saveBtn}>
-        <Text style={styles.saveBtnText}>저장</Text>
+      <Pressable
+        onPress={save}
+        className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
+      >
+        <Text className="text-[#111] text-base font-bold">저장</Text>
       </Pressable>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#111" },
-  content: { padding: 20, gap: 8, paddingBottom: 40 },
-  label: { color: "#aaa", fontSize: 13, marginTop: 12 },
-  input: { backgroundColor: "#1e1e1e", color: "#fff", borderRadius: 10, padding: 12, fontSize: 15 },
-  colorRow: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 8 },
-  colorDot: { width: 36, height: 36, borderRadius: 18 },
-  colorDotSelected: { borderWidth: 3, borderColor: "#fff" },
-  saveBtn: { backgroundColor: "#4ECDC4", borderRadius: 12, padding: 16, alignItems: "center", marginTop: 24 },
-  saveBtnText: { color: "#111", fontSize: 16, fontWeight: "700" },
-});

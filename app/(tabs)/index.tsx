@@ -1,6 +1,6 @@
 // 캘린더 탭 — 월별 달력 + 날짜 선택 or 월간 전체 로그 목록
 import { useState } from "react";
-import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Plus } from "lucide-react-native";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -34,7 +34,6 @@ export default function CalendarScreen() {
   );
 
   // 반복 로그: 이번 달 이전에 시작했거나 이번 달 내에 시작했고, 이번 달까지 유효한 것
-  // (repeatUntil IS NULL → 영구, OR repeatUntil >= monthStart)
   const { data: allRepeatLogs = [] } = useLiveQuery(
     db.select().from(logs).where(
       and(
@@ -92,7 +91,7 @@ export default function CalendarScreen() {
   function prevMonth() {
     const prev = dayjs(currentMonth).subtract(1, "month");
     setCurrentMonth(prev.toDate());
-    setSelectedDate(null); // 월 이동 시 날짜 선택 해제 → 월간 전체 뷰
+    setSelectedDate(null);
   }
 
   function nextMonth() {
@@ -103,7 +102,7 @@ export default function CalendarScreen() {
 
   function goToday() {
     setCurrentMonth(new Date());
-    setSelectedDate(new Date()); // 오늘 날짜 선택
+    setSelectedDate(new Date());
   }
 
   // 날짜 탭: 선택/재탭 시 해제(전체 뷰)
@@ -127,20 +126,20 @@ export default function CalendarScreen() {
   const targetDate = selectedDate ?? new Date();
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-app-bg">
       {/* 월 헤더 */}
-      <View style={styles.header}>
-        <Pressable onPress={prevMonth} style={styles.navBtn}>
-          <Text style={styles.navText}>‹</Text>
+      <View className="flex-row items-center px-3 pt-14 pb-1 gap-1">
+        <Pressable onPress={prevMonth} className="p-2">
+          <Text className="text-white text-2xl">‹</Text>
         </Pressable>
-        <View style={styles.monthTitleArea}>
-          <Text style={styles.monthTitle}>{formatMonthYear(currentMonth)}</Text>
+        <View className="flex-1 items-center">
+          <Text className="text-white text-[18px] font-semibold">{formatMonthYear(currentMonth)}</Text>
         </View>
-        <Pressable onPress={goToday} style={styles.todayBtn}>
-          <Text style={styles.todayText}>오늘</Text>
+        <Pressable onPress={goToday} className="bg-app-surface rounded-[12px] px-[10px] py-[5px]">
+          <Text className="text-app-teal text-xs font-semibold">오늘</Text>
         </Pressable>
-        <Pressable onPress={nextMonth} style={styles.navBtn}>
-          <Text style={styles.navText}>›</Text>
+        <Pressable onPress={nextMonth} className="p-2">
+          <Text className="text-white text-2xl">›</Text>
         </Pressable>
       </View>
 
@@ -157,23 +156,22 @@ export default function CalendarScreen() {
       </GestureDetector>
 
       {/* 리스트 헤더 */}
-      <View style={styles.listHeader}>
-        <Text style={styles.listTitle}>
+      <View className="flex-row items-center justify-between px-5 py-[10px]">
+        <Text className="text-app-dim text-[14px] font-semibold">
           {selectedDate ? formatLogDate(selectedDate) : `${formatMonthYear(currentMonth)} 전체`}
         </Text>
         {selectedDate && (
-          <Pressable onPress={() => setSelectedDate(null)} style={styles.clearBtn}>
-            <Text style={styles.clearBtnText}>전체보기</Text>
+          <Pressable onPress={() => setSelectedDate(null)} className="bg-app-surface rounded-[10px] px-2 py-[3px]">
+            <Text className="text-app-teal text-xs">전체보기</Text>
           </Pressable>
         )}
       </View>
 
       {/* 로그 리스트 */}
-      <ScrollView style={styles.logList} contentContainerStyle={styles.logListContent}>
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96, gap: 8 }}>
         {selectedDate ? (
-          // 날짜 선택 뷰
           selectedLogs.length === 0 ? (
-            <Text style={styles.emptyText}>기록이 없습니다.</Text>
+            <Text className="text-app-muted text-center mt-6">기록이 없습니다.</Text>
           ) : (
             selectedLogs.map((log) => (
               <LogCard
@@ -184,14 +182,13 @@ export default function CalendarScreen() {
             ))
           )
         ) : (
-          // 월간 전체 뷰 (날짜별 섹션)
           daySections.length === 0 ? (
-            <Text style={styles.emptyText}>이번 달 기록이 없습니다.</Text>
+            <Text className="text-app-muted text-center mt-6">이번 달 기록이 없습니다.</Text>
           ) : (
             daySections.map((section) => (
               <View key={section.dateKey}>
-                <Pressable onPress={() => setSelectedDate(section.date)} style={styles.sectionDateRow}>
-                  <Text style={styles.sectionDate}>{formatLogDate(section.date)}</Text>
+                <Pressable onPress={() => setSelectedDate(section.date)} className="py-1.5 px-1 mt-2">
+                  <Text className="text-app-teal text-xs font-semibold tracking-[0.3px]">{formatLogDate(section.date)}</Text>
                 </Pressable>
                 {section.items.map((log) => (
                   <LogCard
@@ -211,69 +208,11 @@ export default function CalendarScreen() {
         onPress={() =>
           router.push({ pathname: "/logs/new", params: { date: targetDate.toISOString() } })
         }
-        style={styles.fab}
+        className="absolute right-5 bottom-8 w-14 h-14 rounded-full bg-app-teal items-center justify-center shadow-lg"
+        style={{ elevation: 6 }}
       >
         <Plus size={24} color="#111" />
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#111" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingTop: 56,
-    paddingBottom: 4,
-    gap: 4,
-  },
-  navBtn: { padding: 8 },
-  navText: { color: "#fff", fontSize: 24 },
-  monthTitleArea: { flex: 1, alignItems: "center" },
-  monthTitle: { color: "#fff", fontSize: 18, fontWeight: "600" },
-  todayBtn: {
-    backgroundColor: "#1e1e1e",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  todayText: { color: "#4ECDC4", fontSize: 12, fontWeight: "600" },
-  listHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  listTitle: { color: "#ccc", fontSize: 14, fontWeight: "600" },
-  clearBtn: {
-    backgroundColor: "#1e1e1e",
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  clearBtnText: { color: "#4ECDC4", fontSize: 12 },
-  logList: { flex: 1 },
-  logListContent: { paddingHorizontal: 16, paddingBottom: 96, gap: 8 },
-  emptyText: { color: "#666", textAlign: "center", marginTop: 24 },
-  sectionDateRow: { paddingVertical: 6, paddingHorizontal: 4, marginTop: 8 },
-  sectionDate: { color: "#4ECDC4", fontSize: 12, fontWeight: "600", letterSpacing: 0.3 },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 32,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#4ECDC4",
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 6,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-  },
-});

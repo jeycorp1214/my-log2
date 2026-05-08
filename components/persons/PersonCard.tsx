@@ -1,5 +1,5 @@
 // 인물 카드 컴포넌트 — 이름, 나이, 그룹 색상
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import type { InferSelectModel } from "drizzle-orm";
 import type { persons } from "@/db/schema";
 import { calcAge } from "@/utils/date";
@@ -16,29 +16,22 @@ export function PersonCard({ person, groupColor, onPress }: Props) {
   const age = person.birthDate ? calcAge(person.birthDate) : null;
 
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-      <View style={[styles.colorBar, { backgroundColor: groupColor }]} />
-      <View style={styles.content}>
-        <Text style={styles.name}>{person.name}</Text>
-        <View style={styles.meta}>
-          {age !== null && <Text style={styles.metaText}>{age}세</Text>}
-          {person.mbti && <Text style={styles.metaText}>{person.mbti}</Text>}
+    <Pressable
+      onPress={onPress}
+      className="flex-row bg-app-surface rounded-[14px] overflow-hidden mb-2"
+      style={({ pressed }) => pressed ? { opacity: 0.7 } : undefined}
+    >
+      <View className="w-1" style={{ backgroundColor: groupColor }} />
+      <View className="flex-1 p-[14px] gap-1">
+        <Text className="text-white text-base font-semibold">{person.name}</Text>
+        <View className="flex-row gap-2">
+          {age !== null && <Text className="text-[#888] text-[13px]">{age}세</Text>}
+          {person.mbti && <Text className="text-[#888] text-[13px]">{person.mbti}</Text>}
         </View>
         {person.memo ? (
-          <Text style={styles.memo} numberOfLines={1}>{person.memo}</Text>
+          <Text className="text-app-muted text-[13px]" numberOfLines={1}>{person.memo}</Text>
         ) : null}
       </View>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: { flexDirection: "row", backgroundColor: "#1e1e1e", borderRadius: 14, overflow: "hidden", marginBottom: 8 },
-  pressed: { opacity: 0.7 },
-  colorBar: { width: 4 },
-  content: { flex: 1, padding: 14, gap: 4 },
-  name: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  meta: { flexDirection: "row", gap: 8 },
-  metaText: { color: "#888", fontSize: 13 },
-  memo: { color: "#666", fontSize: 13 },
-});

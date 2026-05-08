@@ -2,15 +2,7 @@
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 import { db } from "@/db/client";
 import { groups, logPersons, logs, persons } from "@/db/schema";
@@ -50,7 +42,7 @@ export default function LogNewScreen() {
       Alert.alert("제목을 입력해 주세요.");
       return;
     }
-    if (!groupId) return; // allGroups 로드 전 방어 (정상 흐름에서는 미발생)
+    if (!groupId) return;
 
     const [inserted] = await db
       .insert(logs)
@@ -76,129 +68,76 @@ export default function LogNewScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <Text style={styles.label}>제목 *</Text>
+    <ScrollView className="flex-1 bg-app-bg" contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <Text className="text-app-label text-[13px] mt-3">제목 *</Text>
       <TextInput
-        style={styles.input}
+        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
         value={title}
         onChangeText={setTitle}
         placeholder="기록 제목"
         placeholderTextColor="#555"
       />
 
-      <Text style={styles.label}>메모</Text>
+      <Text className="text-app-label text-[13px] mt-3">메모</Text>
       <TextInput
-        style={[styles.input, styles.textarea]}
+        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
         value={memo}
         onChangeText={setMemo}
         placeholder="메모"
         placeholderTextColor="#555"
         multiline
         numberOfLines={4}
+        style={{ minHeight: 100, textAlignVertical: 'top' }}
       />
 
-      <Text style={styles.label}>반복</Text>
-      <View style={styles.chipRow}>
+      <Text className="text-app-label text-[13px] mt-3">반복</Text>
+      <View className="flex-row flex-wrap gap-2 mt-1">
         {REPEAT_OPTIONS.map(({ label, value }) => (
           <Pressable
             key={value}
             onPress={() => setRepeatType(value)}
-            style={[styles.chip, repeatType === value && styles.chipSelected]}
+            className={`rounded-[20px] px-3 py-1.5 ${repeatType === value ? 'bg-app-teal' : 'bg-app-surface'}`}
           >
-            <Text
-              style={[
-                styles.chipText,
-                repeatType === value && styles.chipTextSelected,
-              ]}
-            >
+            <Text className={`text-[13px] ${repeatType === value ? 'text-[#111] font-semibold' : 'text-app-label'}`}>
               {label}
             </Text>
           </Pressable>
         ))}
       </View>
 
-      <Text style={styles.label}>그룹</Text>
-      <View style={styles.chipRow}>
+      <Text className="text-app-label text-[13px] mt-3">그룹</Text>
+      <View className="flex-row flex-wrap gap-2 mt-1">
         {allGroups.map((g) => (
           <Pressable
             key={g.id}
             onPress={() => setGroupId(g.id)}
-            style={[styles.chip, groupId === g.id && styles.chipSelected]}
+            className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? 'bg-app-teal' : 'bg-app-surface'}`}
           >
-            <Text
-              style={[
-                styles.chipText,
-                groupId === g.id && styles.chipTextSelected,
-              ]}
-            >
+            <Text className={`text-[13px] ${groupId === g.id ? 'text-[#111] font-semibold' : 'text-app-label'}`}>
               {g.emoji} {g.name}
             </Text>
           </Pressable>
         ))}
       </View>
 
-      <Text style={styles.label}>관련 인물</Text>
-      <View style={styles.chipRow}>
+      <Text className="text-app-label text-[13px] mt-3">관련 인물</Text>
+      <View className="flex-row flex-wrap gap-2 mt-1">
         {allPersons.map((p) => (
           <Pressable
             key={p.id}
             onPress={() => togglePerson(p.id)}
-            style={[
-              styles.chip,
-              selectedPersonIds.includes(p.id) && styles.chipSelected,
-            ]}
+            className={`rounded-[20px] px-3 py-1.5 ${selectedPersonIds.includes(p.id) ? 'bg-app-teal' : 'bg-app-surface'}`}
           >
-            <Text
-              style={[
-                styles.chipText,
-                selectedPersonIds.includes(p.id) && styles.chipTextSelected,
-              ]}
-            >
+            <Text className={`text-[13px] ${selectedPersonIds.includes(p.id) ? 'text-[#111] font-semibold' : 'text-app-label'}`}>
               {p.name}
             </Text>
           </Pressable>
         ))}
       </View>
 
-      <Pressable onPress={save} style={styles.saveBtn}>
-        <Text style={styles.saveBtnText}>저장</Text>
+      <Pressable onPress={save} className="bg-app-teal rounded-[12px] p-4 items-center mt-6">
+        <Text className="text-[#111] text-base font-bold">저장</Text>
       </Pressable>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#111" },
-  content: { padding: 20, gap: 8, paddingBottom: 40 },
-  label: { color: "#aaa", fontSize: 13, marginTop: 12 },
-  input: {
-    backgroundColor: "#1e1e1e",
-    color: "#fff",
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 15,
-  },
-  textarea: { minHeight: 100, textAlignVertical: "top" },
-  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 4 },
-  chip: {
-    backgroundColor: "#1e1e1e",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  chipSelected: { backgroundColor: "#4ECDC4" },
-  chipText: { color: "#aaa", fontSize: 13 },
-  chipTextSelected: { color: "#111", fontWeight: "600" },
-  saveBtn: {
-    backgroundColor: "#4ECDC4",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    marginTop: 24,
-  },
-  saveBtnText: { color: "#111", fontSize: 16, fontWeight: "700" },
-});

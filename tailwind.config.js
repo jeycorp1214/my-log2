@@ -173,6 +173,17 @@ module.exports = {
           info: 'rgb(var(--color-indicator-info)/<alpha-value>)',
           error: 'rgb(var(--color-indicator-error)/<alpha-value>)',
         },
+        app: {
+          bg: '#111111',
+          surface: '#1e1e1e',
+          teal: '#4ECDC4',
+          'teal-dark': '#1a3a3a',
+          muted: '#666666',
+          label: '#aaaaaa',
+          dim: '#cccccc',
+          danger: '#ff6b6b',
+          'danger-bg': '#2a1a1a',
+        },
       },
       fontFamily: {
         heading: undefined,
