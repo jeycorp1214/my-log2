@@ -63,6 +63,15 @@ export default function SettingsScreen() {
               <Text className="flex-1 text-white text-[15px]">반복 관리</Text>
               <ChevronRight size={16} color="#666" />
             </Pressable>
+            <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
+            <Pressable
+              onPress={() => router.push("/settings/data")}
+              className="flex-row items-center px-[14px] py-[16px]"
+              style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+            >
+              <Text className="flex-1 text-white text-[15px]">데이터 확인</Text>
+              <ChevronRight size={16} color="#666" />
+            </Pressable>
           </View>
         </View>
 
