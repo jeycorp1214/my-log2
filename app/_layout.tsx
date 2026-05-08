@@ -55,6 +55,8 @@ export default function RootLayout() {
             <Stack.Screen name="logs/new" options={{ presentation: "modal", title: "기록 추가" }} />
             <Stack.Screen name="logs/[id]" options={{ presentation: "modal", title: "기록 상세" }} />
             <Stack.Screen name="groups/new" options={{ presentation: "modal", title: "그룹 추가" }} />
+            <Stack.Screen name="settings/groups" options={{ title: "그룹 관리" }} />
+            <Stack.Screen name="settings/repeats" options={{ title: "반복 관리" }} />
           </Stack>
           <StatusBar style="auto" />
         </ThemeProvider>

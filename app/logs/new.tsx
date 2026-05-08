@@ -7,6 +7,8 @@ import { Alert, Pressable, ScrollView, Text, TextInput, View } from "react-nativ
 import { db } from "@/db/client";
 import { groups, logPersons, logs, persons } from "@/db/schema";
 import { REPEAT_OPTIONS } from "@/db/seed";
+import { formatLogDate } from "@/utils/date";
+import { DatePickerModal } from "@/components/DatePickerModal";
 
 export default function LogNewScreen() {
   const router = useRouter();
@@ -18,7 +20,8 @@ export default function LogNewScreen() {
   const initialDate = date ? new Date(date) : new Date();
 
   const [title, setTitle] = useState("");
-  const [logDate] = useState(initialDate);
+  const [logDate, setLogDate] = useState(initialDate);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [memo, setMemo] = useState("");
   const [repeatType, setRepeatType] = useState("none");
   const [groupId, setGroupId] = useState("");
@@ -69,6 +72,21 @@ export default function LogNewScreen() {
 
   return (
     <ScrollView className="flex-1 bg-app-bg" contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <Text className="text-app-label text-[13px] mt-3">날짜</Text>
+      <Pressable
+        onPress={() => setShowDatePicker(true)}
+        className="bg-app-surface rounded-[10px] p-3 flex-row items-center justify-between"
+      >
+        <Text className="text-white text-[15px]">{formatLogDate(logDate)}</Text>
+        <Text className="text-app-muted text-[13px]">변경</Text>
+      </Pressable>
+      <DatePickerModal
+        visible={showDatePicker}
+        value={logDate}
+        onChange={setLogDate}
+        onClose={() => setShowDatePicker(false)}
+      />
+
       <Text className="text-app-label text-[13px] mt-3">제목 *</Text>
       <TextInput
         className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"

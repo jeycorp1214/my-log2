@@ -7,15 +7,9 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 
 import { db } from "@/db/client";
 import { logs, logPersons, groups, persons } from "@/db/schema";
+import { REPEAT_OPTIONS } from "@/db/seed";
 import { formatLogDate } from "@/utils/date";
-
-const REPEAT_OPTIONS = [
-  { label: "없음", value: "none" },
-  { label: "매일", value: "daily" },
-  { label: "매주", value: "weekly" },
-  { label: "매월", value: "monthly" },
-  { label: "매년", value: "yearly" },
-];
+import { DatePickerModal } from "@/components/DatePickerModal";
 
 export default function LogDetailScreen() {
   const router = useRouter();
@@ -36,6 +30,8 @@ export default function LogDetailScreen() {
 
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState("");
+  const [logDate, setLogDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [memo, setMemo] = useState("");
   const [repeatType, setRepeatType] = useState("none");
   const [groupId, setGroupId] = useState("");
@@ -44,6 +40,7 @@ export default function LogDetailScreen() {
   useEffect(() => {
     if (log) {
       setTitle(log.title);
+      setLogDate(new Date(log.logDate));
       setMemo(log.memo ?? "");
       setRepeatType(log.repeatType ?? "none");
       setGroupId(log.groupId);
@@ -64,6 +61,7 @@ export default function LogDetailScreen() {
     if (!title.trim()) { Alert.alert("제목을 입력해 주세요."); return; }
     await db.update(logs).set({
       title: title.trim(),
+      logDate,
       memo: memo.trim() || null,
       repeatType: repeatType !== "none" ? repeatType : null,
       groupId,
@@ -98,6 +96,22 @@ export default function LogDetailScreen() {
     <ScrollView className="flex-1 bg-app-bg" contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}>
       {editing ? (
         <>
+          <Text className="text-app-label text-[13px] mt-3">날짜</Text>
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
+            className="bg-app-surface rounded-[10px] p-3 flex-row items-center justify-between"
+          >
+            <Text className="text-white text-[15px]">{formatLogDate(logDate)}</Text>
+            <Text className="text-app-muted text-[13px]">변경</Text>
+          </Pressable>
+          <DatePickerModal
+            visible={showDatePicker}
+            value={logDate}
+            onChange={setLogDate}
+            onClose={() => setShowDatePicker(false)}
+          />
+
+          <Text className="text-app-label text-[13px] mt-3">제목 *</Text>
           <TextInput className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]" value={title} onChangeText={setTitle} placeholderTextColor="#555" />
           <Text className="text-app-label text-[13px] mt-3">메모</Text>
           <TextInput

@@ -77,3 +77,11 @@
 - [x] FAB 날짜 버그 — 다른 달 조회 시 항상 오늘 날짜로 기록 생성됨 → currentMonth 기준 첫날 사용
 - [x] 6월 리스트에 5/8 원본 날짜 노출 → buildDaySections에 monthStart/monthEnd 범위 가드 추가
 - [x] 전체 데이터 초기화 후 UI 미갱신 → router.replace 제거, useLiveQuery 반응성으로 처리
+
+## P3 — UX 개선 (2026-05-09)
+- [x] 기록 추가/상세 상단 날짜 입력 영역 — DatePickerModal 컴포넌트 + CalendarGrid 재활용
+- [x] 기록 상세 수정 모드에서도 날짜 변경 가능 (logDate DB 업데이트 포함)
+- [x] 설정 탭 리스트형 리팩토링 — 그룹 관리/반복 관리 각각 별도 페이지로 분리
+- [x] app/settings/groups.tsx — 그룹 목록 + FAB(→ /groups/new)
+- [x] app/settings/repeats.tsx — 반복 로그 목록 + FAB(→ /logs/new) + 해제 기능
+- [x] _layout.tsx에 settings/groups, settings/repeats Stack.Screen 등록
