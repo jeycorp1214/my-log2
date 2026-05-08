@@ -1,7 +1,7 @@
 // 앱 전반 날짜 포맷·나이 계산·경과 시간 유틸
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -39,4 +39,12 @@ export function startOfMonth(date: Date): Date {
 
 export function endOfMonth(date: Date): Date {
   return dayjs(date).endOf("month").toDate();
+}
+
+export function addMonths(date: Date, n: number): Date {
+  return dayjs(date).add(n, "month").toDate();
+}
+
+export function toDateKey(date: Date): string {
+  return dayjs(date).format("YYYY-MM-DD");
 }

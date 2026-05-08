@@ -2,13 +2,20 @@
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
+import { DatePickerModal } from "@/components/DatePickerModal";
 import { db } from "@/db/client";
 import { groups, logPersons, logs, persons } from "@/db/schema";
 import { REPEAT_OPTIONS } from "@/db/seed";
 import { formatLogDate } from "@/utils/date";
-import { DatePickerModal } from "@/components/DatePickerModal";
 
 export default function LogNewScreen() {
   const router = useRouter();
@@ -55,18 +62,25 @@ export default function LogNewScreen() {
         logDate,
         memo: memo.trim() || undefined,
         repeatType: repeatType !== "none" ? repeatType : undefined,
-        repeatUntil: repeatType !== "none" ? repeatUntil ?? undefined : undefined,
+        repeatUntil:
+          repeatType !== "none" ? (repeatUntil ?? undefined) : undefined,
         groupId,
       })
       .returning({ id: logs.id });
 
     if (selectedPersonIds.length > 0) {
       await db.insert(logPersons).values(
-        selectedPersonIds.map((personId) => ({ logId: inserted.id, personId })),
+        selectedPersonIds.map((personId) => ({
+          logId: inserted.id,
+          personId,
+        })),
       );
     }
 
-    router.back();
+    router.navigate({
+      pathname: "/(tabs)",
+      params: { savedDate: logDate.toISOString() },
+    });
   }
 
   return (
@@ -116,10 +130,15 @@ export default function LogNewScreen() {
         {REPEAT_OPTIONS.map(({ label, value }) => (
           <Pressable
             key={value}
-            onPress={() => { setRepeatType(value); if (value === "none") setRepeatUntil(null); }}
+            onPress={() => {
+              setRepeatType(value);
+              if (value === "none") setRepeatUntil(null);
+            }}
             className={`rounded-[20px] px-3 py-1.5 ${repeatType === value ? "bg-app-teal" : "bg-app-surface"}`}
           >
-            <Text className={`text-[13px] ${repeatType === value ? "text-[#111] font-semibold" : "text-app-label"}`}>
+            <Text
+              className={`text-[13px] ${repeatType === value ? "text-[#111] font-semibold" : "text-app-label"}`}
+            >
               {label}
             </Text>
           </Pressable>
@@ -134,7 +153,9 @@ export default function LogNewScreen() {
               onPress={() => setRepeatUntil(null)}
               className={`rounded-[20px] px-3 py-1.5 ${!repeatUntil ? "bg-app-teal" : "bg-app-surface"}`}
             >
-              <Text className={`text-[13px] ${!repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}>
+              <Text
+                className={`text-[13px] ${!repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}
+              >
                 영구
               </Text>
             </Pressable>
@@ -149,7 +170,9 @@ export default function LogNewScreen() {
               }}
               className={`flex-1 rounded-[20px] px-3 py-1.5 ${repeatUntil ? "bg-app-teal" : "bg-app-surface"}`}
             >
-              <Text className={`text-[13px] ${repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}>
+              <Text
+                className={`text-[13px] ${repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}
+              >
                 {repeatUntil ? formatLogDate(repeatUntil) : "종료일 지정"}
               </Text>
             </Pressable>
@@ -171,7 +194,9 @@ export default function LogNewScreen() {
             onPress={() => setGroupId(g.id)}
             className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? "bg-app-teal" : "bg-app-surface"}`}
           >
-            <Text className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}>
+            <Text
+              className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}
+            >
               {g.emoji} {g.name}
             </Text>
           </Pressable>
@@ -186,14 +211,19 @@ export default function LogNewScreen() {
             onPress={() => togglePerson(p.id)}
             className={`rounded-[20px] px-3 py-1.5 ${selectedPersonIds.includes(p.id) ? "bg-app-teal" : "bg-app-surface"}`}
           >
-            <Text className={`text-[13px] ${selectedPersonIds.includes(p.id) ? "text-[#111] font-semibold" : "text-app-label"}`}>
+            <Text
+              className={`text-[13px] ${selectedPersonIds.includes(p.id) ? "text-[#111] font-semibold" : "text-app-label"}`}
+            >
               {p.name}
             </Text>
           </Pressable>
         ))}
       </View>
 
-      <Pressable onPress={save} className="bg-app-teal rounded-[12px] p-4 items-center mt-6">
+      <Pressable
+        onPress={save}
+        className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
+      >
         <Text className="text-[#111] text-base font-bold">저장</Text>
       </Pressable>
     </ScrollView>

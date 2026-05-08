@@ -1,6 +1,6 @@
 // 탭 네비게이션 레이아웃 — 캘린더, 인물, 설정
 import { Tabs } from "expo-router";
-import { Calendar, Users, Settings } from "lucide-react-native";
+import { Calendar, Settings, Users } from "lucide-react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { Colors } from "@/constants/theme";
@@ -21,7 +21,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "캘린더",
+          title: "캘린더12",
           tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
         }}
       />
