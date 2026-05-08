@@ -3,9 +3,34 @@ import { db } from "./client";
 import { groups } from "./schema";
 
 export const DEFAULT_GROUPS = [
-  { name: "집안", color: "#FF6B6B", emoji: "🏠", isDefault: true, sortOrder: 0 },
-  { name: "친구", color: "#4ECDC4", emoji: "👥", isDefault: true, sortOrder: 1 },
-  { name: "회사", color: "#45B7D1", emoji: "💼", isDefault: true, sortOrder: 2 },
+  {
+    name: "가족",
+    color: "#FF6B6B",
+    emoji: "🏠",
+    isDefault: true,
+    sortOrder: 0,
+  },
+  {
+    name: "친구",
+    color: "#4ECDC4",
+    emoji: "👥",
+    isDefault: true,
+    sortOrder: 1,
+  },
+  {
+    name: "회사",
+    color: "#45B7D1",
+    emoji: "💼",
+    isDefault: true,
+    sortOrder: 2,
+  },
+  {
+    name: "지인",
+    color: "#FFD93D",
+    emoji: "🤝",
+    isDefault: true,
+    sortOrder: 3,
+  },
 ];
 
 export async function seedDefaultGroups() {

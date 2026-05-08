@@ -203,7 +203,7 @@ import { groups } from "./schema";
 
 export const DEFAULT_GROUPS = [
   {
-    name: "집안",
+    name: "가족",
     color: "#FF6B6B",
     emoji: "🏠",
     isDefault: true,
@@ -222,6 +222,13 @@ export const DEFAULT_GROUPS = [
     emoji: "💼",
     isDefault: true,
     sortOrder: 2,
+  },
+  {
+    name: "지인",
+    color: "#FFD93D",
+    emoji: "🤝",
+    isDefault: true,
+    sortOrder: 3,
   },
 ];
 
