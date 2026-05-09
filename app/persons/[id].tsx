@@ -1,23 +1,8 @@
 // 인물 상세 / 수정 / 삭제 모달 화면
-import dayjs from "dayjs";
-import { eq } from "drizzle-orm";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Plus, X } from "lucide-react-native";
-import { useEffect, useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-
-import { DatePickerModal } from "@/components/DatePickerModal";
-import { BirthDateInput } from "@/components/persons/BirthDateInput";
-import { MbtiPicker } from "@/components/persons/MbtiPicker";
+  DraftAnniversary,
+  PersonForm,
+} from "@/components/persons/PersonForm";
 import { db } from "@/db/client";
 import {
   groups,
@@ -26,16 +11,21 @@ import {
   personAnniversaries,
   persons,
 } from "@/db/schema";
-import { ANNIVERSARY_PRESETS } from "@/db/seed";
 import { calcAge, dDayLabel, formatLogDate, fromNow } from "@/utils/date";
+import dayjs from "dayjs";
+import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-
-type DraftAnniversary = {
-  id: string;
-  title: string;
-  date: Date | null;
-  isRepeat: boolean;
-};
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
 export default function PersonDetailScreen() {
   const router = useRouter();
@@ -70,7 +60,6 @@ export default function PersonDetailScreen() {
   const [draftAnniversaries, setDraftAnniversaries] = useState<
     DraftAnniversary[]
   >([]);
-  const [showPickerFor, setShowPickerFor] = useState<string | null>(null);
 
   useEffect(() => {
     if (person) {
@@ -98,34 +87,6 @@ export default function PersonDetailScreen() {
       })),
     );
     setEditing(true);
-  }
-
-  function addAnniversary() {
-    setDraftAnniversaries((prev) => [
-      ...prev,
-      { id: Math.random().toString(), title: "", date: null, isRepeat: false },
-    ]);
-  }
-
-  function addPreset(title: string) {
-    setDraftAnniversaries((prev) => [
-      ...prev,
-      { id: Math.random().toString(), title, date: null, isRepeat: true },
-    ]);
-  }
-
-  function removeAnniversary(draftId: string) {
-    setDraftAnniversaries((prev) => prev.filter((a) => a.id !== draftId));
-  }
-
-  function updateAnniversary<K extends keyof Omit<DraftAnniversary, "id">>(
-    draftId: string,
-    field: K,
-    value: DraftAnniversary[K],
-  ) {
-    setDraftAnniversaries((prev) =>
-      prev.map((a) => (a.id === draftId ? { ...a, [field]: value } : a)),
-    );
   }
 
   async function save() {
@@ -197,137 +158,21 @@ export default function PersonDetailScreen() {
       >
         {editing ? (
           <>
-            <Text className="text-app-label text-[13px] mt-3">이름 *</Text>
-            <TextInput
-              className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
-              value={name}
-              onChangeText={setName}
-              placeholderTextColor="#555"
+            <PersonForm
+              name={name}
+              onNameChange={setName}
+              birthDate={birthDate}
+              onBirthDateChange={setBirthDate}
+              mbti={mbti}
+              onMbtiChange={setMbti}
+              memo={memo}
+              onMemoChange={setMemo}
+              groupId={groupId}
+              onGroupIdChange={setGroupId}
+              allGroups={allGroups}
+              draftAnniversaries={draftAnniversaries}
+              onAnniversariesChange={setDraftAnniversaries}
             />
-
-            <View className="mt-3">
-              <BirthDateInput value={birthDate} onChange={setBirthDate} />
-            </View>
-
-            <View className="mt-3">
-              <MbtiPicker value={mbti} onChange={setMbti} />
-            </View>
-
-            <Text className="text-app-label text-[13px] mt-3">메모</Text>
-            <TextInput
-              className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
-              value={memo}
-              onChangeText={setMemo}
-              multiline
-              style={{ minHeight: 80, textAlignVertical: "top" }}
-            />
-
-            <Text className="text-app-label text-[13px] mt-3">그룹</Text>
-            <View className="flex-row flex-wrap gap-2 mt-1">
-              {allGroups.map((g) => (
-                <Pressable
-                  key={g.id}
-                  onPress={() => setGroupId(g.id)}
-                  className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? "bg-app-teal" : "bg-app-surface"}`}
-                >
-                  <Text
-                    className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}
-                  >
-                    {g.emoji} {g.name}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {/* 기념일 수정 */}
-            <Text className="text-app-label text-[13px] mt-5">기념일</Text>
-            <View className="flex-row flex-wrap gap-2 mt-1">
-              {ANNIVERSARY_PRESETS.map((preset) => (
-                <Pressable
-                  key={preset}
-                  onPress={() => addPreset(preset)}
-                  className="bg-app-surface rounded-[20px] px-3 py-1.5"
-                >
-                  <Text className="text-app-label text-[13px]">{preset}</Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {draftAnniversaries.map((ann) => (
-              <View
-                key={ann.id}
-                className="bg-app-surface rounded-[10px] p-3 mt-1"
-              >
-                <View className="flex-row items-center gap-2">
-                  <TextInput
-                    className="flex-1 text-white text-[14px]"
-                    value={ann.title}
-                    onChangeText={(v) => updateAnniversary(ann.id, "title", v)}
-                    placeholder="기념일 이름"
-                    placeholderTextColor="#555"
-                  />
-                  <Pressable
-                    onPress={() => removeAnniversary(ann.id)}
-                    hitSlop={8}
-                  >
-                    <X size={16} color="#555" />
-                  </Pressable>
-                </View>
-                <View className="flex-row items-center gap-2 mt-2">
-                  <Pressable
-                    onPress={() => setShowPickerFor(ann.id)}
-                    className="flex-1 bg-[#1a1a1a] rounded-[8px] px-2 py-1.5"
-                  >
-                    <Text
-                      className="text-[13px]"
-                      style={{ color: ann.date ? "#ccc" : "#555" }}
-                    >
-                      {ann.date
-                        ? dayjs(ann.date).format("YYYY.MM.DD")
-                        : "날짜 선택"}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() =>
-                      updateAnniversary(ann.id, "isRepeat", !ann.isRepeat)
-                    }
-                    className="flex-row items-center gap-1.5 bg-[#1a1a1a] rounded-[8px] px-2.5 py-1.5"
-                  >
-                    <View
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{
-                        backgroundColor: ann.isRepeat ? "#4ecdc4" : "#444",
-                      }}
-                    />
-                    <Text className="text-[12px] text-app-muted">매년</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ))}
-
-            <Pressable
-              onPress={addAnniversary}
-              className="flex-row items-center gap-1.5 py-2"
-            >
-              <Plus size={14} color="#4ecdc4" />
-              <Text className="text-app-teal text-[13px]">기념일 추가</Text>
-            </Pressable>
-
-            {showPickerFor && (
-              <DatePickerModal
-                visible
-                value={
-                  draftAnniversaries.find((a) => a.id === showPickerFor)
-                    ?.date ?? new Date()
-                }
-                onChange={(date) => {
-                  updateAnniversary(showPickerFor, "date", date);
-                  setShowPickerFor(null);
-                }}
-                onClose={() => setShowPickerFor(null)}
-              />
-            )}
-
             <Pressable
               onPress={save}
               className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
@@ -373,7 +218,6 @@ export default function PersonDetailScreen() {
               </View>
             )}
 
-            {/* 기념일 */}
             {dbAnniversaries.length > 0 && (
               <>
                 <Text className="text-app-label text-[13px] font-semibold mt-6 mb-2 uppercase tracking-[0.5px]">
@@ -401,7 +245,6 @@ export default function PersonDetailScreen() {
               </>
             )}
 
-            {/* 함께한 기록 */}
             <Text className="text-app-label text-[13px] font-semibold mt-6 mb-2 uppercase tracking-[0.5px]">
               함께한 기록 ({personLogs.length})
             </Text>
