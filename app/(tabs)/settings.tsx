@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
-import { db } from "@/db/client";
+import { db, resetDatabase } from "@/db/client";
 import {
   groups,
   logPersons,
@@ -39,6 +39,30 @@ export default function SettingsScreen() {
               Alert.alert("알림", "데이터가 초기화되었습니다.");
             } catch (error) {
               console.error("초기화 중 오류 발생:", error);
+            }
+          },
+        },
+      ],
+    );
+  }
+
+  async function resetTableStructure() {
+    Alert.alert(
+      "테이블 초기화",
+      "모든 테이블을 DROP하고 마이그레이션을 재실행합니다. 데이터 전체가 삭제됩니다. 계속하시겠습니까?",
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "초기화",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await resetDatabase();
+              await seedDefaultGroups();
+              Alert.alert("완료", "테이블 구조부터 데이터까지 모두 초기화되었습니다.");
+            } catch (e) {
+              console.error("[resetTableStructure]", e);
+              Alert.alert("오류", String(e));
             }
           },
         },
@@ -102,6 +126,15 @@ export default function SettingsScreen() {
             >
               <Text className="text-app-danger text-[15px] font-semibold">
                 전체 데이터 초기화
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={resetTableStructure}
+              className="bg-app-danger-bg rounded-[12px] p-[14px] items-center mt-2"
+            >
+              <Text className="text-app-danger text-[15px] font-semibold">
+                테이블 초기화 (DROP + 재생성)
               </Text>
             </Pressable>
           </View>
