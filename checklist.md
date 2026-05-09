@@ -117,18 +117,7 @@
 - [ ] (tabs)/_layout.tsx: 검색 탭 추가 또는 캘린더 헤더 돋보기 아이콘
 - [ ] _layout.tsx: search Stack.Screen 등록
 
-## 알림/리마인더
-- [ ] migration 0003: logs 테이블에 reminder_type text 컬럼 추가 (null/"1h"/"1day"/"1week")
-- [ ] logs/new.tsx + logs/[id].tsx: 리마인더 선택 UI
-- [ ] app/_layout.tsx: expo-notifications 권한 요청 + 채널 설정
-- [ ] utils/notification.ts: scheduleLogReminder / cancelLogReminder 유틸
-- [ ] 기록 저장/수정 시 알림 스케줄링, 삭제 시 취소
-
-## 생일 알림
-- [ ] persons/new.tsx + persons/[id].tsx: 생일 알림 활성화 토글 (birthDate 있을 때)
-- [ ] utils/notification.ts: scheduleBirthdayReminder 유틸
-- [ ] 생일 있는 인물 저장 시 매년 알림 예약
-- [ ] 캘린더: 생일 날짜에 🎂 마커 표시
+~~## 알림/리마인더~~ ← 기획 방향과 맞지 않아 제거 (2026-05-09)
 
 ---
 
