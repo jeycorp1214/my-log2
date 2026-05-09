@@ -1,14 +1,18 @@
-// 월별 달력 그리드 컴포넌트
+// 월별 달력 그리드 컴포넌트 — 컴팩트(점 마킹) / 보드(이벤트 제목) 두 모드 지원
 import { WEEKDAYS } from "@/db/seed";
 import { isSameDay } from "@/utils/date";
 import dayjs from "dayjs";
 import { Pressable, Text, View } from "react-native";
+
+type BoardItem = { date: Date; title: string; isRepeat: boolean };
 
 interface Props {
   currentMonth: Date;
   selectedDate: Date | null;
   markedDates: Date[];
   onSelectDate: (date: Date) => void;
+  mode?: "compact" | "board";
+  boardItems?: BoardItem[];
 }
 
 export function CalendarGrid({
@@ -16,21 +20,24 @@ export function CalendarGrid({
   selectedDate,
   markedDates,
   onSelectDate,
+  mode = "compact",
+  boardItems = [],
 }: Props) {
   const start = dayjs(currentMonth).startOf("month");
   const daysInMonth = start.daysInMonth();
-  const startDow = start.day(); // 0=일
+  const startDow = start.day();
 
   const cells: (dayjs.Dayjs | null)[] = [
     ...Array(startDow).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => start.add(i, "day")),
   ];
 
-  // 6주 맞추기
   while (cells.length % 7 !== 0) cells.push(null);
 
   const weeks: (dayjs.Dayjs | null)[][] = [];
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+
+  const today = new Date();
 
   return (
     <View className="px-2">
@@ -39,52 +46,148 @@ export function CalendarGrid({
         {WEEKDAYS.map((d) => (
           <Text
             key={d}
-            className={`flex-1 text-center text-xs py-[6px] ${d === "일" ? "text-[#ff6b6b]" : d === "토" ? "text-app-teal" : "text-app-muted"}`}
+            className={`flex-1 text-center text-xs py-[6px] ${
+              d === "일"
+                ? "text-[#ff6b6b]"
+                : d === "토"
+                  ? "text-app-teal"
+                  : "text-app-muted"
+            }`}
           >
             {d}
           </Text>
         ))}
       </View>
 
-      {/* 날짜 셀 */}
-      {weeks.map((week, wi) => (
-        <View key={wi} className="flex-row">
-          {week.map((day, di) => {
-            if (!day)
-              return <View key={di} className="flex-1 items-center py-[2px]" />;
-            const date = day.toDate();
-            const isSelected = selectedDate
-              ? isSameDay(date, selectedDate)
-              : false;
-            const isToday = isSameDay(date, new Date());
-            const hasLog = markedDates.some((d) => isSameDay(d, date));
-            const isWeekend = di === 0 || di === 6;
+      {mode === "compact" ? (
+        // 컴팩트 모드: 점 마킹
+        weeks.map((week, wi) => (
+          <View key={wi} className="flex-row">
+            {week.map((day, di) => {
+              if (!day)
+                return <View key={di} className="flex-1 items-center py-[2px]" />;
+              const date = day.toDate();
+              const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
+              const isToday = isSameDay(date, today);
+              const hasLog = markedDates.some((d) => isSameDay(d, date));
+              const isWeekend = di === 0 || di === 6;
 
-            return (
-              <Pressable
-                key={di}
-                className="flex-1 items-center py-[2px]"
-                onPress={() => onSelectDate(date)}
-              >
-                <View
-                  className={`w-9 h-9 rounded-full items-center justify-center ${isSelected ? "bg-app-teal" : isToday ? "border border-app-teal" : ""}`}
+              return (
+                <Pressable
+                  key={di}
+                  className="flex-1 items-center py-[2px]"
+                  onPress={() => onSelectDate(date)}
                 >
-                  <Text
-                    className={`text-[14px] ${isSelected ? "text-[#111] font-bold" : isWeekend ? "text-[#aaa]" : "text-[#e0e0e0]"}`}
+                  <View
+                    className={`w-9 h-9 rounded-full items-center justify-center ${
+                      isSelected
+                        ? "bg-app-teal"
+                        : isToday
+                          ? "border border-app-teal"
+                          : ""
+                    }`}
                   >
-                    {day.date()}
-                  </Text>
-                  {hasLog && (
+                    <Text
+                      className={`text-[14px] ${
+                        isSelected
+                          ? "text-[#111] font-bold"
+                          : isWeekend
+                            ? "text-[#aaa]"
+                            : "text-[#e0e0e0]"
+                      }`}
+                    >
+                      {day.date()}
+                    </Text>
+                    {hasLog && (
+                      <View
+                        className={`w-1 h-1 rounded-full mt-[1px] ${
+                          isSelected ? "bg-[#111]" : "bg-app-teal"
+                        }`}
+                      />
+                    )}
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+        ))
+      ) : (
+        // 보드 모드: 셀에 이벤트 제목 표시
+        <View style={{ gap: 1, backgroundColor: "#1e1e1e" }}>
+          {weeks.map((week, wi) => (
+            <View key={wi} style={{ flexDirection: "row", gap: 1 }}>
+              {week.map((day, di) => {
+                if (!day)
+                  return (
                     <View
-                      className={`w-1 h-1 rounded-full mt-[1px] ${isSelected ? "bg-[#111]" : "bg-app-teal"}`}
+                      key={di}
+                      className="flex-1 bg-app-bg"
+                      style={{ minHeight: 68 }}
                     />
-                  )}
-                </View>
-              </Pressable>
-            );
-          })}
+                  );
+                const date = day.toDate();
+                const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
+                const isToday = isSameDay(date, today);
+                const isWeekend = di === 0 || di === 6;
+                const dayItems = boardItems.filter((item) =>
+                  isSameDay(item.date, date),
+                );
+                const overflowCount = Math.max(0, dayItems.length - 2);
+
+                return (
+                  <Pressable
+                    key={di}
+                    className="flex-1 p-1"
+                    style={{
+                      minHeight: 68,
+                      backgroundColor: isSelected ? "#142218" : "#111",
+                    }}
+                    onPress={() => onSelectDate(date)}
+                  >
+                    <Text
+                      className="text-[12px] mb-1"
+                      style={{
+                        color: isToday
+                          ? "#4ecdc4"
+                          : isWeekend
+                            ? "#888"
+                            : "#ccc",
+                        fontWeight: isToday || isSelected ? "700" : "500",
+                      }}
+                    >
+                      {day.date()}
+                    </Text>
+
+                    {dayItems.slice(0, 2).map((item, idx) => (
+                      <View
+                        key={idx}
+                        className="rounded-[3px] px-1 mb-[2px]"
+                        style={{
+                          backgroundColor: item.isRepeat ? "#28200c" : "#0e2419",
+                        }}
+                      >
+                        <Text
+                          numberOfLines={1}
+                          className="text-[10px]"
+                          style={{ color: item.isRepeat ? "#c9922a" : "#4ecdc4" }}
+                        >
+                          {item.title}
+                        </Text>
+                      </View>
+                    ))}
+
+                    {overflowCount > 0 && (
+                      <Text className="text-[9px] text-app-muted">
+                        +{overflowCount}
+                      </Text>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))}
         </View>
-      ))}
+      )}
     </View>
   );
 }

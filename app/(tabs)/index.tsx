@@ -34,6 +34,7 @@ export default function CalendarScreen() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showPicker, setShowPicker] = useState(false);
+  const [viewMode, setViewMode] = useState<"compact" | "board">("compact");
 
   // 기록 저장 후 해당 달로 이동
   useEffect(() => {
@@ -61,6 +62,24 @@ export default function CalendarScreen() {
     ...monthLogs.map((log) => new Date(log.logDate)),
     ...repeatOccurrences.map(({ date }) => date),
   ];
+
+  // 보드 뷰용 이벤트 목록
+  const boardItems = useMemo(
+    () => [
+      ...monthLogs.map((log) => ({
+        date: new Date(log.logDate),
+        title: log.title,
+        isRepeat: false,
+      })),
+      ...repeatOccurrences.map(({ log, date }) => ({
+        date,
+        title: log.title,
+        isRepeat: true,
+      })),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [monthLogs, allRepeatLogs, monthStart, monthEnd],
+  );
 
   // 월간 전체 뷰: 날짜별 섹션 그룹
   function buildDaySections(): DaySection[] {
@@ -117,11 +136,6 @@ export default function CalendarScreen() {
     setSelectedDate(new Date());
   }
 
-  function openPicker() {
-    setShowPicker(true);
-  }
-
-  // 날짜 탭: 선택/재탭 시 해제(전체 뷰)
   function handleSelectDate(date: Date) {
     if (selectedDate && isSameDay(selectedDate, date)) {
       setSelectedDate(null);
@@ -130,7 +144,7 @@ export default function CalendarScreen() {
     }
   }
 
-  // 수평 스와이프로 월 이동
+  // 수평 스와이프로 월 이동 (컴팩트 모드에서만 활성)
   const swipe = Gesture.Pan()
     .activeOffsetX([-20, 20])
     .onEnd((e) => {
@@ -156,7 +170,7 @@ export default function CalendarScreen() {
         <Pressable onPress={prevMonth} className="p-2">
           <ChevronLeft size={22} color="#e0e0e0" />
         </Pressable>
-        <Pressable onPress={openPicker} className="flex-1 items-center py-2">
+        <Pressable onPress={() => setShowPicker(true)} className="flex-1 items-center py-2">
           <Text className="text-white text-[18px] font-semibold">
             {formatMonthYear(currentMonth)}
           </Text>
@@ -166,6 +180,16 @@ export default function CalendarScreen() {
           className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
         >
           <Text className="text-app-teal text-xs font-semibold">오늘</Text>
+        </Pressable>
+        <Pressable
+          onPress={() =>
+            setViewMode((v) => (v === "compact" ? "board" : "compact"))
+          }
+          className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
+        >
+          <Text className="text-app-muted text-xs font-semibold">
+            {viewMode === "compact" ? "보드" : "컴팩트"}
+          </Text>
         </Pressable>
         <Pressable onPress={nextMonth} className="p-2">
           <ChevronRight size={22} color="#e0e0e0" />
@@ -186,7 +210,7 @@ export default function CalendarScreen() {
           <Text className="text-[10px] text-[#888] font-mono">
             monthLogs: {monthLogs.length} | allRepeatLogs:{" "}
             {allRepeatLogs.length} | selectedDate:{" "}
-            {selectedDate ? "있음" : "없음"}
+            {selectedDate ? "있음" : "없음"} | mode: {viewMode}
           </Text>
           {monthLogs.length > 0 && (
             <View className="mt-1 pl-2 border-l border-[#666]">
@@ -205,104 +229,121 @@ export default function CalendarScreen() {
         </View>
       )}
 
-      {/* 스와이프 가능한 달력 */}
-      <GestureDetector gesture={swipe}>
-        <View>
+      {viewMode === "compact" ? (
+        <>
+          {/* 컴팩트: 스와이프 + 달력 + 리스트 */}
+          <GestureDetector gesture={swipe}>
+            <View>
+              <CalendarGrid
+                currentMonth={currentMonth}
+                selectedDate={selectedDate}
+                markedDates={logDates}
+                onSelectDate={handleSelectDate}
+              />
+            </View>
+          </GestureDetector>
+
+          <View className="flex-row items-center justify-between px-5 py-[10px]">
+            <Text className="text-app-dim text-[14px] font-semibold">
+              {selectedDate
+                ? formatLogDate(selectedDate)
+                : `${formatMonthYear(currentMonth)} 전체`}
+            </Text>
+            {selectedDate && (
+              <Pressable
+                onPress={() => setSelectedDate(null)}
+                className="bg-app-surface rounded-[10px] px-2 py-[3px]"
+              >
+                <Text className="text-app-teal text-xs">전체보기</Text>
+              </Pressable>
+            )}
+          </View>
+
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{
+              paddingHorizontal: 16,
+              paddingBottom: 96,
+              gap: 8,
+            }}
+          >
+            {selectedDate ? (
+              selectedLogs.length === 0 ? (
+                <Text className="text-app-muted text-center mt-6">
+                  기록이 없습니다.
+                </Text>
+              ) : (
+                selectedLogs.map((item) => (
+                  <LogCard
+                    key={item.log.id}
+                    log={item.log}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/logs/[id]",
+                        params: item.isOccurrence
+                          ? {
+                              id: item.log.id,
+                              occurrenceDate: selectedDate!.toISOString(),
+                            }
+                          : { id: item.log.id },
+                      })
+                    }
+                  />
+                ))
+              )
+            ) : daySections.length === 0 ? (
+              <Text className="text-app-muted text-center mt-6">
+                이번 달 기록이 없습니다.
+              </Text>
+            ) : (
+              daySections.map((section) => (
+                <View key={section.dateKey}>
+                  <Pressable
+                    onPress={() => setSelectedDate(section.date)}
+                    className="py-1.5 px-1 mt-2"
+                  >
+                    <Text className="text-app-teal text-xs font-semibold tracking-[0.3px]">
+                      {formatLogDate(section.date)}
+                    </Text>
+                  </Pressable>
+                  {section.items.map((item) => (
+                    <LogCard
+                      key={`${section.dateKey}-${item.log.id}`}
+                      log={item.log}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/logs/[id]",
+                          params: item.isOccurrence
+                            ? {
+                                id: item.log.id,
+                                occurrenceDate: section.date.toISOString(),
+                              }
+                            : { id: item.log.id },
+                        })
+                      }
+                    />
+                  ))}
+                </View>
+              ))
+            )}
+          </ScrollView>
+        </>
+      ) : (
+        // 보드: 달력 셀에 이벤트 제목 표시, 하단 리스트 없음
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: 96 }}
+        >
           <CalendarGrid
             currentMonth={currentMonth}
             selectedDate={selectedDate}
             markedDates={logDates}
             onSelectDate={handleSelectDate}
+            mode="board"
+            boardItems={boardItems}
           />
-        </View>
-      </GestureDetector>
-
-      {/* 리스트 헤더 */}
-      <View className="flex-row items-center justify-between px-5 py-[10px]">
-        <Text className="text-app-dim text-[14px] font-semibold">
-          {selectedDate
-            ? formatLogDate(selectedDate) // 선택된 날짜가 있으면 해당 날짜
-            : `${formatMonthYear(currentMonth)} 전체`}
-        </Text>
-        {selectedDate && (
-          <Pressable
-            onPress={() => setSelectedDate(null)}
-            className="bg-app-surface rounded-[10px] px-2 py-[3px]"
-          >
-            <Text className="text-app-teal text-xs">전체보기</Text>
-          </Pressable>
-        )}
-      </View>
-
-      {/* 로그 리스트 */}
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingBottom: 96,
-          gap: 8,
-        }}
-      >
-        {selectedDate ? (
-          selectedLogs.length === 0 ? (
-            <Text className="text-app-muted text-center mt-6">
-              기록이 없습니다.
-            </Text>
-          ) : (
-            selectedLogs.map((item) => (
-              <LogCard
-                key={item.log.id}
-                log={item.log}
-                onPress={() =>
-                  router.push({
-                    pathname: "/logs/[id]",
-                    params: item.isOccurrence
-                      ? {
-                          id: item.log.id,
-                          occurrenceDate: selectedDate!.toISOString(),
-                        }
-                      : { id: item.log.id },
-                  })
-                }
-              />
-            ))
-          )
-        ) : daySections.length === 0 ? (
-          <Text className="text-app-muted text-center mt-6">
-            이번 달 기록이 없습니다.
-          </Text>
-        ) : (
-          daySections.map((section) => (
-            <View key={section.dateKey}>
-              <Pressable
-                onPress={() => setSelectedDate(section.date)}
-                className="py-1.5 px-1 mt-2"
-              >
-                <Text className="text-app-teal text-xs font-semibold tracking-[0.3px]">
-                  {formatLogDate(section.date)}
-                </Text>
-              </Pressable>
-              {section.items.map((item) => (
-                <LogCard
-                  key={`${section.dateKey}-${item.log.id}`}
-                  log={item.log}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/logs/[id]",
-                      params: item.isOccurrence
-                        ? {
-                            id: item.log.id,
-                            occurrenceDate: section.date.toISOString(),
-                          }
-                        : { id: item.log.id },
-                    })
-                  }
-                />
-              ))}
-            </View>
-          ))
-        )}
-      </ScrollView>
+        </ScrollView>
+      )}
 
       {/* FAB — 기록 추가 */}
       <Pressable
