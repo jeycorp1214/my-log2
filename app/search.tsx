@@ -1,15 +1,14 @@
 // 전체 텍스트 검색 화면 — 기록(제목/메모) + 인물(이름/메모) LIKE 검색
-import { PersonCard } from "@/components/persons/PersonCard";
 import { SearchLogItem } from "@/components/logs/SearchLogItem";
+import { PersonCard } from "@/components/persons/PersonCard";
 import { db } from "@/db/client";
 import { groups, logs, persons } from "@/db/schema";
-import { cn } from "@/utils/utils";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import type { InferSelectModel } from "drizzle-orm";
 import { desc, eq, like, or, sql } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Search, X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import type { InferSelectModel } from "drizzle-orm";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -112,8 +111,8 @@ export default function SearchScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       {/* 검색 헤더 */}
-      <View className="flex-row items-center gap-3 px-4 pt-14 pb-3">
-        <View className="flex-1 flex-row items-center gap-2 bg-app-surface rounded-[12px] px-3 h-10">
+      <View className="flex-row items-center gap-3 px-4 pt-14 pb-3 ">
+        <View className="flex-1 flex-row items-center gap-2 bg-app-surface rounded-[12px] px-3 h-12">
           <Search size={16} color="#666" />
           <TextInput
             className="flex-1 text-white text-[15px]"
@@ -152,7 +151,7 @@ export default function SearchScreen() {
       {status === "empty" && (
         <View className="flex-1 items-center justify-center pb-20">
           <Text className="text-app-muted text-[15px]">
-            '{debouncedQuery}'에 대한 결과가 없습니다.
+            {debouncedQuery}에 대한 결과가 없습니다.
           </Text>
         </View>
       )}

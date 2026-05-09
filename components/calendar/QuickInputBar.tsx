@@ -11,7 +11,13 @@ type Props = {
   bottom: number;
 };
 
-export function QuickInputBar({ placeholder, value, onChange, onSubmit, bottom }: Props) {
+export function QuickInputBar({
+  placeholder,
+  value,
+  onChange,
+  onSubmit,
+  bottom,
+}: Props) {
   const hasText = value.trim().length > 0;
   return (
     <View
