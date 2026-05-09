@@ -105,7 +105,9 @@ export function LogForm({
 
           {repeatType !== "none" && (
             <View className="mt-1">
-              <Text className="text-app-label text-[13px] mb-2">반복 종료일</Text>
+              <Text className="text-app-label text-[13px] mb-2">
+                반복 종료일
+              </Text>
               <View className="flex-row gap-2">
                 <Pressable
                   onPress={() => onRepeatUntilChange(null)}

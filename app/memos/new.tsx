@@ -4,6 +4,13 @@ import { db } from "@/db/client";
 import { memos } from "@/db/schema";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+} from "react-native";
 
 export default function MemoNewScreen() {
   const router = useRouter();
@@ -17,13 +24,32 @@ export default function MemoNewScreen() {
   }
 
   return (
-    <MemoEditor
-      value={content}
-      onChange={setContent}
-      onSave={save}
-      isSaveEnabled={content.trim().length > 0}
-      onBack={() => router.back()}
-      autoFocus
-    />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <ScrollView
+        className="flex-1 bg-app-bg"
+        contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <MemoEditor
+          value={content}
+          onChange={setContent}
+          isSaveEnabled={content.trim().length > 0}
+          autoFocus
+        />
+
+        <Pressable
+          onPress={save}
+          className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
+        >
+          <Text className="text-[#111] text-base font-bold">저장</Text>
+        </Pressable>
+        <Pressable onPress={() => router.back()} className="items-center py-3">
+          <Text className="text-app-muted text-[14px]">취소</Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
