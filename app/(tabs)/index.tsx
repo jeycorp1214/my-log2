@@ -2,7 +2,9 @@
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { LogCard } from "@/components/logs/LogCard";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
+import { logs } from "@/db/schema";
 import { useCalendarLogs } from "@/hooks/logs/use-calendar-logs";
+import { useDebugMode } from "@/providers/DebugProvider";
 import {
   addMonths,
   endOfMonth,
@@ -16,10 +18,8 @@ import { expandRepeatInMonth } from "@/utils/repeat";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import type { InferSelectModel } from "drizzle-orm";
-import { logs } from "@/db/schema";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react-native";
-import { useDebugMode } from "@/providers/DebugProvider";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -49,7 +49,10 @@ export default function CalendarScreen() {
   const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth]);
   const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth]);
 
-  const { monthLogs, repeatLogs: allRepeatLogs } = useCalendarLogs(monthStart, monthEnd);
+  const { monthLogs, repeatLogs: allRepeatLogs } = useCalendarLogs(
+    monthStart,
+    monthEnd,
+  );
 
   // 반복 occurrence 확장
   const repeatOccurrences = allRepeatLogs.flatMap((log) =>
@@ -167,35 +170,52 @@ export default function CalendarScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
+      <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
+        <Text className="text-white text-2xl font-bold">캘린더</Text>
+
+        <View className="flex-row items-center gap-2">
+          <Pressable
+            onPress={() =>
+              setViewMode((v) => (v === "compact" ? "board" : "compact"))
+            }
+            className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
+          >
+            <Text className="text-app-muted text-xs font-semibold">
+              {viewMode === "compact" ? "보드" : "컴팩트"}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push("/search")}
+            className="p-2"
+            hitSlop={4}
+          >
+            <Search size={20} color="#888" />
+          </Pressable>
+
+          <Pressable
+            onPress={goToday}
+            className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
+          >
+            <Text className="text-app-teal text-xs font-semibold">오늘</Text>
+          </Pressable>
+        </View>
+      </View>
+
       {/* 월 헤더 */}
-      <View className="flex-row items-center px-3 pt-14 pb-1 gap-1">
+      <View className="flex-row items-center px-3  pb-1 gap-1">
         <Pressable onPress={prevMonth} className="p-2">
           <ChevronLeft size={22} color="#e0e0e0" />
         </Pressable>
-        <Pressable onPress={() => setShowPicker(true)} className="flex-1 items-center py-2">
+        <Pressable
+          onPress={() => setShowPicker(true)}
+          className="flex-1 items-center py-2"
+        >
           <Text className="text-white text-[18px] font-semibold">
             {formatMonthYear(currentMonth)}
           </Text>
         </Pressable>
-        <Pressable
-          onPress={goToday}
-          className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
-        >
-          <Text className="text-app-teal text-xs font-semibold">오늘</Text>
-        </Pressable>
-        <Pressable
-          onPress={() =>
-            setViewMode((v) => (v === "compact" ? "board" : "compact"))
-          }
-          className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
-        >
-          <Text className="text-app-muted text-xs font-semibold">
-            {viewMode === "compact" ? "보드" : "컴팩트"}
-          </Text>
-        </Pressable>
-        <Pressable onPress={() => router.push("/search")} className="p-2" hitSlop={4}>
-          <Search size={20} color="#888" />
-        </Pressable>
+
         <Pressable onPress={nextMonth} className="p-2">
           <ChevronRight size={22} color="#e0e0e0" />
         </Pressable>
