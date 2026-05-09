@@ -1,7 +1,7 @@
 // 설정 탭 — 관리 항목 네비게이션 + 개발 도구
 import { useRouter } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 import { db, resetDatabase } from "@/db/client";
 import {
@@ -12,9 +12,11 @@ import {
   persons,
 } from "@/db/schema";
 import { seedDefaultGroups } from "@/db/seed";
+import { useDebugMode } from "@/providers/DebugProvider";
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { debugMode, toggleDebugMode } = useDebugMode();
 
   async function resetAllData() {
     Alert.alert(
@@ -114,8 +116,31 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* 개발 도구 — 개발 빌드에서만 표시 */}
-        {__DEV__ && (
+        {/* 개발자 옵션 */}
+        <View className="mb-8">
+          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+            개발자 옵션
+          </Text>
+          <View className="bg-app-surface rounded-[12px] overflow-hidden">
+            <View className="flex-row items-center px-[14px] py-[16px]">
+              <View className="flex-1">
+                <Text className="text-white text-[15px]">디버그 모드</Text>
+                <Text className="text-app-muted text-[12px] mt-0.5">
+                  캘린더 상단에 쿼리 정보 표시
+                </Text>
+              </View>
+              <Switch
+                value={debugMode}
+                onValueChange={toggleDebugMode}
+                trackColor={{ false: "#333", true: "#1a3a2e" }}
+                thumbColor={debugMode ? "#4ecdc4" : "#666"}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* 개발 도구 — 디버그 모드일 때만 표시 */}
+        {debugMode && (
           <View className="mb-8">
             <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
               개발 도구

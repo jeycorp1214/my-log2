@@ -19,6 +19,7 @@ import type { InferSelectModel } from "drizzle-orm";
 import { logs } from "@/db/schema";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react-native";
+import { useDebugMode } from "@/providers/DebugProvider";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -35,6 +36,7 @@ export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [viewMode, setViewMode] = useState<"compact" | "board">("compact");
+  const { debugMode } = useDebugMode();
 
   // 기록 저장 후 해당 달로 이동
   useEffect(() => {
@@ -199,8 +201,8 @@ export default function CalendarScreen() {
         </Pressable>
       </View>
 
-      {/* 디버그 정보 (개발용) */}
-      {__DEV__ && (
+      {/* 디버그 정보 */}
+      {debugMode && (
         <View className="bg-[#2a1a1a] px-3 py-2 border-b border-[#444]">
           <Text className="text-[10px] text-app-teal font-mono font-bold">
             🔍 DEBUG

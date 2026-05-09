@@ -14,6 +14,7 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { DatabaseProvider } from "@/providers/DatabaseProvider";
+import { DebugProvider } from "@/providers/DebugProvider";
 import { ErrorBoundary } from "@/providers/ErrorBoundary";
 
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <QueryClientProvider client={queryClient}>
             <GluestackUIProvider mode="dark">
+              <DebugProvider>
               <ThemeProvider
                 value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
               >
@@ -50,6 +52,7 @@ export default function RootLayout() {
                 </Stack>
                 <StatusBar style="auto" />
               </ThemeProvider>
+              </DebugProvider>
             </GluestackUIProvider>
           </QueryClientProvider>
         </GestureHandlerRootView>
