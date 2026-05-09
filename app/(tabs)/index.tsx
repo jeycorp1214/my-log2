@@ -2,6 +2,7 @@
 import { CalendarDebugBar } from "@/components/calendar/CalendarDebugBar";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { CalendarHeader } from "@/components/calendar/CalendarHeader";
+import { DayDetailModal } from "@/components/calendar/DayDetailModal";
 import { MonthNavBar } from "@/components/calendar/MonthNavBar";
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import { LogCard } from "@/components/logs/LogCard";
@@ -54,6 +55,7 @@ export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<"compact" | "board">("compact");
   const [showAnniversaries, setShowAnniversaries] = useState(false);
+  const [showDayModal, setShowDayModal] = useState(false);
   const [quickTitle, setQuickTitle] = useState("");
   const { debugMode } = useDebugMode();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -239,10 +241,18 @@ export default function CalendarScreen() {
   }
 
   function handleSelectDate(date: Date) {
-    if (selectedDate && isSameDay(selectedDate, date)) {
-      setSelectedDate(null);
+    if (viewMode === "board") {
+      if (selectedDate && isSameDay(selectedDate, date)) {
+        setShowDayModal(true);
+      } else {
+        setSelectedDate(date);
+      }
     } else {
-      setSelectedDate(date);
+      if (selectedDate && isSameDay(selectedDate, date)) {
+        setSelectedDate(null);
+      } else {
+        setSelectedDate(date);
+      }
     }
   }
 
@@ -456,6 +466,25 @@ export default function CalendarScreen() {
         onChange={setQuickTitle}
         onSubmit={handleQuickPress}
         bottom={inputBarBottom}
+      />
+
+      <DayDetailModal
+        visible={showDayModal}
+        date={selectedDate}
+        items={selectedLogs}
+        anniversaries={selectedAnniversaries}
+        onClose={() => setShowDayModal(false)}
+        onLogPress={(item) =>
+          router.push({
+            pathname: "/logs/[id]",
+            params: item.isOccurrence
+              ? { id: item.log.id, occurrenceDate: selectedDate!.toISOString() }
+              : { id: item.log.id },
+          })
+        }
+        onPersonPress={(personId) =>
+          router.push({ pathname: "/persons/[id]", params: { id: personId } })
+        }
       />
     </View>
   );
