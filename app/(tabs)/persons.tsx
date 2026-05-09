@@ -1,5 +1,6 @@
 // 인물 목록 탭 — 인물 리스트 / 기념일 리스트 모드 전환 + 필터/정렬
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
+import TabsHeader from "@/components/layout/TabsHeader";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
@@ -11,19 +12,13 @@ import {
   useAnniversariesInMonth,
 } from "@/hooks/persons/use-anniversaries-in-month";
 import { usePersonsWithGroups } from "@/hooks/persons/use-persons-with-groups";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { formatLogDate } from "@/utils/date";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
-import { useTabPreferences } from "@/providers/TabPreferencesProvider";
-import {
-  Cake,
-  ChevronDown,
-  ChevronRight,
-  Search,
-  SlidersHorizontal,
-} from "lucide-react-native";
+import { ChevronDown, ChevronRight } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
@@ -247,52 +242,16 @@ export default function PersonsScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      {/* 헤더 */}
-      <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
-        <Text className="text-white text-2xl font-bold">인물</Text>
-        <View className="flex-row items-center gap-1">
-          {tabMode === "persons" && (
-            <Pressable
-              onPress={() => router.push("/search")}
-              className="p-2"
-              hitSlop={4}
-            >
-              <Search size={20} color="#888" />
-            </Pressable>
-          )}
-          <Pressable
-            onPress={() =>
-              setTabMode((m) => (m === "persons" ? "anniversary" : "persons"))
-            }
-            className="p-2"
-            hitSlop={4}
-          >
-            <Cake
-              size={20}
-              color={tabMode === "anniversary" ? "#c084fc" : "#888"}
-            />
-          </Pressable>
-          <Pressable
-            onPress={() => setShowFilterSheet(true)}
-            hitSlop={8}
-            style={{ padding: 6 }}
-          >
-            <SlidersHorizontal
-              size={22}
-              color={filterBadge > 0 ? "#4ecdc4" : "#888"}
-            />
-            {filterBadge > 0 && (
-              <View className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-app-teal items-center justify-center">
-                <Text
-                  style={{ color: "#111", fontSize: 10, fontWeight: "bold" }}
-                >
-                  {filterBadge}
-                </Text>
-              </View>
-            )}
-          </Pressable>
-        </View>
-      </View>
+      <TabsHeader
+        title="인물"
+        searchOnPress={tabMode === "persons"}
+        cakeOnPress={() =>
+          setTabMode((m) => (m === "persons" ? "anniversary" : "persons"))
+        }
+        cakeActive={tabMode === "anniversary"}
+        slidersOnPress={() => setShowFilterSheet(true)}
+        slidersActive={filterBadge > 0}
+      />
 
       {/* ── 인물 모드 ── */}
       {tabMode === "persons" && (

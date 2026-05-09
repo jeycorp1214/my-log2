@@ -1,12 +1,13 @@
 // 메모 탭 — 체크박스 기반 메모/할일 목록 + 완료 상태 필터
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
+import TabsHeader from "@/components/layout/TabsHeader";
 import { db } from "@/db/client";
 import { memos } from "@/db/schema";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { asc, desc, eq, isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
-import { useTabPreferences } from "@/providers/TabPreferencesProvider";
-import { SlidersHorizontal, Trash2 } from "lucide-react-native";
+import { Trash2 } from "lucide-react-native";
 import { useState } from "react";
 import {
   Alert,
@@ -26,7 +27,8 @@ export default function MemoScreen() {
   const [quickContent, setQuickContent] = useState("");
   const { prefs, setMemoPrefs } = useTabPreferences();
   const completionFilter = prefs.memo.completionFilter as CompletionFilter;
-  const setCompletionFilter = (v: CompletionFilter) => setMemoPrefs({ completionFilter: v });
+  const setCompletionFilter = (v: CompletionFilter) =>
+    setMemoPrefs({ completionFilter: v });
   const sortOrder = prefs.memo.sortOrder as SortOrder;
   const setSortOrder = (v: SortOrder) => setMemoPrefs({ sortOrder: v });
   const [showFilterSheet, setShowFilterSheet] = useState(false);
@@ -103,31 +105,11 @@ export default function MemoScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      {/* 헤더 */}
-      <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
-        <Text className="text-white text-2xl font-bold">메모</Text>
-        <View className="flex-row items-center gap-1">
-          <Pressable
-            onPress={() => setShowFilterSheet(true)}
-            hitSlop={8}
-            style={{ padding: 6 }}
-          >
-            <SlidersHorizontal
-              size={22}
-              color={filterBadge > 0 ? "#4ecdc4" : "#888"}
-            />
-            {filterBadge > 0 && (
-              <View className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-app-teal items-center justify-center">
-                <Text
-                  style={{ color: "#111", fontSize: 10, fontWeight: "bold" }}
-                >
-                  {filterBadge}
-                </Text>
-              </View>
-            )}
-          </Pressable>
-        </View>
-      </View>
+      <TabsHeader
+        title="메모"
+        slidersOnPress={() => setShowFilterSheet(true)}
+        slidersActive={filterBadge > 0}
+      />
 
       {/* 요약 */}
       <View className="flex-row items-center px-5 py-2 border-b border-[#1e1e1e]">

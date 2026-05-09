@@ -1,7 +1,6 @@
 // 캘린더 탭 — 월별 달력 + 날짜 선택 or 월간 전체 로그 목록
 import { CalendarDebugBar } from "@/components/calendar/CalendarDebugBar";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
-import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { DayDetailModal } from "@/components/calendar/DayDetailModal";
 import { MonthNavBar } from "@/components/calendar/MonthNavBar";
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
@@ -307,6 +306,7 @@ export default function CalendarScreen() {
         cakeOnPress={() =>
           setCalendarPrefs({ showAnniversaries: !showAnniversaries })
         }
+        cakeActive={showAnniversaries}
         searchOnPress={true}
         CustomRight={
           <Pressable
@@ -315,15 +315,6 @@ export default function CalendarScreen() {
           >
             <Text className="text-app-teal text-xs font-semibold">오늘</Text>
           </Pressable>
-        }
-      />
-
-      <CalendarHeader
-        onSearchPress={() => router.push("/search")}
-        onTodayPress={goToday}
-        showAnniversaries={showAnniversaries} // 기념일 토글은 캘린더 헤더에 넣는 게 낫겠어서 옮김
-        onToggleAnniversaries={
-          () => setCalendarPrefs({ showAnniversaries: !showAnniversaries }) //
         }
       />
 

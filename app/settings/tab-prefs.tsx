@@ -3,8 +3,7 @@ import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { db } from "@/db/client";
 import { groups } from "@/db/schema";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { ScrollView, Switch, Text, View } from "react-native";
-import { Pressable } from "react-native";
+import { Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 import {
   type CalendarPrefs,
@@ -23,9 +22,7 @@ function SectionLabel({ label }: { label: string }) {
 }
 
 function RowLabel({ label }: { label: string }) {
-  return (
-    <Text className="text-app-muted text-[12px] mb-2">{label}</Text>
-  );
+  return <Text className="text-app-muted text-[12px] mb-2">{label}</Text>;
 }
 
 function Chips<T extends string>({
@@ -44,7 +41,9 @@ function Chips<T extends string>({
           key={opt.value}
           onPress={() => onSelect(opt.value)}
           className="rounded-[10px] px-4 py-2 items-center"
-          style={{ backgroundColor: current === opt.value ? "#4ecdc4" : "#2a2a2a" }}
+          style={{
+            backgroundColor: current === opt.value ? "#4ecdc4" : "#2a2a2a",
+          }}
         >
           <Text
             style={{
@@ -84,8 +83,13 @@ function SwitchRow({
 }
 
 export default function TabPrefsScreen() {
-  const { prefs, setCalendarPrefs, setListPrefs, setPersonsPrefs, setMemoPrefs } =
-    useTabPreferences();
+  const {
+    prefs,
+    setCalendarPrefs,
+    setListPrefs,
+    setPersonsPrefs,
+    setMemoPrefs,
+  } = useTabPreferences();
 
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
@@ -179,7 +183,8 @@ export default function TabPrefsScreen() {
               onPress={() => setListPrefs({ groupFilter: opt.value })}
               className="rounded-[10px] px-4 py-2 items-center"
               style={{
-                backgroundColor: list.groupFilter === opt.value ? "#4ecdc4" : "#2a2a2a",
+                backgroundColor:
+                  list.groupFilter === opt.value ? "#4ecdc4" : "#2a2a2a",
               }}
             >
               <Text
@@ -223,7 +228,8 @@ export default function TabPrefsScreen() {
               onPress={() => setPersonsPrefs({ groupFilter: opt.value })}
               className="rounded-[10px] px-4 py-2 items-center"
               style={{
-                backgroundColor: persons.groupFilter === opt.value ? "#4ecdc4" : "#2a2a2a",
+                backgroundColor:
+                  persons.groupFilter === opt.value ? "#4ecdc4" : "#2a2a2a",
               }}
             >
               <Text

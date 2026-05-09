@@ -1,26 +1,29 @@
 // 리스트 탭 — 기간 필터링된 로그를 월별 섹션으로 표시 + 체크 완료 관리
+import { MonthPickerModal } from "@/components/MonthPickerModal";
+import TabsHeader from "@/components/layout/TabsHeader";
 import { ListEventItem } from "@/components/logs/ListEventItem";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
-import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { db } from "@/db/client";
 import { groups, logPersons, logs } from "@/db/schema";
 import { type EventItem, useEventFilter } from "@/hooks/logs/use-event-filter";
-import { type AnniversaryBoardItem, useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
+import {
+  type AnniversaryBoardItem,
+  useAnniversariesInMonth,
+} from "@/hooks/persons/use-anniversaries-in-month";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { formatMonthYear } from "@/utils/date";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
-import { useTabPreferences } from "@/providers/TabPreferencesProvider";
-import { Cake, SlidersHorizontal } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
   FlatList,
   Modal,
   Pressable,
-  SectionList,
   ScrollView,
+  SectionList,
   Text,
   View,
 } from "react-native";
@@ -57,7 +60,8 @@ export default function ListScreen() {
   const [showEndPicker, setShowEndPicker] = useState(false);
 
   const completionFilter = prefs.list.completionFilter as CompletionFilter;
-  const setCompletionFilter = (v: CompletionFilter) => setListPrefs({ completionFilter: v });
+  const setCompletionFilter = (v: CompletionFilter) =>
+    setListPrefs({ completionFilter: v });
   const typeFilter = prefs.list.typeFilter as TypeFilter;
   const setTypeFilter = (v: TypeFilter) => setListPrefs({ typeFilter: v });
   const sortOrder = prefs.list.sortOrder as SortOrder;
@@ -65,9 +69,11 @@ export default function ListScreen() {
   const groupFilter = prefs.list.groupFilter;
   const setGroupFilter = (v: string) => setListPrefs({ groupFilter: v });
   const personFilter = prefs.list.personFilter as PersonFilter;
-  const setPersonFilter = (v: PersonFilter) => setListPrefs({ personFilter: v });
+  const setPersonFilter = (v: PersonFilter) =>
+    setListPrefs({ personFilter: v });
   const showAnniversaries = prefs.list.showAnniversaries;
-  const setShowAnniversaries = (v: boolean) => setListPrefs({ showAnniversaries: v });
+  const setShowAnniversaries = (v: boolean) =>
+    setListPrefs({ showAnniversaries: v });
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   const { data: allGroups = [] } = useLiveQuery(
@@ -85,9 +91,15 @@ export default function ListScreen() {
   const { start, end } = useMemo(() => {
     const now = dayjs();
     if (preset === "this-week")
-      return { start: now.startOf("week").toDate(), end: now.endOf("week").toDate() };
+      return {
+        start: now.startOf("week").toDate(),
+        end: now.endOf("week").toDate(),
+      };
     if (preset === "this-month")
-      return { start: now.startOf("month").toDate(), end: now.endOf("month").toDate() };
+      return {
+        start: now.startOf("month").toDate(),
+        end: now.endOf("month").toDate(),
+      };
     if (preset === "recent-3m")
       return { start: now.subtract(3, "month").toDate(), end: now.toDate() };
     return { start: customStart, end: customEnd };
@@ -104,11 +116,22 @@ export default function ListScreen() {
       items = items.filter((i) => i.isRepeat || !i.log.checkedAt);
     if (typeFilter === "regular") items = items.filter((i) => !i.isRepeat);
     if (typeFilter === "repeat") items = items.filter((i) => i.isRepeat);
-    if (groupFilter !== "all") items = items.filter((i) => i.log.groupId === groupFilter);
-    if (personFilter === "yes") items = items.filter((i) => linkedLogIdSet.has(i.log.id));
-    if (personFilter === "no") items = items.filter((i) => !linkedLogIdSet.has(i.log.id));
+    if (groupFilter !== "all")
+      items = items.filter((i) => i.log.groupId === groupFilter);
+    if (personFilter === "yes")
+      items = items.filter((i) => linkedLogIdSet.has(i.log.id));
+    if (personFilter === "no")
+      items = items.filter((i) => !linkedLogIdSet.has(i.log.id));
     return sortOrder === "newest" ? [...items].reverse() : items;
-  }, [allItems, completionFilter, typeFilter, groupFilter, personFilter, sortOrder, linkedLogIdSet]);
+  }, [
+    allItems,
+    completionFilter,
+    typeFilter,
+    groupFilter,
+    personFilter,
+    sortOrder,
+    linkedLogIdSet,
+  ]);
 
   const sections = useMemo(() => {
     const map = new Map<string, { date: Date; data: SectionData[] }>();
@@ -157,32 +180,15 @@ export default function ListScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      {/* 헤더 */}
-      <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
-        <Text className="text-white text-2xl font-bold">리스트</Text>
-        <View className="flex-row items-center gap-1">
-          <Pressable onPress={() => setShowAnniversaries(!showAnniversaries)} className="p-2" hitSlop={4}>
-            <Cake size={20} color={showAnniversaries ? "#c084fc" : "#888"} />
-          </Pressable>
-          <Pressable
-            onPress={() => setShowFilterSheet(true)}
-            hitSlop={8}
-            style={{ padding: 6 }}
-          >
-            <SlidersHorizontal
-              size={22}
-              color={filterBadge > 0 ? "#4ecdc4" : "#888"}
-            />
-            {filterBadge > 0 && (
-              <View className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-app-teal items-center justify-center">
-                <Text style={{ color: "#111", fontSize: 10, fontWeight: "bold" }}>
-                  {filterBadge}
-                </Text>
-              </View>
-            )}
-          </Pressable>
-        </View>
-      </View>
+      <TabsHeader
+        title="리스트"
+        cakeOnPress={() =>
+          setListPrefs({ showAnniversaries: !showAnniversaries })
+        }
+        cakeActive={showAnniversaries}
+        slidersOnPress={() => setShowFilterSheet(true)}
+        slidersActive={filterBadge > 0}
+      />
 
       {/* 기간 프리셋 칩 */}
       <View className="h-11">
@@ -191,7 +197,11 @@ export default function ListScreen() {
           showsHorizontalScrollIndicator={false}
           data={PRESETS}
           keyExtractor={(item) => item.key}
-          contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingBottom: 8 }}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            gap: 8,
+            paddingBottom: 8,
+          }}
           renderItem={({ item }) => (
             <Pressable
               onPress={() => setPreset(item.key)}
@@ -253,7 +263,7 @@ export default function ListScreen() {
         keyExtractor={(item, idx) =>
           "type" in item && item.type === "anniversary"
             ? `ann-${item.personId}-${item.date.getTime()}`
-            : (item as EventItem).key ?? String(idx)
+            : ((item as EventItem).key ?? String(idx))
         }
         renderSectionHeader={({ section }) => (
           <View className="bg-[#111] px-5 py-2">
@@ -269,7 +279,10 @@ export default function ListScreen() {
                 <AnniversaryItem
                   title={item.displayTitle}
                   onPress={() =>
-                    router.push({ pathname: "/persons/[id]", params: { id: item.personId } })
+                    router.push({
+                      pathname: "/persons/[id]",
+                      params: { id: item.personId },
+                    })
                   }
                 />
               </View>
@@ -312,7 +325,11 @@ export default function ListScreen() {
         visible={showEndPicker}
         currentMonth={customEnd}
         onSelect={(year, month) => {
-          setCustomEnd(dayjs(new Date(year, month, 1)).endOf("month").toDate());
+          setCustomEnd(
+            dayjs(new Date(year, month, 1))
+              .endOf("month")
+              .toDate(),
+          );
           setShowEndPicker(false);
         }}
         onClose={() => setShowEndPicker(false)}
@@ -338,17 +355,23 @@ export default function ListScreen() {
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "done", "undone"] as const).map((v) => {
-                const label = v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
+                const label =
+                  v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setCompletionFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: completionFilter === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor:
+                        completionFilter === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
-                      style={{ color: completionFilter === v ? "#111" : "#888" }}
+                      style={{
+                        color: completionFilter === v ? "#111" : "#888",
+                      }}
                     >
                       {label}
                     </Text>
@@ -363,13 +386,16 @@ export default function ListScreen() {
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "regular", "repeat"] as const).map((v) => {
-                const label = v === "all" ? "전체" : v === "regular" ? "일반" : "반복";
+                const label =
+                  v === "all" ? "전체" : v === "regular" ? "일반" : "반복";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setTypeFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: typeFilter === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor: typeFilter === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
@@ -395,7 +421,10 @@ export default function ListScreen() {
               <Pressable
                 onPress={() => setGroupFilter("all")}
                 className="rounded-[10px] px-4 py-2.5"
-                style={{ backgroundColor: groupFilter === "all" ? "#4ecdc4" : "#2a2a2a" }}
+                style={{
+                  backgroundColor:
+                    groupFilter === "all" ? "#4ecdc4" : "#2a2a2a",
+                }}
               >
                 <Text
                   className="text-[13px] font-semibold"
@@ -409,7 +438,10 @@ export default function ListScreen() {
                   key={g.id}
                   onPress={() => setGroupFilter(g.id)}
                   className="rounded-[10px] px-4 py-2.5"
-                  style={{ backgroundColor: groupFilter === g.id ? "#4ecdc4" : "#2a2a2a" }}
+                  style={{
+                    backgroundColor:
+                      groupFilter === g.id ? "#4ecdc4" : "#2a2a2a",
+                  }}
                 >
                   <Text
                     className="text-[13px] font-semibold"
@@ -427,13 +459,17 @@ export default function ListScreen() {
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "yes", "no"] as const).map((v) => {
-                const label = v === "all" ? "전체" : v === "yes" ? "있음" : "없음";
+                const label =
+                  v === "all" ? "전체" : v === "yes" ? "있음" : "없음";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setPersonFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: personFilter === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor:
+                        personFilter === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
@@ -458,7 +494,9 @@ export default function ListScreen() {
                     key={v}
                     onPress={() => setSortOrder(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
