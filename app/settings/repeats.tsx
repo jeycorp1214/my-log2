@@ -1,15 +1,15 @@
 // 반복 관리 화면 — 반복 로그 목록 조회/해제 + FAB 추가
-import dayjs from "dayjs";
-import { eq, isNotNull } from "drizzle-orm";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { useRouter } from "expo-router";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
-
+import { FloatingActionButton } from "@/components/FloatingActionButton";
 import { Card } from "@/components/ui/card";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
 import { db } from "@/db/client";
 import { logs } from "@/db/schema";
+import dayjs from "dayjs";
+import { eq, isNotNull } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useRouter } from "expo-router";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
 const REPEAT_LABEL: Record<string, string> = {
   daily: "매일",
@@ -101,6 +101,8 @@ export default function RepeatsScreen() {
           </VStack>
         )}
       </ScrollView>
+
+      <FloatingActionButton onPress={() => router.push("/logs/new")} />
     </View>
   );
 }

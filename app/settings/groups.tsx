@@ -1,18 +1,45 @@
-// 그룹 관리 화면 — 그룹 목록 조회/삭제 + FAB 추가
-import { View, Text, ScrollView, Pressable, Alert } from "react-native";
-import { useRouter } from "expo-router";
-import { Plus, Trash2 } from "lucide-react-native";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { eq } from "drizzle-orm";
-
+// 그룹 관리 화면 — 그룹 목록 조회/삭제 + 퀵 추가
+import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import { db } from "@/db/client";
 import { groups } from "@/db/schema";
-import { VStack } from "@/components/ui/vstack";
+import { PRESET_COLORS } from "@/db/seed";
 import { HStack } from "@/components/ui/hstack";
+import { VStack } from "@/components/ui/vstack";
+import { eq } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useRouter } from "expo-router";
+import { Trash2 } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { Alert, Keyboard, Platform, Pressable, ScrollView, Text, View } from "react-native";
 
 export default function GroupsScreen() {
   const router = useRouter();
   const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
+  const [quickName, setQuickName] = useState("");
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const show = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+
+  async function handleQuickAdd() {
+    const name = quickName.trim();
+    if (name.length === 0) {
+      router.push("/groups/new");
+      return;
+    }
+    await db.insert(groups).values({
+      name,
+      color: PRESET_COLORS[0],
+      isDefault: false,
+    });
+    setQuickName("");
+    Keyboard.dismiss();
+  }
 
   async function deleteGroup(id: string, isDefault: boolean) {
     if (isDefault) {
@@ -30,6 +57,8 @@ export default function GroupsScreen() {
       },
     ]);
   }
+
+  const inputBarBottom = keyboardHeight > 0 ? keyboardHeight + 8 : 24;
 
   return (
     <View className="flex-1 bg-app-bg">
@@ -61,13 +90,13 @@ export default function GroupsScreen() {
         </VStack>
       </ScrollView>
 
-      <Pressable
-        onPress={() => router.push("/groups/new")}
-        className="absolute right-5 bottom-8 w-14 h-14 rounded-full bg-app-teal items-center justify-center"
-        style={{ elevation: 6 }}
-      >
-        <Plus size={24} color="#111" />
-      </Pressable>
+      <QuickInputBar
+        placeholder="그룹 이름으로 추가"
+        value={quickName}
+        onChange={setQuickName}
+        onSubmit={handleQuickAdd}
+        bottom={inputBarBottom}
+      />
     </View>
   );
 }
