@@ -271,7 +271,7 @@ export default function CalendarScreen() {
       else if (e.translationX > 50) runOnJS(prevMonth)();
     });
 
-  // 수직: 모드 전환 (아래 → 보드, 위 → 컴팩트)
+  // 수직: 모드 전환 (아래 → 확장, 위 → 일반)
   const verticalSwipe = Gesture.Pan()
     .activeOffsetY([-30, 30])
     .failOffsetX([-10, 10])
@@ -295,8 +295,8 @@ export default function CalendarScreen() {
 
   const inputBarBottom = keyboardHeight > 0 ? keyboardHeight + 8 : 24;
 
-  // 보드: 날짜 선택 시에만 하단 리스트 표시
-  // 컴팩트: 항상 하단 리스트 표시
+  // 확장: 날짜 선택 시에만 하단 리스트 표시
+  // 일반: 항상 하단 리스트 표시
   const showList = viewMode === "compact";
 
   return (
@@ -376,7 +376,7 @@ export default function CalendarScreen() {
         </View>
       )}
 
-      {/* 하단 리스트 — 컴팩트: 항상, 보드: 날짜 선택 시 */}
+      {/* 하단 리스트 — 일반: 항상, 확장: 날짜 선택 시 */}
       {showList && (
         <ScrollView
           className="flex-1"

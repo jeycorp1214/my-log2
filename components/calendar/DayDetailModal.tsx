@@ -1,6 +1,6 @@
-// 보드 모드 날짜 상세 모달 — 선택된 날짜의 전체 기록 목록
-import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
+// 확장 모드 날짜 상세 모달 — 선택된 날짜의 전체 기록 목록
 import { LogCard } from "@/components/logs/LogCard";
+import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { logs } from "@/db/schema";
 import { formatLogDate } from "@/utils/date";
 import type { InferSelectModel } from "drizzle-orm";
@@ -34,7 +34,12 @@ export function DayDetailModal({
   const isEmpty = items.length === 0 && anniversaries.length === 0;
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <Pressable className="flex-1 bg-black/60 justify-end" onPress={onClose}>
         <Pressable
           className="bg-app-surface rounded-t-[20px]"
@@ -51,10 +56,16 @@ export function DayDetailModal({
           </View>
 
           <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, gap: 8 }}
+            contentContainerStyle={{
+              paddingHorizontal: 16,
+              paddingBottom: 32,
+              gap: 8,
+            }}
           >
             {isEmpty ? (
-              <Text className="text-app-muted text-center mt-4 mb-4">기록이 없습니다.</Text>
+              <Text className="text-app-muted text-center mt-4 mb-4">
+                기록이 없습니다.
+              </Text>
             ) : (
               <>
                 {anniversaries.map((ann, i) => (

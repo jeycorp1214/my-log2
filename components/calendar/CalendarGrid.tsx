@@ -1,11 +1,16 @@
-// 월별 달력 그리드 컴포넌트 — 컴팩트(점 마킹) / 보드(이벤트 제목) 두 모드 지원
+// 월별 달력 그리드 컴포넌트 — 일반(점 마킹) / 확장(이벤트 제목) 두 모드 지원
 import { WEEKDAYS } from "@/db/seed";
 import { isSameDay } from "@/utils/date";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { Pressable, Text, View } from "react-native";
 
-type BoardItem = { date: Date; title: string; isRepeat: boolean; type?: "anniversary" };
+type BoardItem = {
+  date: Date;
+  title: string;
+  isRepeat: boolean;
+  type?: "anniversary";
+};
 
 interface Props {
   currentMonth: Date;
@@ -51,7 +56,11 @@ export function CalendarGrid({
             key={d}
             className={cn(
               "flex-1 text-center text-xs py-[6px]",
-              d === "일" ? "text-[#ff6b6b]" : d === "토" ? "text-app-teal" : "text-app-muted",
+              d === "일"
+                ? "text-[#ff6b6b]"
+                : d === "토"
+                  ? "text-app-teal"
+                  : "text-app-muted",
             )}
           >
             {d}
@@ -60,17 +69,23 @@ export function CalendarGrid({
       </View>
 
       {mode === "compact" ? (
-        // 컴팩트 모드: 점 마킹
+        // 일반 모드: 점 마킹
         weeks.map((week, wi) => (
           <View key={wi} className="flex-row">
             {week.map((day, di) => {
               if (!day)
-                return <View key={di} className="flex-1 items-center py-[2px]" />;
+                return (
+                  <View key={di} className="flex-1 items-center py-[2px]" />
+                );
               const date = day.toDate();
-              const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
+              const isSelected = selectedDate
+                ? isSameDay(date, selectedDate)
+                : false;
               const isToday = isSameDay(date, today);
               const hasLog = markedDates.some((d) => isSameDay(d, date));
-              const hasAnniversary = anniversaryDates.some((d) => isSameDay(d, date));
+              const hasAnniversary = anniversaryDates.some((d) =>
+                isSameDay(d, date),
+              );
               return (
                 <Pressable
                   key={di}
@@ -80,7 +95,11 @@ export function CalendarGrid({
                   <View
                     className={cn(
                       "w-9 h-9 rounded-full items-center justify-center",
-                      isSelected ? "bg-app-teal" : isToday ? "border border-app-teal" : null,
+                      isSelected
+                        ? "bg-app-teal"
+                        : isToday
+                          ? "border border-app-teal"
+                          : null,
                     )}
                   >
                     <Text
@@ -103,13 +122,17 @@ export function CalendarGrid({
                         {hasLog && (
                           <View
                             className="w-1 h-1 rounded-full"
-                            style={{ backgroundColor: isSelected ? "#111" : "#4ecdc4" }}
+                            style={{
+                              backgroundColor: isSelected ? "#111" : "#4ecdc4",
+                            }}
                           />
                         )}
                         {hasAnniversary && (
                           <View
                             className="w-1 h-1 rounded-full"
-                            style={{ backgroundColor: isSelected ? "#111" : "#c084fc" }}
+                            style={{
+                              backgroundColor: isSelected ? "#111" : "#c084fc",
+                            }}
                           />
                         )}
                       </View>
@@ -121,7 +144,7 @@ export function CalendarGrid({
           </View>
         ))
       ) : (
-        // 보드 모드: 셀에 이벤트 제목 표시
+        // 확장 모드: 셀에 이벤트 제목 표시
         <View style={{ gap: 1, backgroundColor: "#1e1e1e" }}>
           {weeks.map((week, wi) => (
             <View key={wi} style={{ flexDirection: "row", gap: 1 }}>
@@ -135,7 +158,9 @@ export function CalendarGrid({
                     />
                   );
                 const date = day.toDate();
-                const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
+                const isSelected = selectedDate
+                  ? isSameDay(date, selectedDate)
+                  : false;
                 const isToday = isSameDay(date, today);
                 const isWeekend = di === 0 || di === 6;
                 const dayItems = boardItems.filter((item) =>

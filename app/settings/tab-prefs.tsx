@@ -116,8 +116,8 @@ export default function TabPrefsScreen() {
         <RowLabel label="뷰모드" />
         <Chips<CalendarPrefs["viewMode"]>
           options={[
-            { value: "compact", label: "컴팩트" },
-            { value: "board", label: "보드" },
+            { value: "compact", label: "일반" },
+            { value: "board", label: "확장" },
           ]}
           current={cal.viewMode}
           onSelect={(v) => setCalendarPrefs({ viewMode: v })}
