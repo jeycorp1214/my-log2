@@ -120,13 +120,6 @@
 
 # Phase 4 체크리스트 — 표준 캘린더 기능
 
-## 이벤트 시간 (선택)
-
-- [ ] logs/new.tsx: 온종일(기본) / 시간 지정 토글 + HH:MM 입력 — logDate에 시:분 포함하여 저장
-- [ ] logs/[id].tsx: 수정 모드 동일 패턴 + 뷰 모드에서 시간 표시
-- [ ] LogCard: 시간 지정된 기록은 HH:MM 표시
-- [ ] CalendarGrid: 시간 있는 기록은 dot 색상 구분 (선택)
-
 ## 검색
 
 - [x] app/search.tsx 신규 생성 — 제목/메모/인물명 LIKE 검색 (FTS5 불필요, 개인앱 규모)

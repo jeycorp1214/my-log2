@@ -17,7 +17,7 @@
 
 | 레이어       | 라이브러리                                | 선택 이유                                                      |
 | ------------ | ----------------------------------------- | -------------------------------------------------------------- |
-| 로컬 DB      | `expo-sqlite` v15                         | Expo 공식 지원, 추가 네이티브 모듈 없음                        |
+| 로컬 DB      | `expo-sqlite` v16                         | Expo 공식 지원, 추가 네이티브 모듈 없음                        |
 | ORM          | `drizzle-orm`                             | 타입세이프, SQL-first, expo-sqlite 공식 통합                   |
 | 마이그레이션 | `drizzle-kit`                             | SQL 파일 자동 생성, `drizzle/` 폴더로 관리                     |
 | UI           | `@gluestack-ui/core` v3 + `nativewind` v4 | 현재 설치됨                                                    |
@@ -311,7 +311,9 @@ export function isSameMonthDay(date: Date): boolean {
 
 ## 4. 핵심 기술 구현
 
-### 4.1 인앱 결제 (react-native-iap) - 보류
+### 4.1 인앱 결제 (react-native-iap) - 제거됨 (2026-05-08)
+
+> **현황:** `react-native-iap` 의존성 제거. 개발/테스트 단계에서 방해 요소로 판단. 결제 기능 재도입 시 아래 코드 참조.
 
 > **주의:** 서버 검증 없음 → Android 루팅/iOS 탈옥 환경에서 영수증 위조 가능. 허용 리스크로 판단하고 진행.
 
@@ -656,21 +658,21 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 
 ## 8. 개발 로드맵
 
-### Phase 0 — 환경 설정 (1일, 지금 바로)
+### Phase 0 — 환경 설정 ✅ DONE
 
-- [ ] `npx expo install expo-dev-client` + `eas build:configure`
-- [ ] `tailwind.config.js`에 Gluestack preset 등록
-- [ ] `expo-sqlite` + `drizzle-orm` + `drizzle-kit` + `dayjs` + `@tanstack/react-query` + `expo-secure-store` 설치
-- [ ] **실기기(Android)** 에서 빌드 검증 — 에뮬레이터에서는 IAP·Google Drive 로그인 미동작
+- [x] `npx expo install expo-dev-client` + `eas build:configure`
+- [x] `tailwind.config.js`에 Gluestack preset 등록
+- [x] `expo-sqlite` + `drizzle-orm` + `drizzle-kit` + `dayjs` + `@tanstack/react-query` + `expo-secure-store` 설치
+- [x] **실기기(Android)** 에서 빌드 검증 — 에뮬레이터에서는 IAP·Google Drive 로그인 미동작
 
-### Phase 1 — Core (4주, Android 우선)
+### Phase 1 — Core ✅ DONE
 
-- [ ] drizzle Schema 정의 + 마이그레이션 파일 생성 + Seed 데이터 (기본 그룹 3개)
-- [ ] 그룹 CRUD (커스텀 그룹 추가/수정/삭제, 기본 그룹 삭제 방지)
-- [ ] 일정 CRUD + 반복 규칙 UI 동적 생성
-- [ ] 인물 CRUD + 목록 뷰 (나이 표시: `calcAge(birthDate)`)
-- [ ] logPersons N:M 조회 시 drizzle **relational query** 사용 (`db.query.logs.findMany({ with: { logPersons: { with: { person: true } } } })`)
-- [ ] 캘린더 뷰 + 아코디언 목록 (Gluestack + NativeWind)
+- [x] drizzle Schema 정의 + 마이그레이션 파일 생성 + Seed 데이터 (기본 그룹 3개)
+- [x] 그룹 CRUD (커스텀 그룹 추가/수정/삭제, 기본 그룹 삭제 방지)
+- [x] 일정 CRUD + 반복 규칙 UI 동적 생성
+- [x] 인물 CRUD + 목록 뷰 (나이 표시: `calcAge(birthDate)`)
+- [x] logPersons N:M 조회 시 drizzle **relational query** 사용 (`db.query.logs.findMany({ with: { logPersons: { with: { person: true } } } })`)
+- [x] 캘린더 뷰 + 아코디언 목록 (Gluestack + NativeWind)
 
 ### Phase 2 — Premium (2주)
 
