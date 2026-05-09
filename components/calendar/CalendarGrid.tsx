@@ -71,8 +71,6 @@ export function CalendarGrid({
               const isToday = isSameDay(date, today);
               const hasLog = markedDates.some((d) => isSameDay(d, date));
               const hasAnniversary = anniversaryDates.some((d) => isSameDay(d, date));
-              const isWeekend = di === 0 || di === 6;
-
               return (
                 <Pressable
                   key={di}
@@ -86,10 +84,17 @@ export function CalendarGrid({
                     )}
                   >
                     <Text
-                      className={cn(
-                        "text-[14px]",
-                        isSelected ? "text-[#111] font-bold" : isWeekend ? "text-[#aaa]" : "text-[#e0e0e0]",
-                      )}
+                      className="text-[14px]"
+                      style={{
+                        color: isSelected
+                          ? "#111"
+                          : di === 0
+                            ? "#ff6b6b"
+                            : di === 6
+                              ? "#4ecdc4"
+                              : "#e0e0e0",
+                        fontWeight: isSelected ? "700" : "400",
+                      }}
                     >
                       {day.date()}
                     </Text>

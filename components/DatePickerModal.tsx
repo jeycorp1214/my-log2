@@ -1,11 +1,11 @@
 // 날짜 선택 모달 컴포넌트 — CalendarGrid 기반 인라인 날짜 선택
+import { CalendarGrid } from "@/components/calendar/CalendarGrid";
+import { MonthPickerModal } from "@/components/MonthPickerModal";
+import { formatMonthYear } from "@/utils/date";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
-
-import { CalendarGrid } from "@/components/calendar/CalendarGrid";
-import { formatMonthYear } from "@/utils/date";
 
 interface Props {
   visible: boolean;
@@ -16,6 +16,7 @@ interface Props {
 
 export function DatePickerModal({ visible, value, onChange, onClose }: Props) {
   const [pickerMonth, setPickerMonth] = useState(value);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
 
   useEffect(() => {
     if (visible) setPickerMonth(value);
@@ -47,9 +48,11 @@ export function DatePickerModal({ visible, value, onChange, onClose }: Props) {
             >
               <ChevronLeft size={20} color="#e0e0e0" />
             </Pressable>
-            <Text className="text-white text-base font-semibold">
-              {formatMonthYear(pickerMonth)}
-            </Text>
+            <Pressable onPress={() => setShowMonthPicker(true)} className="py-1 px-2">
+              <Text className="text-white text-base font-semibold">
+                {formatMonthYear(pickerMonth)}
+              </Text>
+            </Pressable>
             <Pressable
               onPress={() =>
                 setPickerMonth(dayjs(pickerMonth).add(1, "month").toDate())
@@ -69,6 +72,16 @@ export function DatePickerModal({ visible, value, onChange, onClose }: Props) {
           </View>
         </Pressable>
       </Pressable>
+
+      <MonthPickerModal
+        visible={showMonthPicker}
+        currentMonth={pickerMonth}
+        onSelect={(year, month) => {
+          setPickerMonth(new Date(year, month, 1));
+          setShowMonthPicker(false);
+        }}
+        onClose={() => setShowMonthPicker(false)}
+      />
     </Modal>
   );
 }
