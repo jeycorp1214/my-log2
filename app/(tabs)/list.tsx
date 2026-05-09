@@ -1,15 +1,17 @@
 // 리스트 탭 — 기간 필터링된 로그를 월별 섹션으로 표시 + 체크 완료 관리
 import { ListEventItem } from "@/components/logs/ListEventItem";
+import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { db } from "@/db/client";
 import { logs } from "@/db/schema";
 import { type EventItem, useEventFilter } from "@/hooks/logs/use-event-filter";
+import { type AnniversaryBoardItem, useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
 import { formatMonthYear } from "@/utils/date";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useRouter } from "expo-router";
-import { SlidersHorizontal } from "lucide-react-native";
+import { Cake, SlidersHorizontal } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
   FlatList,
@@ -26,6 +28,7 @@ type TypeFilter = "all" | "regular" | "repeat";
 type SortOrder = "oldest" | "newest";
 
 type PresetConfig = { key: Preset; label: string };
+type SectionData = EventItem | AnniversaryBoardItem;
 
 const PRESETS: PresetConfig[] = [
   { key: "this-year", label: "올해" },
@@ -55,6 +58,7 @@ export default function ListScreen() {
     useState<CompletionFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("oldest");
+  const [showAnniversaries, setShowAnniversaries] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   const { start, end } = useMemo(() => {
@@ -78,6 +82,7 @@ export default function ListScreen() {
   }, [preset, customStart, customEnd]);
 
   const allItems = useEventFilter(start, end);
+  const { anniversaryBoardItems } = useAnniversariesInMonth(start, end);
 
   const filtered = useMemo(() => {
     let items = allItems;
@@ -91,14 +96,30 @@ export default function ListScreen() {
   }, [allItems, completionFilter, typeFilter, sortOrder]);
 
   const sections = useMemo(() => {
-    const map = new Map<string, EventItem[]>();
+    const map = new Map<string, { date: Date; data: SectionData[] }>();
+
     for (const item of filtered) {
       const key = formatMonthYear(item.displayDate);
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(item);
+      if (!map.has(key)) map.set(key, { date: item.displayDate, data: [] });
+      map.get(key)!.data.push(item);
     }
-    return Array.from(map.entries()).map(([title, data]) => ({ title, data }));
-  }, [filtered]);
+
+    if (showAnniversaries) {
+      for (const ann of anniversaryBoardItems) {
+        const key = formatMonthYear(ann.date);
+        if (!map.has(key)) map.set(key, { date: ann.date, data: [] });
+        map.get(key)!.data.push(ann);
+      }
+    }
+
+    return Array.from(map.values())
+      .sort((a, b) =>
+        sortOrder === "newest"
+          ? b.date.getTime() - a.date.getTime()
+          : a.date.getTime() - b.date.getTime(),
+      )
+      .map(({ date, data }) => ({ title: formatMonthYear(date), data }));
+  }, [filtered, showAnniversaries, anniversaryBoardItems, sortOrder]);
 
   const regularItems = filtered.filter((i) => !i.isRepeat);
   const totalCount = regularItems.length;
@@ -122,23 +143,28 @@ export default function ListScreen() {
       {/* 헤더 */}
       <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
         <Text className="text-white text-2xl font-bold">리스트</Text>
-        <Pressable
-          onPress={() => setShowFilterSheet(true)}
-          hitSlop={8}
-          style={{ padding: 6 }}
-        >
-          <SlidersHorizontal
-            size={22}
-            color={filterBadge > 0 ? "#4ecdc4" : "#888"}
-          />
-          {filterBadge > 0 && (
-            <View className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-app-teal items-center justify-center">
-              <Text style={{ color: "#111", fontSize: 10, fontWeight: "bold" }}>
-                {filterBadge}
-              </Text>
-            </View>
-          )}
-        </Pressable>
+        <View className="flex-row items-center gap-1">
+          <Pressable onPress={() => setShowAnniversaries((v) => !v)} className="p-2" hitSlop={4}>
+            <Cake size={20} color={showAnniversaries ? "#c084fc" : "#888"} />
+          </Pressable>
+          <Pressable
+            onPress={() => setShowFilterSheet(true)}
+            hitSlop={8}
+            style={{ padding: 6 }}
+          >
+            <SlidersHorizontal
+              size={22}
+              color={filterBadge > 0 ? "#4ecdc4" : "#888"}
+            />
+            {filterBadge > 0 && (
+              <View className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-app-teal items-center justify-center">
+                <Text style={{ color: "#111", fontSize: 10, fontWeight: "bold" }}>
+                  {filterBadge}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+        </View>
       </View>
 
       <View className="h-11">
@@ -211,7 +237,11 @@ export default function ListScreen() {
       {/* 월별 섹션 리스트 */}
       <SectionList
         sections={sections}
-        keyExtractor={(item) => item.key}
+        keyExtractor={(item, idx) =>
+          "type" in item && item.type === "anniversary"
+            ? `ann-${item.personId}-${item.date.getTime()}`
+            : (item as EventItem).key ?? String(idx)
+        }
         renderSectionHeader={({ section }) => (
           <View className="bg-[#111] px-5 py-2">
             <Text className="text-app-dim text-[13px] font-semibold">
@@ -219,18 +249,33 @@ export default function ListScreen() {
             </Text>
           </View>
         )}
-        renderItem={({ item }) => (
-          <ListEventItem
-            item={item}
-            onToggleCheck={toggleCheck}
-            onPress={() =>
-              router.push({
-                pathname: "/logs/[id]",
-                params: { id: item.log.id },
-              })
-            }
-          />
-        )}
+        renderItem={({ item }) => {
+          if ("type" in item && item.type === "anniversary") {
+            return (
+              <View className="px-4">
+                <AnniversaryItem
+                  title={item.displayTitle}
+                  onPress={() =>
+                    router.push({ pathname: "/persons/[id]", params: { id: item.personId } })
+                  }
+                />
+              </View>
+            );
+          }
+          const eventItem = item as EventItem;
+          return (
+            <ListEventItem
+              item={eventItem}
+              onToggleCheck={toggleCheck}
+              onPress={() =>
+                router.push({
+                  pathname: "/logs/[id]",
+                  params: { id: eventItem.log.id },
+                })
+              }
+            />
+          );
+        }}
         ListEmptyComponent={
           <Text className="text-app-muted text-center mt-16 text-[14px]">
             해당 기간에 기록이 없습니다.

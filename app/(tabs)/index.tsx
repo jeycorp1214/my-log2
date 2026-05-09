@@ -40,7 +40,8 @@ import { runOnJS } from "react-native-reanimated";
 
 type Log = InferSelectModel<typeof logs>;
 type LogItem = { log: Log; isOccurrence: boolean };
-type DaySection = { dateKey: string; date: Date; items: LogItem[]; anniversaries: string[] };
+type AnniversaryEntry = { title: string; personId: string };
+type DaySection = { dateKey: string; date: Date; items: LogItem[]; anniversaries: AnniversaryEntry[] };
 
 export default function CalendarScreen() {
   const router = useRouter();
@@ -120,7 +121,12 @@ export default function CalendarScreen() {
         title: log.title,
         isRepeat: true as const,
       })),
-      ...(showAnniversaries ? anniversaryBoardItems : []),
+      ...(showAnniversaries ? anniversaryBoardItems.map((ann) => ({
+        date: ann.date,
+        title: ann.displayTitle,
+        isRepeat: false as const,
+        type: "anniversary" as const,
+      })) : []),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [monthLogs, allRepeatLogs, monthStart, monthEnd, showAnniversaries, anniversaryBoardItems],
@@ -153,7 +159,7 @@ export default function CalendarScreen() {
       for (const ann of anniversaryBoardItems) {
         const key = toDateKey(ann.date);
         if (!map.has(key)) map.set(key, { dateKey: key, date: ann.date, items: [], anniversaries: [] });
-        map.get(key)!.anniversaries.push(ann.title);
+        map.get(key)!.anniversaries.push({ title: ann.displayTitle, personId: ann.personId });
       }
     }
 
@@ -174,11 +180,9 @@ export default function CalendarScreen() {
       ]
     : [];
 
-  const selectedAnniversaries: string[] =
+  const selectedAnniversaries =
     showAnniversaries && selectedDate
-      ? anniversaryBoardItems
-          .filter((ann) => isSameDay(ann.date, selectedDate))
-          .map((ann) => ann.title)
+      ? anniversaryBoardItems.filter((ann) => isSameDay(ann.date, selectedDate))
       : [];
 
   function prevMonth() {
@@ -320,8 +324,12 @@ export default function CalendarScreen() {
                 </Text>
               ) : (
                 <>
-                  {selectedAnniversaries.map((title, i) => (
-                    <AnniversaryItem key={`ann-${i}`} title={title} />
+                  {selectedAnniversaries.map((ann, i) => (
+                    <AnniversaryItem
+                      key={`ann-${i}`}
+                      title={ann.displayTitle}
+                      onPress={() => router.push({ pathname: "/persons/[id]", params: { id: ann.personId } })}
+                    />
                   ))}
                   {selectedLogs.map((item) => (
                     <LogCard
@@ -357,8 +365,12 @@ export default function CalendarScreen() {
                       {formatLogDate(section.date)}
                     </Text>
                   </Pressable>
-                  {section.anniversaries.map((title, i) => (
-                    <AnniversaryItem key={`ann-${section.dateKey}-${i}`} title={title} />
+                  {section.anniversaries.map((ann, i) => (
+                    <AnniversaryItem
+                      key={`ann-${section.dateKey}-${i}`}
+                      title={ann.title}
+                      onPress={() => router.push({ pathname: "/persons/[id]", params: { id: ann.personId } })}
+                    />
                   ))}
                   {section.items.map((item) => (
                     <LogCard
