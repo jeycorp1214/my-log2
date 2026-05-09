@@ -148,7 +148,7 @@ export function CalendarGrid({
                     key={di}
                     className="flex-1 p-1"
                     style={{
-                      minHeight: 68,
+                      minHeight: 84,
                       backgroundColor: isSelected ? "#142218" : "#111",
                     }}
                     onPress={() => onSelectDate(date)}
@@ -158,9 +158,11 @@ export function CalendarGrid({
                       style={{
                         color: isToday
                           ? "#4ecdc4"
-                          : isWeekend
-                            ? "#888"
-                            : "#ccc",
+                          : di === 0
+                            ? "#ff6b6b"
+                            : di === 6
+                              ? "#4ecdc4"
+                              : "#ccc",
                         fontWeight: isToday || isSelected ? "700" : "500",
                       }}
                     >

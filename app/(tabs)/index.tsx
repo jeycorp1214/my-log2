@@ -281,7 +281,7 @@ export default function CalendarScreen() {
 
   // 보드: 날짜 선택 시에만 하단 리스트 표시
   // 컴팩트: 항상 하단 리스트 표시
-  const showList = viewMode === "compact" || selectedDate !== null;
+  const showList = viewMode === "compact";
 
   return (
     <View className="flex-1 bg-app-bg">
