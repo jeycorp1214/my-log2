@@ -2,7 +2,8 @@
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { LogCard } from "@/components/logs/LogCard";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
-import { logs } from "@/db/schema";
+import { db } from "@/db/client";
+import { groups, logs } from "@/db/schema";
 import { useCalendarLogs } from "@/hooks/logs/use-calendar-logs";
 import { useDebugMode } from "@/providers/DebugProvider";
 import {
@@ -18,10 +19,25 @@ import { expandRepeatInMonth } from "@/utils/repeat";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import type { InferSelectModel } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react-native";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Search,
+} from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import {
+  Keyboard,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
 
@@ -36,7 +52,28 @@ export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [viewMode, setViewMode] = useState<"compact" | "board">("compact");
+  const [quickTitle, setQuickTitle] = useState("");
   const { debugMode } = useDebugMode();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const { data: allGroups = [] } = useLiveQuery(
+    db.select().from(groups).orderBy(groups.sortOrder),
+  );
+
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const show = Keyboard.addListener(showEvent, (e) =>
+      setKeyboardHeight(e.endCoordinates.height),
+    );
+    const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
   // 기록 저장 후 해당 달로 이동
   useEffect(() => {
@@ -141,6 +178,25 @@ export default function CalendarScreen() {
     setSelectedDate(new Date());
   }
 
+  async function handleQuickPress() {
+    const title = quickTitle.trim();
+    if (title.length === 0) {
+      router.push({
+        pathname: "/logs/new",
+        params: { date: targetDate.toISOString() },
+      });
+      return;
+    }
+    if (allGroups.length === 0) return;
+    await db.insert(logs).values({
+      title,
+      logDate: targetDate,
+      groupId: allGroups[0].id,
+    });
+    setQuickTitle("");
+    Keyboard.dismiss();
+  }
+
   function handleSelectDate(date: Date) {
     if (selectedDate && isSameDay(selectedDate, date)) {
       setSelectedDate(null);
@@ -167,6 +223,8 @@ export default function CalendarScreen() {
     (isCurrentMonth
       ? today
       : new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1));
+
+  const inputBarBottom = keyboardHeight > 0 ? keyboardHeight + 8 : 24;
 
   return (
     <View className="flex-1 bg-app-bg">
@@ -357,7 +415,7 @@ export default function CalendarScreen() {
         // 보드: 달력 셀에 이벤트 제목 표시, 하단 리스트 없음
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingBottom: 96 }}
+          contentContainerStyle={{ paddingBottom: 16 }}
         >
           <CalendarGrid
             currentMonth={currentMonth}
@@ -370,19 +428,35 @@ export default function CalendarScreen() {
         </ScrollView>
       )}
 
-      {/* FAB — 기록 추가 */}
-      <Pressable
-        onPress={() =>
-          router.push({
-            pathname: "/logs/new",
-            params: { date: targetDate.toISOString() },
-          })
-        }
-        className="absolute right-5 bottom-8 w-14 h-14 rounded-full bg-app-teal items-center justify-center shadow-lg"
-        style={{ elevation: 6 }}
+      {/* 퀵 입력바 */}
+      <View
+        className="absolute left-0 right-0 px-4 pt-2 bg-app-bg"
+        style={{ bottom: inputBarBottom }}
       >
-        <Plus size={24} color="#111" />
-      </Pressable>
+        <View className="flex-row items-center gap-2">
+          <TextInput
+            className="flex-1 h-14 bg-app-surface rounded-full px-5 text-white text-[15px]"
+            placeholder={`${dayjs(targetDate).format("M월 D일")}에 기록 추가`}
+            placeholderTextColor="#444"
+            value={quickTitle}
+            onChangeText={setQuickTitle}
+            onSubmitEditing={handleQuickPress}
+            returnKeyType="done"
+            blurOnSubmit={false}
+          />
+          <Pressable
+            onPress={handleQuickPress}
+            className="w-14 h-14 rounded-full bg-app-teal items-center justify-center"
+            style={{ elevation: 6 }}
+          >
+            {quickTitle.trim().length > 0 ? (
+              <Check size={22} color="#111" />
+            ) : (
+              <Plus size={24} color="#111" />
+            )}
+          </Pressable>
+        </View>
+      </View>
 
       {/* MonthPicker 모달 */}
       <MonthPickerModal
