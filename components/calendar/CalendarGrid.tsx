@@ -5,7 +5,7 @@ import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { Pressable, Text, View } from "react-native";
 
-type BoardItem = { date: Date; title: string; isRepeat: boolean };
+type BoardItem = { date: Date; title: string; isRepeat: boolean; type?: "anniversary" };
 
 interface Props {
   currentMonth: Date;
@@ -14,6 +14,7 @@ interface Props {
   onSelectDate: (date: Date) => void;
   mode?: "compact" | "board";
   boardItems?: BoardItem[];
+  anniversaryDates?: Date[];
 }
 
 export function CalendarGrid({
@@ -23,6 +24,7 @@ export function CalendarGrid({
   onSelectDate,
   mode = "compact",
   boardItems = [],
+  anniversaryDates = [],
 }: Props) {
   const start = dayjs(currentMonth).startOf("month");
   const daysInMonth = start.daysInMonth();
@@ -68,6 +70,7 @@ export function CalendarGrid({
               const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
               const isToday = isSameDay(date, today);
               const hasLog = markedDates.some((d) => isSameDay(d, date));
+              const hasAnniversary = anniversaryDates.some((d) => isSameDay(d, date));
               const isWeekend = di === 0 || di === 6;
 
               return (
@@ -90,13 +93,21 @@ export function CalendarGrid({
                     >
                       {day.date()}
                     </Text>
-                    {hasLog && (
-                      <View
-                        className={cn(
-                          "w-1 h-1 rounded-full mt-[1px]",
-                          isSelected ? "bg-[#111]" : "bg-app-teal",
+                    {(hasLog || hasAnniversary) && (
+                      <View className="flex-row gap-[2px] mt-[1px]">
+                        {hasLog && (
+                          <View
+                            className="w-1 h-1 rounded-full"
+                            style={{ backgroundColor: isSelected ? "#111" : "#4ecdc4" }}
+                          />
                         )}
-                      />
+                        {hasAnniversary && (
+                          <View
+                            className="w-1 h-1 rounded-full"
+                            style={{ backgroundColor: isSelected ? "#111" : "#c084fc" }}
+                          />
+                        )}
+                      </View>
                     )}
                   </View>
                 </Pressable>
@@ -151,23 +162,35 @@ export function CalendarGrid({
                       {day.date()}
                     </Text>
 
-                    {dayItems.slice(0, 2).map((item, idx) => (
-                      <View
-                        key={idx}
-                        className="rounded-[3px] px-1 mb-[2px]"
-                        style={{
-                          backgroundColor: item.isRepeat ? "#28200c" : "#0e2419",
-                        }}
-                      >
-                        <Text
-                          numberOfLines={1}
-                          className="text-[10px]"
-                          style={{ color: item.isRepeat ? "#c9922a" : "#4ecdc4" }}
+                    {dayItems.slice(0, 2).map((item, idx) => {
+                      const bgColor =
+                        item.type === "anniversary"
+                          ? "#1e1428"
+                          : item.isRepeat
+                            ? "#28200c"
+                            : "#0e2419";
+                      const textColor =
+                        item.type === "anniversary"
+                          ? "#c084fc"
+                          : item.isRepeat
+                            ? "#c9922a"
+                            : "#4ecdc4";
+                      return (
+                        <View
+                          key={idx}
+                          className="rounded-[3px] px-1 mb-[2px]"
+                          style={{ backgroundColor: bgColor }}
                         >
-                          {item.title}
-                        </Text>
-                      </View>
-                    ))}
+                          <Text
+                            numberOfLines={1}
+                            className="text-[10px]"
+                            style={{ color: textColor }}
+                          >
+                            {item.title}
+                          </Text>
+                        </View>
+                      );
+                    })}
 
                     {overflowCount > 0 && (
                       <Text className="text-[9px] text-app-muted">

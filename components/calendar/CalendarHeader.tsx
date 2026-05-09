@@ -1,6 +1,6 @@
-// 캘린더 탭 헤더 — 제목 + 뷰 모드 토글 / 검색 / 오늘 버튼
+// 캘린더 탭 헤더 — 제목 + 뷰 모드 토글 / 기념일 토글 / 검색 / 오늘 버튼
 import { cn } from "@/utils/utils";
-import { Search } from "lucide-react-native";
+import { Cake, Search } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 
 type Props = {
@@ -8,9 +8,11 @@ type Props = {
   onToggleView: () => void;
   onSearchPress: () => void;
   onTodayPress: () => void;
+  showAnniversaries?: boolean;
+  onToggleAnniversaries?: () => void;
 };
 
-export function CalendarHeader({ viewMode, onToggleView, onSearchPress, onTodayPress }: Props) {
+export function CalendarHeader({ viewMode, onToggleView, onSearchPress, onTodayPress, showAnniversaries = false, onToggleAnniversaries }: Props) {
   return (
     <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
       <Text className="text-white text-2xl font-bold">캘린더</Text>
@@ -29,6 +31,12 @@ export function CalendarHeader({ viewMode, onToggleView, onSearchPress, onTodayP
             {viewMode === "compact" ? "보드" : "컴팩트"}
           </Text>
         </Pressable>
+
+        {onToggleAnniversaries && (
+          <Pressable onPress={onToggleAnniversaries} className="p-2" hitSlop={4}>
+            <Cake size={20} color={showAnniversaries ? "#c084fc" : "#888"} />
+          </Pressable>
+        )}
 
         <Pressable onPress={onSearchPress} className="p-2" hitSlop={4}>
           <Search size={20} color="#888" />

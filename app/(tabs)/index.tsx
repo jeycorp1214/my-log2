@@ -5,10 +5,12 @@ import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { MonthNavBar } from "@/components/calendar/MonthNavBar";
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import { LogCard } from "@/components/logs/LogCard";
+import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { db } from "@/db/client";
 import { groups, logs } from "@/db/schema";
 import { useCalendarLogs } from "@/hooks/logs/use-calendar-logs";
+import { useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
 import { useDebugMode } from "@/providers/DebugProvider";
 import {
   addMonths,
@@ -38,7 +40,7 @@ import { runOnJS } from "react-native-reanimated";
 
 type Log = InferSelectModel<typeof logs>;
 type LogItem = { log: Log; isOccurrence: boolean };
-type DaySection = { dateKey: string; date: Date; items: LogItem[] };
+type DaySection = { dateKey: string; date: Date; items: LogItem[]; anniversaries: string[] };
 
 export default function CalendarScreen() {
   const router = useRouter();
@@ -47,6 +49,7 @@ export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [viewMode, setViewMode] = useState<"compact" | "board">("compact");
+  const [showAnniversaries, setShowAnniversaries] = useState(false);
   const [quickTitle, setQuickTitle] = useState("");
   const { debugMode } = useDebugMode();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -86,6 +89,8 @@ export default function CalendarScreen() {
     monthEnd,
   );
 
+  const { anniversaryDates, anniversaryBoardItems } = useAnniversariesInMonth(monthStart, monthEnd);
+
   // 반복 occurrence 확장
   const repeatOccurrences = allRepeatLogs.flatMap((log) =>
     expandRepeatInMonth(log, monthStart, monthEnd).map((date) => ({
@@ -100,22 +105,25 @@ export default function CalendarScreen() {
     ...repeatOccurrences.map(({ date }) => date),
   ];
 
+  const calendarAnniversaryDates = showAnniversaries ? anniversaryDates : [];
+
   // 보드 뷰용 이벤트 목록
   const boardItems = useMemo(
     () => [
       ...monthLogs.map((log) => ({
         date: new Date(log.logDate),
         title: log.title,
-        isRepeat: false,
+        isRepeat: false as const,
       })),
       ...repeatOccurrences.map(({ log, date }) => ({
         date,
         title: log.title,
-        isRepeat: true,
+        isRepeat: true as const,
       })),
+      ...(showAnniversaries ? anniversaryBoardItems : []),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [monthLogs, allRepeatLogs, monthStart, monthEnd],
+    [monthLogs, allRepeatLogs, monthStart, monthEnd, showAnniversaries, anniversaryBoardItems],
   );
 
   // 월간 전체 뷰: 날짜별 섹션 그룹
@@ -137,8 +145,16 @@ export default function CalendarScreen() {
 
     for (const { log, date, isOccurrence } of allItems) {
       const key = toDateKey(date);
-      if (!map.has(key)) map.set(key, { dateKey: key, date, items: [] });
+      if (!map.has(key)) map.set(key, { dateKey: key, date, items: [], anniversaries: [] });
       map.get(key)!.items.push({ log, isOccurrence });
+    }
+
+    if (showAnniversaries) {
+      for (const ann of anniversaryBoardItems) {
+        const key = toDateKey(ann.date);
+        if (!map.has(key)) map.set(key, { dateKey: key, date: ann.date, items: [], anniversaries: [] });
+        map.get(key)!.anniversaries.push(ann.title);
+      }
     }
 
     return Array.from(map.values()).sort(
@@ -157,6 +173,13 @@ export default function CalendarScreen() {
           .map(({ log }) => ({ log, isOccurrence: true })),
       ]
     : [];
+
+  const selectedAnniversaries: string[] =
+    showAnniversaries && selectedDate
+      ? anniversaryBoardItems
+          .filter((ann) => isSameDay(ann.date, selectedDate))
+          .map((ann) => ann.title)
+      : [];
 
   function prevMonth() {
     setCurrentMonth(addMonths(currentMonth, -1));
@@ -228,6 +251,8 @@ export default function CalendarScreen() {
         onToggleView={() => setViewMode((v) => (v === "compact" ? "board" : "compact"))}
         onSearchPress={() => router.push("/search")}
         onTodayPress={goToday}
+        showAnniversaries={showAnniversaries}
+        onToggleAnniversaries={() => setShowAnniversaries((v) => !v)}
       />
 
       <MonthNavBar
@@ -259,6 +284,7 @@ export default function CalendarScreen() {
                 selectedDate={selectedDate}
                 markedDates={logDates}
                 onSelectDate={handleSelectDate}
+                anniversaryDates={calendarAnniversaryDates}
               />
             </View>
           </GestureDetector>
@@ -288,28 +314,33 @@ export default function CalendarScreen() {
             }}
           >
             {selectedDate ? (
-              selectedLogs.length === 0 ? (
+              selectedLogs.length === 0 && selectedAnniversaries.length === 0 ? (
                 <Text className="text-app-muted text-center mt-6">
                   기록이 없습니다.
                 </Text>
               ) : (
-                selectedLogs.map((item) => (
-                  <LogCard
-                    key={item.log.id}
-                    log={item.log}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/logs/[id]",
-                        params: item.isOccurrence
-                          ? {
-                              id: item.log.id,
-                              occurrenceDate: selectedDate!.toISOString(),
-                            }
-                          : { id: item.log.id },
-                      })
-                    }
-                  />
-                ))
+                <>
+                  {selectedAnniversaries.map((title, i) => (
+                    <AnniversaryItem key={`ann-${i}`} title={title} />
+                  ))}
+                  {selectedLogs.map((item) => (
+                    <LogCard
+                      key={item.log.id}
+                      log={item.log}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/logs/[id]",
+                          params: item.isOccurrence
+                            ? {
+                                id: item.log.id,
+                                occurrenceDate: selectedDate!.toISOString(),
+                              }
+                            : { id: item.log.id },
+                        })
+                      }
+                    />
+                  ))}
+                </>
               )
             ) : daySections.length === 0 ? (
               <Text className="text-app-muted text-center mt-6">
@@ -326,6 +357,9 @@ export default function CalendarScreen() {
                       {formatLogDate(section.date)}
                     </Text>
                   </Pressable>
+                  {section.anniversaries.map((title, i) => (
+                    <AnniversaryItem key={`ann-${section.dateKey}-${i}`} title={title} />
+                  ))}
                   {section.items.map((item) => (
                     <LogCard
                       key={`${section.dateKey}-${item.log.id}`}
@@ -361,6 +395,7 @@ export default function CalendarScreen() {
             onSelectDate={handleSelectDate}
             mode="board"
             boardItems={boardItems}
+            anniversaryDates={calendarAnniversaryDates}
           />
         </ScrollView>
       )}
