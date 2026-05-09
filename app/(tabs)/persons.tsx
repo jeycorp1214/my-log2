@@ -1,27 +1,14 @@
 // 인물 목록 탭 — 그룹별 섹션 + 인물 카드
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { usePersonsWithGroups } from "@/hooks/persons/use-persons-with-groups";
 import { useRouter } from "expo-router";
 import { Plus } from "lucide-react-native";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { PersonCard } from "@/components/persons/PersonCard";
-import { db } from "@/db/client";
-import { groups, persons } from "@/db/schema";
 
 export default function PersonsScreen() {
   const router = useRouter();
-
-  const { data: allPersons = [] } = useLiveQuery(db.select().from(persons));
-  const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
-
-  const groupedPersons = allGroups
-    .map((group) => ({
-      group,
-      members: allPersons.filter((p) => p.groupId === group.id),
-    }))
-    .filter((section) => section.members.length > 0);
-
-  const ungrouped = allPersons.filter((p) => !p.groupId);
+  const { allPersons, groupedPersons, ungrouped } = usePersonsWithGroups();
 
   return (
     <View className="flex-1 bg-app-bg">

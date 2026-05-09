@@ -129,3 +129,26 @@
 - [ ] utils/notification.ts: scheduleBirthdayReminder 유틸
 - [ ] 생일 있는 인물 저장 시 매년 알림 예약
 - [ ] 캘린더: 생일 날짜에 🎂 마커 표시
+
+---
+
+# 아키텍처 개선 체크리스트 (2026-05-09)
+
+## 에러 처리 강화
+- [x] `providers/ErrorBoundary.tsx` — 렌더 에러 캐치용 클래스 기반 에러 바운더리 추가
+- [x] `providers/DatabaseProvider.tsx` — DB 초기화 로직 분리 + async 에러 try/catch 처리
+
+## Provider 분리 (_layout.tsx 관심사 분리)
+- [x] `app/_layout.tsx` — DB init 로직 제거, Provider 조합만 담당하도록 리팩토링
+  - 이전: DB init useEffect + ready state + 로딩/에러 UI 모두 _layout에 혼재
+  - 이후: `<ErrorBoundary> → <DatabaseProvider> → <GestureHandlerRootView> → ...`
+
+## 도메인 훅 추출
+- [x] `hooks/logs/use-calendar-logs.ts` — CalendarScreen의 useLiveQuery 2개 추출 (월간 로그, 반복 로그)
+- [x] `hooks/persons/use-persons-with-groups.ts` — PersonsScreen의 useLiveQuery 2개 + 그룹핑 로직 추출
+- [x] `app/(tabs)/index.tsx` — useCalendarLogs 훅 사용으로 교체
+- [x] `app/(tabs)/persons.tsx` — usePersonsWithGroups 훅 사용으로 교체
+
+## 유틸 구조 (이미 완료)
+- [x] `utils/date.ts` — 날짜 유틸 (기존)
+- [x] `utils/repeat.ts` — 반복 occurrence 계산 (기존)

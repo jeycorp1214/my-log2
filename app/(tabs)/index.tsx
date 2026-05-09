@@ -2,8 +2,7 @@
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { LogCard } from "@/components/logs/LogCard";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
-import { db } from "@/db/client";
-import { logs } from "@/db/schema";
+import { useCalendarLogs } from "@/hooks/logs/use-calendar-logs";
 import {
   addMonths,
   endOfMonth,
@@ -17,8 +16,7 @@ import { expandRepeatInMonth } from "@/utils/repeat";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import type { InferSelectModel } from "drizzle-orm";
-import { and, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { logs } from "@/db/schema";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
@@ -48,35 +46,7 @@ export default function CalendarScreen() {
   const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth]);
   const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth]);
 
-  // 이번 달 logDate 기준 로그 (반복 제외, 월 범위 필터)
-  const { data: monthLogs = [] } = useLiveQuery(
-    db
-      .select()
-      .from(logs)
-      .where(
-        and(
-          isNull(logs.repeatType),
-          gte(logs.logDate, monthStart),
-          lte(logs.logDate, monthEnd),
-        ),
-      ),
-    [monthStart.getTime(), monthEnd.getTime()],
-  );
-
-  // 반복 로그 (이번 달 범위와 겹치는 것만)
-  const { data: allRepeatLogs = [] } = useLiveQuery(
-    db
-      .select()
-      .from(logs)
-      .where(
-        and(
-          isNotNull(logs.repeatType),
-          lte(logs.logDate, monthEnd),
-          or(isNull(logs.repeatUntil), gte(logs.repeatUntil, monthStart)),
-        ),
-      ),
-    [monthStart.getTime(), monthEnd.getTime()],
-  );
+  const { monthLogs, repeatLogs: allRepeatLogs } = useCalendarLogs(monthStart, monthEnd);
 
   // 반복 occurrence 확장
   const repeatOccurrences = allRepeatLogs.flatMap((log) =>
