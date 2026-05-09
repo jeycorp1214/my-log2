@@ -20,6 +20,7 @@ import {
   toDateKey,
 } from "@/utils/date";
 import { expandRepeatInMonth } from "@/utils/repeat";
+import dayjs from "dayjs";
 import type { InferSelectModel } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -365,7 +366,7 @@ export default function CalendarScreen() {
       )}
 
       <QuickInputBar
-        targetDate={targetDate}
+        placeholder={`${dayjs(targetDate).format("M월 D일")}에 기록 추가`}
         value={quickTitle}
         onChange={setQuickTitle}
         onSubmit={handleQuickPress}

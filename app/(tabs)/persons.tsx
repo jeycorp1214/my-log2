@@ -1,14 +1,48 @@
-// 인물 목록 탭 — 그룹별 섹션 + 인물 카드
+// 인물 목록 탭 — 그룹별 섹션 + 인물 카드 + 퀵 추가
+import { QuickInputBar } from "@/components/calendar/QuickInputBar";
+import { PersonCard } from "@/components/persons/PersonCard";
+import { db } from "@/db/client";
+import { groups, persons } from "@/db/schema";
 import { usePersonsWithGroups } from "@/hooks/persons/use-persons-with-groups";
 import { useRouter } from "expo-router";
-import { Plus } from "lucide-react-native";
-import { Pressable, ScrollView, Text, View } from "react-native";
-
-import { PersonCard } from "@/components/persons/PersonCard";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useEffect, useState } from "react";
+import { Keyboard, Platform, ScrollView, Text, View } from "react-native";
 
 export default function PersonsScreen() {
   const router = useRouter();
   const { allPersons, groupedPersons, ungrouped } = usePersonsWithGroups();
+  const [quickName, setQuickName] = useState("");
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const { data: allGroups = [] } = useLiveQuery(
+    db.select().from(groups).orderBy(groups.sortOrder),
+  );
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const show = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+
+  async function handleQuickAdd() {
+    const name = quickName.trim();
+    if (name.length === 0) {
+      router.push("/persons/new");
+      return;
+    }
+    if (allGroups.length === 0) return;
+    await db.insert(persons).values({
+      name,
+      groupId: allGroups[0].id,
+    });
+    setQuickName("");
+    Keyboard.dismiss();
+  }
+
+  const inputBarBottom = keyboardHeight > 0 ? keyboardHeight + 8 : 24;
 
   return (
     <View className="flex-1 bg-app-bg">
@@ -64,14 +98,13 @@ export default function PersonsScreen() {
         )}
       </ScrollView>
 
-      {/* FAB — 인물 추가 */}
-      <Pressable
-        onPress={() => router.push("/persons/new")}
-        className="absolute right-5 bottom-8 w-14 h-14 rounded-full bg-app-teal items-center justify-center shadow-lg"
-        style={{ elevation: 6 }}
-      >
-        <Plus size={24} color="#111" />
-      </Pressable>
+      <QuickInputBar
+        placeholder="이름으로 인물 추가"
+        value={quickName}
+        onChange={setQuickName}
+        onSubmit={handleQuickAdd}
+        bottom={inputBarBottom}
+      />
     </View>
   );
 }

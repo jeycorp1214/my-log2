@@ -1,18 +1,17 @@
-// 퀵 입력바 — 제목 입력 후 즉시 저장 or 상세 화면 이동
+// 퀵 입력바 — 텍스트 입력 후 즉시 저장 or 상세 화면 이동
 import { cn } from "@/utils/utils";
-import dayjs from "dayjs";
 import { Check, Plus } from "lucide-react-native";
 import { Pressable, TextInput, View } from "react-native";
 
 type Props = {
-  targetDate: Date;
+  placeholder: string;
   value: string;
   onChange: (text: string) => void;
   onSubmit: () => void;
   bottom: number;
 };
 
-export function QuickInputBar({ targetDate, value, onChange, onSubmit, bottom }: Props) {
+export function QuickInputBar({ placeholder, value, onChange, onSubmit, bottom }: Props) {
   const hasText = value.trim().length > 0;
   return (
     <View
@@ -22,7 +21,7 @@ export function QuickInputBar({ targetDate, value, onChange, onSubmit, bottom }:
       <View className="flex-row items-center gap-2">
         <TextInput
           className="flex-1 h-14 bg-app-surface rounded-full px-5 text-white text-[15px]"
-          placeholder={`${dayjs(targetDate).format("M월 D일")}에 기록 추가`}
+          placeholder={placeholder}
           placeholderTextColor="#444"
           value={value}
           onChangeText={onChange}

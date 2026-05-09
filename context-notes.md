@@ -101,11 +101,17 @@
 - index.tsx 보드 모드: GestureDetector 스와이프 비활성, 하단 리스트 숨김, ScrollView로 전체 그리드 스크롤
 - boardItems 출처: monthLogs + repeatOccurrences (useMemo로 memoize)
 
+### UI 스택 방침 (확정)
+- **Gluestack UI v3 메인**: VStack, HStack, Card, Box 등 레이아웃 컴포넌트는 Gluestack 우선
+- **NativeWind + cn() 보조**: className prop에 Tailwind 클래스, 조건부 className은 cn()
+- **plain View/Text 사용 기준**: Gluestack 컴포넌트로 표현이 부자연스러운 경우에만
+- plain View로 Gluestack 컴포넌트를 교체하는 리팩터링은 하지 않는다
+- inline style 유지: dynamic backgroundColor, elevation (tailwind 클래스로 표현 불가)
+
 ### cn 유틸 적용 방침
 - utils/utils.ts: clsx + tailwind-merge 기반 cn() 함수
 - 적용 대상: 조건부 className이 있는 컴포넌트 (template literal `${}` → cn())
 - CalendarGrid.tsx, list.tsx 적용 완료
-- inline style 유지: dynamic backgroundColor (tailwind 클래스로 표현 불가한 경우)
 
 ### 아키텍처 개선 (2026-05-09)
 - providers/ErrorBoundary.tsx: 클래스 기반 에러 바운더리
