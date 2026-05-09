@@ -11,6 +11,8 @@ interface TabsHeaderProps {
   cakeOnPress?: () => void;
   searchOnPress?: boolean;
   slidersOnPress?: () => void;
+  cakeActive?: boolean;
+  slidersActive?: boolean;
 }
 
 export default function TabsHeader({
@@ -19,6 +21,8 @@ export default function TabsHeader({
   searchOnPress,
   slidersOnPress,
   CustomRight,
+  cakeActive = false,
+  slidersActive = false,
 }: TabsHeaderProps) {
   return (
     <HStack className="flex-row items-center justify-between px-5 pt-14 pb-3">
@@ -27,7 +31,7 @@ export default function TabsHeader({
       <View className="flex-row items-center gap-2">
         {cakeOnPress && (
           <Pressable className="p-2" onPress={cakeOnPress}>
-            <Cake size={22} color="#888" />
+            <Cake size={22} color={cakeActive ? "#c084fc" : "#888"} />
           </Pressable>
         )}
         {searchOnPress && (
@@ -37,7 +41,10 @@ export default function TabsHeader({
         )}
         {slidersOnPress && (
           <Pressable className="p-2" onPress={slidersOnPress}>
-            <SlidersHorizontal size={22} color="#888" />
+            <SlidersHorizontal
+              size={22}
+              color={slidersActive ? "#4ecdc4" : "#888"}
+            />
           </Pressable>
         )}
         {CustomRight}
