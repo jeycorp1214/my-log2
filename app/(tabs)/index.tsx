@@ -6,7 +6,6 @@ import { MonthNavBar } from "@/components/calendar/MonthNavBar";
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import { LogCard } from "@/components/logs/LogCard";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
-import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { db } from "@/db/client";
 import { groups, logs } from "@/db/schema";
 import { useCalendarLogs } from "@/hooks/logs/use-calendar-logs";
@@ -48,7 +47,6 @@ export default function CalendarScreen() {
   const { savedDate } = useLocalSearchParams<{ savedDate?: string }>();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [showPicker, setShowPicker] = useState(false);
   const [viewMode, setViewMode] = useState<"compact" | "board">("compact");
   const [showAnniversaries, setShowAnniversaries] = useState(false);
   const [quickTitle, setQuickTitle] = useState("");
@@ -263,7 +261,10 @@ export default function CalendarScreen() {
         currentMonth={currentMonth}
         onPrev={prevMonth}
         onNext={nextMonth}
-        onPickerOpen={() => setShowPicker(true)}
+        onMonthChange={(date) => {
+          setCurrentMonth(date);
+          setSelectedDate(null);
+        }}
       />
 
       {debugMode && (
@@ -420,17 +421,6 @@ export default function CalendarScreen() {
         bottom={inputBarBottom}
       />
 
-      {/* MonthPicker 모달 */}
-      <MonthPickerModal
-        visible={showPicker}
-        currentMonth={currentMonth}
-        onSelect={(year, month) => {
-          setCurrentMonth(new Date(year, month, 1));
-          setSelectedDate(null);
-          setShowPicker(false);
-        }}
-        onClose={() => setShowPicker(false)}
-      />
     </View>
   );
 }

@@ -1,16 +1,104 @@
-// 연도·월 선택 모달 컴포넌트
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
+// 연도별 월 선택 모달 — 12개 미니 캘린더 스크롤로 월 선택
+import dayjs from "dayjs";
+import { ChevronLeft, ChevronRight, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Modal, Pressable, Text, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
+const WEEKDAYS_SHORT = ["일", "월", "화", "수", "목", "금", "토"];
 
 interface Props {
   visible: boolean;
   currentMonth: Date;
   onSelect: (year: number, month: number) => void;
   onClose: () => void;
+}
+
+function MiniCalendar({ year, month }: { year: number; month: number }) {
+  const start = dayjs(new Date(year, month, 1));
+  const daysInMonth = start.daysInMonth();
+  const startDow = start.day();
+
+  const cells: (number | null)[] = [
+    ...Array(startDow).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const weeks: (number | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+
+  const today = new Date();
+  const todayDate =
+    today.getFullYear() === year && today.getMonth() === month
+      ? today.getDate()
+      : -1;
+
+  return (
+    <View>
+      <View style={{ flexDirection: "row" }}>
+        {WEEKDAYS_SHORT.map((d, i) => (
+          <Text
+            key={d}
+            style={{
+              flex: 1,
+              textAlign: "center",
+              fontSize: 9,
+              color: i === 0 ? "#ff6b6b" : i === 6 ? "#4ecdc4" : "#555",
+            }}
+          >
+            {d}
+          </Text>
+        ))}
+      </View>
+      {weeks.map((week, wi) => (
+        <View key={wi} style={{ flexDirection: "row" }}>
+          {week.map((day, di) => (
+            <View
+              key={di}
+              style={{ flex: 1, alignItems: "center", paddingVertical: 1 }}
+            >
+              {day !== null && (
+                <View
+                  style={{
+                    width: 15,
+                    height: 15,
+                    borderRadius: 8,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor:
+                      day === todayDate ? "#4ecdc4" : "transparent",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color:
+                        day === todayDate
+                          ? "#111"
+                          : di === 0
+                            ? "#ff6b6b"
+                            : di === 6
+                              ? "#4ecdc4"
+                              : "#bbb",
+                    }}
+                  >
+                    {day}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
 }
 
 export function MonthPickerModal({
@@ -26,63 +114,89 @@ export function MonthPickerModal({
   }, [visible]);
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
-      <Pressable
-        className="flex-1 bg-black/50 justify-center items-center"
-        onPress={onClose}
-      >
-        <Pressable className="bg-app-surface rounded-[16px] w-72 overflow-hidden">
-          <View className="flex-row items-center justify-between px-4 pt-4 pb-2">
-            <Pressable
-              onPress={() => setPickerYear((y) => y - 1)}
-              className="p-2"
-            >
-              <ChevronLeft size={20} color="#e0e0e0" />
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <View style={{ flex: 1, backgroundColor: "#111" }}>
+        <SafeAreaView style={{ backgroundColor: "#111" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: "#222",
+              paddingTop: 40,
+            }}
+          >
+            <Pressable onPress={onClose} hitSlop={8}>
+              <X size={22} color="#e0e0e0" />
             </Pressable>
-            <Text className="text-white text-base font-semibold">
-              {pickerYear}년
-            </Text>
-            <Pressable
-              onPress={() => setPickerYear((y) => y + 1)}
-              className="p-2"
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 20 }}
             >
-              <ChevronRight size={20} color="#e0e0e0" />
-            </Pressable>
+              <Pressable
+                onPress={() => setPickerYear((y) => y - 1)}
+                hitSlop={8}
+              >
+                <ChevronLeft size={20} color="#e0e0e0" />
+              </Pressable>
+              <Text style={{ color: "#fff", fontSize: 18, fontWeight: "600" }}>
+                {pickerYear}년
+              </Text>
+              <Pressable
+                onPress={() => setPickerYear((y) => y + 1)}
+                hitSlop={8}
+              >
+                <ChevronRight size={20} color="#e0e0e0" />
+              </Pressable>
+            </View>
+            <View style={{ width: 22 }} />
           </View>
-          <View className="px-4 pb-4">
-            <VStack space="sm">
-              {([0, 3, 6, 9] as const).map((start) => (
-                <HStack key={start} className="gap-2">
-                  {[0, 1, 2, 3].map((offset) => {
-                    const m = start + offset;
-                    const isCurrent =
-                      pickerYear === currentMonth.getFullYear() &&
-                      m === currentMonth.getMonth();
-                    return (
-                      <Pressable
-                        key={m}
-                        onPress={() => onSelect(pickerYear, m)}
-                        className={`flex-1 rounded-[10px] py-2 items-center ${isCurrent ? "bg-app-teal" : "bg-app-bg"}`}
-                      >
-                        <Text
-                          className={`text-[13px] font-semibold ${isCurrent ? "text-[#111]" : "text-white"}`}
-                        >
-                          {m + 1}월
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </HStack>
-              ))}
-            </VStack>
-          </View>
-        </Pressable>
-      </Pressable>
+        </SafeAreaView>
+
+        <ScrollView
+          contentContainerStyle={{ padding: 12, gap: 12 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {[0, 2, 4, 6, 8, 10].map((startMonth) => (
+            <View key={startMonth} style={{ flexDirection: "row", gap: 12 }}>
+              {[startMonth, startMonth + 1].map((m) => {
+                const isSelected =
+                  pickerYear === currentMonth.getFullYear() &&
+                  m === currentMonth.getMonth();
+                return (
+                  <Pressable
+                    key={m}
+                    onPress={() => onSelect(pickerYear, m)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: "#1a1a1a",
+                      borderRadius: 12,
+                      padding: 10,
+                      borderWidth: isSelected ? 1.5 : 0,
+                      borderColor: "#4ecdc4",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: isSelected ? "#4ecdc4" : "#fff",
+                        fontSize: 13,
+                        fontWeight: "600",
+                        textAlign: "center",
+                        marginBottom: 6,
+                      }}
+                    >
+                      {m + 1}월
+                    </Text>
+                    <MiniCalendar year={pickerYear} month={m} />
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))}
+        </ScrollView>
+      </View>
     </Modal>
   );
 }

@@ -1,12 +1,10 @@
 // 인물 폼 공유 컴포넌트 — 생성/수정에서 공통 사용
-import { DatePickerModal } from "@/components/DatePickerModal";
+import { DateInput } from "@/components/DateInput";
 import { BirthDateInput } from "@/components/persons/BirthDateInput";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { groups } from "@/db/schema";
 import { ANNIVERSARY_PRESETS } from "@/db/seed";
-import dayjs from "dayjs";
 import { Plus, X } from "lucide-react-native";
-import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
 export type DraftAnniversary = {
@@ -49,8 +47,6 @@ export function PersonForm({
   draftAnniversaries,
   onAnniversariesChange,
 }: PersonFormProps) {
-  const [showPickerFor, setShowPickerFor] = useState<string | null>(null);
-
   function addAnniversary() {
     onAnniversariesChange([
       ...draftAnniversaries,
@@ -156,17 +152,11 @@ export function PersonForm({
             </Pressable>
           </View>
           <View className="flex-row items-center gap-2 mt-2">
-            <Pressable
-              onPress={() => setShowPickerFor(ann.id)}
-              className="flex-1 bg-[#1a1a1a] rounded-[8px] px-2 py-1.5"
-            >
-              <Text
-                className="text-[13px]"
-                style={{ color: ann.date ? "#ccc" : "#555" }}
-              >
-                {ann.date ? dayjs(ann.date).format("YYYY.MM.DD") : "날짜 선택"}
-              </Text>
-            </Pressable>
+            <DateInput
+              variant="compact"
+              value={ann.date}
+              onChange={(date) => updateAnniversary(ann.id, "date", date)}
+            />
             <Pressable
               onPress={() =>
                 updateAnniversary(ann.id, "isRepeat", !ann.isRepeat)
@@ -190,21 +180,6 @@ export function PersonForm({
         <Plus size={14} color="#4ecdc4" />
         <Text className="text-app-teal text-[13px]">기념일 추가</Text>
       </Pressable>
-
-      {showPickerFor && (
-        <DatePickerModal
-          visible
-          value={
-            draftAnniversaries.find((a) => a.id === showPickerFor)?.date ??
-            new Date()
-          }
-          onChange={(date) => {
-            updateAnniversary(showPickerFor, "date", date);
-            setShowPickerFor(null);
-          }}
-          onClose={() => setShowPickerFor(null)}
-        />
-      )}
     </>
   );
 }

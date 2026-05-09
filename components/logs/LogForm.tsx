@@ -1,4 +1,5 @@
 // 로그 폼 공유 컴포넌트 — 생성/수정에서 공통 사용
+import { DateInput } from "@/components/DateInput";
 import { DatePickerModal } from "@/components/DatePickerModal";
 import { groups, persons } from "@/db/schema";
 import { REPEAT_OPTIONS } from "@/db/seed";
@@ -48,24 +49,15 @@ export function LogForm({
   onTogglePerson,
   showRepeat = true,
 }: LogFormProps) {
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showRepeatUntilPicker, setShowRepeatUntilPicker] = useState(false);
 
   return (
     <>
-      <Text className="text-app-label text-[13px] mt-3">날짜</Text>
-      <Pressable
-        onPress={() => setShowDatePicker(true)}
-        className="bg-app-surface rounded-[10px] p-3 flex-row items-center justify-between"
-      >
-        <Text className="text-white text-[15px]">{formatLogDate(logDate)}</Text>
-        <Text className="text-app-muted text-[13px]">변경</Text>
-      </Pressable>
-      <DatePickerModal
-        visible={showDatePicker}
+      <DateInput
+        label="날짜"
         value={logDate}
         onChange={onLogDateChange}
-        onClose={() => setShowDatePicker(false)}
+        className="mt-3"
       />
 
       <Text className="text-app-label text-[13px] mt-3">제목 *</Text>
