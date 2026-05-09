@@ -121,6 +121,37 @@
 
 ---
 
+# Phase 5 체크리스트 — 리스트 탭
+
+## DB 스키마
+- [x] migration 0001: logs.checked_at integer 컬럼 추가
+- [x] db/schema.ts: logs에 checkedAt 필드 추가
+
+## 훅
+- [x] hooks/logs/use-event-filter.ts — 기간 필터 + 일반/반복 로그 통합 반환 (EventItem 타입)
+
+## 컴포넌트
+- [x] components/logs/ListEventItem.tsx — 체크박스(일반)/반복배지(반복) + 제목/날짜 아이템
+
+## 화면
+- [x] app/(tabs)/list.tsx — 리스트 탭 메인 화면
+  - [x] 기간 필터 칩: 1개월/3개월(기본)/6개월/1년/전체
+  - [x] 요약: 총 N개 · 완료 M개
+  - [x] 미완료만 토글
+  - [x] 월별 섹션 SectionList (stickySectionHeadersEnabled)
+  - [x] 체크 토글 → DB checkedAt 업데이트
+  - [x] 아이템 탭 → logs/[id] 상세 이동
+
+## 탭 구조
+- [x] app/(tabs)/_layout.tsx: 리스트 탭 추가 (캘린더/인물/리스트/설정)
+
+## 설계 결정 메모
+- 반복 로그: 옵션 A — 체크박스 없이 "반복" 배지로 표시
+- "전체" 프리셋 반복 expansion: dayjs +2년으로 캡 (폭발 방지)
+- checkedAt: timestamp_ms integer (언제 완료했는지 보존, boolean보다 우월)
+
+---
+
 # 아키텍처 개선 체크리스트 (2026-05-09)
 
 ## 에러 처리 강화

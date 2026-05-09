@@ -53,6 +53,7 @@ export const logs = sqliteTable(
     groupId: text("group_id")
       .notNull()
       .references(() => groups.id),
+    checkedAt: int("checked_at", { mode: "timestamp_ms" }),
     createdAt: int("created_at", { mode: "timestamp_ms" })
       .notNull()
       .$defaultFn(() => new Date()),
