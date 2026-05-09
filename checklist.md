@@ -113,9 +113,12 @@
 - [ ] CalendarGrid: 시간 있는 기록은 dot 색상 구분 (선택)
 
 ## 검색
-- [ ] app/search.tsx 신규 생성 — 제목/메모/인물명 full-text 검색
-- [ ] (tabs)/_layout.tsx: 검색 탭 추가 또는 캘린더 헤더 돋보기 아이콘
-- [ ] _layout.tsx: search Stack.Screen 등록
+- [x] app/search.tsx 신규 생성 — 제목/메모/인물명 LIKE 검색 (FTS5 불필요, 개인앱 규모)
+- [x] (tabs)/index.tsx: 캘린더 헤더 Search 아이콘 → /search push
+- [x] _layout.tsx: search Stack.Screen 등록 (presentation: modal)
+- [x] components/logs/SearchLogItem.tsx: 날짜+제목+메모 검색 결과 아이템
+- [x] 기록(title/memo) + 인물(name/memo) 통합 검색, SectionList 2섹션
+- [x] 300ms 디바운스, 2자 이상 검색, 결과 limit 기록 50 / 인물 20
 
 ~~## 알림/리마인더~~ ← 기획 방향과 맞지 않아 제거 (2026-05-09)
 

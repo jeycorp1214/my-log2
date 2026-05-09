@@ -46,6 +46,7 @@ export default function RootLayout() {
                   <Stack.Screen name="settings/groups" options={{ title: "그룹 관리" }} />
                   <Stack.Screen name="settings/repeats" options={{ title: "반복 관리" }} />
                   <Stack.Screen name="settings/data" options={{ title: "데이터 확인" }} />
+                  <Stack.Screen name="search" options={{ presentation: "modal", headerShown: false }} />
                 </Stack>
                 <StatusBar style="auto" />
               </ThemeProvider>

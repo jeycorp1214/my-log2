@@ -18,7 +18,7 @@ import "dayjs/locale/ko";
 import type { InferSelectModel } from "drizzle-orm";
 import { logs } from "@/db/schema";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react-native";
+import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -190,6 +190,9 @@ export default function CalendarScreen() {
           <Text className="text-app-muted text-xs font-semibold">
             {viewMode === "compact" ? "보드" : "컴팩트"}
           </Text>
+        </Pressable>
+        <Pressable onPress={() => router.push("/search")} className="p-2" hitSlop={4}>
+          <Search size={20} color="#888" />
         </Pressable>
         <Pressable onPress={nextMonth} className="p-2">
           <ChevronRight size={22} color="#e0e0e0" />
