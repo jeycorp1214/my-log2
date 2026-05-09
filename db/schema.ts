@@ -93,3 +93,17 @@ export const logPersons = sqliteTable("log_persons", {
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
 });
+
+export const memos = sqliteTable("memos", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => Crypto.randomUUID()),
+  content: text("content").notNull(),
+  checkedAt: int("checked_at", { mode: "timestamp_ms" }),
+  createdAt: int("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: int("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
