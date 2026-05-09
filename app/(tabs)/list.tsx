@@ -11,7 +11,14 @@ import { eq } from "drizzle-orm";
 import { useRouter } from "expo-router";
 import { SlidersHorizontal } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { FlatList, Modal, Pressable, SectionList, Text, View } from "react-native";
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  SectionList,
+  Text,
+  View,
+} from "react-native";
 
 type Preset = "this-year" | "last-year" | "recent-1y" | "all" | "custom";
 type CompletionFilter = "all" | "done" | "undone";
@@ -44,7 +51,8 @@ export default function ListScreen() {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const [completionFilter, setCompletionFilter] = useState<CompletionFilter>("all");
+  const [completionFilter, setCompletionFilter] =
+    useState<CompletionFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("oldest");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
@@ -52,10 +60,16 @@ export default function ListScreen() {
   const { start, end } = useMemo(() => {
     const now = dayjs();
     if (preset === "this-year")
-      return { start: now.startOf("year").toDate(), end: now.endOf("year").toDate() };
+      return {
+        start: now.startOf("year").toDate(),
+        end: now.endOf("year").toDate(),
+      };
     if (preset === "last-year") {
       const ly = now.subtract(1, "year");
-      return { start: ly.startOf("year").toDate(), end: ly.endOf("year").toDate() };
+      return {
+        start: ly.startOf("year").toDate(),
+        end: ly.endOf("year").toDate(),
+      };
     }
     if (preset === "recent-1y")
       return { start: now.subtract(1, "year").toDate(), end: now.toDate() };
@@ -108,12 +122,17 @@ export default function ListScreen() {
       {/* 헤더 */}
       <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
         <Text className="text-white text-2xl font-bold">리스트</Text>
-        <Pressable onPress={() => setShowFilterSheet(true)} hitSlop={8} style={{ padding: 6 }}>
-          <SlidersHorizontal size={22} color={filterBadge > 0 ? "#4ecdc4" : "#888"} />
+        <Pressable
+          onPress={() => setShowFilterSheet(true)}
+          hitSlop={8}
+          style={{ padding: 6 }}
+        >
+          <SlidersHorizontal
+            size={22}
+            color={filterBadge > 0 ? "#4ecdc4" : "#888"}
+          />
           {filterBadge > 0 && (
-            <View
-              className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-app-teal items-center justify-center"
-            >
+            <View className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-app-teal items-center justify-center">
               <Text style={{ color: "#111", fontSize: 10, fontWeight: "bold" }}>
                 {filterBadge}
               </Text>
@@ -122,32 +141,38 @@ export default function ListScreen() {
         </Pressable>
       </View>
 
-      {/* 기간 프리셋 칩 */}
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={PRESETS}
-        keyExtractor={(item) => item.key}
-        contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingBottom: 8 }}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => setPreset(item.key)}
-            className={cn(
-              "rounded-full px-4 py-1.5",
-              preset === item.key ? "bg-app-teal" : "bg-[#222]",
-            )}
-          >
-            <Text
+      <View className="h-11">
+        {/* 기간 프리셋 칩 */}
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={PRESETS}
+          keyExtractor={(item) => item.key}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            gap: 8,
+            paddingBottom: 8,
+          }}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => setPreset(item.key)}
               className={cn(
-                "text-[13px] font-semibold",
-                preset === item.key ? "text-[#111]" : "text-[#888]",
+                "rounded-full px-4 py-1.5",
+                preset === item.key ? "bg-app-teal" : "bg-[#222]",
               )}
             >
-              {item.label}
-            </Text>
-          </Pressable>
-        )}
-      />
+              <Text
+                className={cn(
+                  "text-[13px] font-semibold",
+                  preset === item.key ? "text-[#111]" : "text-[#888]",
+                )}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          )}
+        />
+      </View>
 
       {/* 직접 선택 시 날짜 범위 버튼 */}
       {preset === "custom" && (
@@ -199,7 +224,10 @@ export default function ListScreen() {
             item={item}
             onToggleCheck={toggleCheck}
             onPress={() =>
-              router.push({ pathname: "/logs/[id]", params: { id: item.log.id } })
+              router.push({
+                pathname: "/logs/[id]",
+                params: { id: item.log.id },
+              })
             }
           />
         )}
@@ -226,7 +254,11 @@ export default function ListScreen() {
         visible={showEndPicker}
         currentMonth={customEnd}
         onSelect={(year, month) => {
-          setCustomEnd(dayjs(new Date(year, month, 1)).endOf("month").toDate());
+          setCustomEnd(
+            dayjs(new Date(year, month, 1))
+              .endOf("month")
+              .toDate(),
+          );
           setShowEndPicker(false);
         }}
         onClose={() => setShowEndPicker(false)}
@@ -251,17 +283,23 @@ export default function ListScreen() {
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "done", "undone"] as const).map((v) => {
-                const label = v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
+                const label =
+                  v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setCompletionFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: completionFilter === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor:
+                        completionFilter === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
-                      style={{ color: completionFilter === v ? "#111" : "#888" }}
+                      style={{
+                        color: completionFilter === v ? "#111" : "#888",
+                      }}
                     >
                       {label}
                     </Text>
@@ -275,13 +313,16 @@ export default function ListScreen() {
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "regular", "repeat"] as const).map((v) => {
-                const label = v === "all" ? "전체" : v === "regular" ? "일반" : "반복";
+                const label =
+                  v === "all" ? "전체" : v === "regular" ? "일반" : "반복";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setTypeFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: typeFilter === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor: typeFilter === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
@@ -305,7 +346,9 @@ export default function ListScreen() {
                     key={v}
                     onPress={() => setSortOrder(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
