@@ -67,6 +67,21 @@ export const logs = sqliteTable(
   ],
 );
 
+export const personAnniversaries = sqliteTable("person_anniversaries", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => Crypto.randomUUID()),
+  personId: text("person_id")
+    .notNull()
+    .references(() => persons.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  date: text("date").notNull(), // YYYY-MM-DD
+  isRepeat: int("is_repeat", { mode: "boolean" }).notNull().default(false),
+  createdAt: int("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 export const logPersons = sqliteTable("log_persons", {
   id: text("id")
     .primaryKey()

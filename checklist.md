@@ -152,6 +152,37 @@
 
 ---
 
+# Phase 6 체크리스트 — 인물 기념일
+
+## DB 스키마
+- [x] migration 0002: person_anniversaries 테이블 생성
+- [x] db/schema.ts: personAnniversaries 테이블 추가 (persons FK cascade delete)
+
+## 유틸
+- [x] utils/date.ts: dDayLabel(dateStr, isRepeat) 함수 추가
+
+## 화면
+- [x] persons/new.tsx: 기념일 섹션 추가
+  - [x] 프리셋 칩: 결혼/졸업/입사/첫 만남/사귀기 시작
+  - [x] 동적 기념일 행 추가/삭제
+  - [x] 날짜 선택 (DatePickerModal, 한 번에 하나)
+  - [x] 매년 반복 토글
+  - [x] 저장 시 person INSERT → anniversaries INSERT (returning id 활용)
+
+- [x] persons/[id].tsx: 기념일 뷰/편집 섹션 추가
+  - [x] 뷰 모드: 기념일 목록 + D-Day 표시 (함께한 기록 위)
+  - [x] 수정 모드: 기존 기념일 편집/삭제 + 추가
+  - [x] 저장 시 delete-all + re-insert
+  - [x] startEditing() 함수로 편집 초기화 통합
+
+## 설계 결정 메모
+- 캘린더 기념일 마커: 1차 제외
+- date 컬럼: text YYYY-MM-DD (birthDate 동일 패턴)
+- 기념일 수정: delete-all + re-insert (simple, 참조 테이블 없음)
+- dDayLabel: isRepeat=true → 올해(지났으면 내년) 기준
+
+---
+
 # 아키텍처 개선 체크리스트 (2026-05-09)
 
 ## 에러 처리 강화

@@ -13,13 +13,23 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { Plus, X } from "lucide-react-native";
 
 import { DatePickerModal } from "@/components/DatePickerModal";
 import { db } from "@/db/client";
-import { groups, logPersons, logs, persons } from "@/db/schema";
+import { groups, logPersons, logs, personAnniversaries, persons } from "@/db/schema";
 import { MBTI_OPTIONS } from "@/db/seed";
-import { calcAge, formatLogDate, fromNow } from "@/utils/date";
+import { calcAge, dDayLabel, formatLogDate, fromNow } from "@/utils/date";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+
+type DraftAnniversary = {
+  id: string;
+  title: string;
+  date: Date | null;
+  isRepeat: boolean;
+};
+
+const ANNIVERSARY_PRESETS = ["결혼", "졸업", "입사", "첫 만남", "사귀기 시작"];
 
 export default function PersonDetailScreen() {
   const router = useRouter();
@@ -29,9 +39,12 @@ export default function PersonDetailScreen() {
     db.select().from(persons).where(eq(persons.id, id)),
   );
   const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
-
-  const person = personList[0];
-
+  const { data: dbAnniversaries = [] } = useLiveQuery(
+    db
+      .select()
+      .from(personAnniversaries)
+      .where(eq(personAnniversaries.personId, id)),
+  );
   const { data: personLogs = [] } = useLiveQuery(
     db
       .select({ log: logs })
@@ -40,6 +53,8 @@ export default function PersonDetailScreen() {
       .where(eq(logPersons.personId, id)),
   );
 
+  const person = personList[0];
+
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState<Date | null>(null);
@@ -47,6 +62,8 @@ export default function PersonDetailScreen() {
   const [mbti, setMbti] = useState("");
   const [memo, setMemo] = useState("");
   const [groupId, setGroupId] = useState("");
+  const [draftAnniversaries, setDraftAnniversaries] = useState<DraftAnniversary[]>([]);
+  const [showPickerFor, setShowPickerFor] = useState<string | null>(null);
 
   useEffect(() => {
     if (person) {
@@ -57,6 +74,52 @@ export default function PersonDetailScreen() {
       setGroupId(person.groupId);
     }
   }, [person]);
+
+  function startEditing() {
+    if (!person) return;
+    setName(person.name);
+    setBirthDate(person.birthDate ? new Date(person.birthDate) : null);
+    setMbti(person.mbti ?? "");
+    setMemo(person.memo ?? "");
+    setGroupId(person.groupId);
+    setDraftAnniversaries(
+      dbAnniversaries.map((a) => ({
+        id: a.id,
+        title: a.title,
+        date: new Date(a.date),
+        isRepeat: a.isRepeat,
+      })),
+    );
+    setEditing(true);
+  }
+
+  function addAnniversary() {
+    setDraftAnniversaries((prev) => [
+      ...prev,
+      { id: Math.random().toString(), title: "", date: null, isRepeat: false },
+    ]);
+  }
+
+  function addPreset(title: string) {
+    setDraftAnniversaries((prev) => [
+      ...prev,
+      { id: Math.random().toString(), title, date: null, isRepeat: true },
+    ]);
+  }
+
+  function removeAnniversary(draftId: string) {
+    setDraftAnniversaries((prev) => prev.filter((a) => a.id !== draftId));
+  }
+
+  function updateAnniversary<K extends keyof Omit<DraftAnniversary, "id">>(
+    draftId: string,
+    field: K,
+    value: DraftAnniversary[K],
+  ) {
+    setDraftAnniversaries((prev) =>
+      prev.map((a) => (a.id === draftId ? { ...a, [field]: value } : a)),
+    );
+  }
 
   async function save() {
     if (!name.trim()) {
@@ -74,6 +137,21 @@ export default function PersonDetailScreen() {
         updatedAt: new Date(),
       })
       .where(eq(persons.id, id));
+
+    await db
+      .delete(personAnniversaries)
+      .where(eq(personAnniversaries.personId, id));
+
+    for (const ann of draftAnniversaries) {
+      if (!ann.title.trim() || !ann.date) continue;
+      await db.insert(personAnniversaries).values({
+        personId: id,
+        title: ann.title.trim(),
+        date: dayjs(ann.date).format("YYYY-MM-DD"),
+        isRepeat: ann.isRepeat,
+      });
+    }
+
     setEditing(false);
   }
 
@@ -108,6 +186,7 @@ export default function PersonDetailScreen() {
       <ScrollView
         className="flex-1 bg-app-bg"
         contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
       >
         {editing ? (
           <>
@@ -118,21 +197,14 @@ export default function PersonDetailScreen() {
               onChangeText={setName}
               placeholderTextColor="#555"
             />
+
             <Text className="text-app-label text-[13px] mt-3">생년월일</Text>
             <Pressable
               onPress={() => setShowBirthDatePicker(true)}
               className="bg-app-surface rounded-[10px] p-3 flex-row items-center justify-between"
             >
-              <Text
-                className={
-                  birthDate
-                    ? "text-white text-[15px]"
-                    : "text-[#555] text-[15px]"
-                }
-              >
-                {birthDate
-                  ? dayjs(birthDate).format("YYYY년 M월 D일")
-                  : "생년월일 선택"}
+              <Text className={birthDate ? "text-white text-[15px]" : "text-[#555] text-[15px]"}>
+                {birthDate ? dayjs(birthDate).format("YYYY년 M월 D일") : "생년월일 선택"}
               </Text>
               <Text className="text-app-muted text-[13px]">변경</Text>
             </Pressable>
@@ -142,6 +214,7 @@ export default function PersonDetailScreen() {
               onChange={setBirthDate}
               onClose={() => setShowBirthDatePicker(false)}
             />
+
             <Text className="text-app-label text-[13px] mt-3">MBTI</Text>
             <View className="flex-row flex-wrap gap-2 mt-1">
               {MBTI_OPTIONS.map((m) => (
@@ -150,14 +223,13 @@ export default function PersonDetailScreen() {
                   onPress={() => setMbti(mbti === m ? "" : m)}
                   className={`rounded-[20px] px-3 py-1.5 ${mbti === m ? "bg-app-teal" : "bg-app-surface"}`}
                 >
-                  <Text
-                    className={`text-[13px] ${mbti === m ? "text-[#111] font-semibold" : "text-app-label"}`}
-                  >
+                  <Text className={`text-[13px] ${mbti === m ? "text-[#111] font-semibold" : "text-app-label"}`}>
                     {m}
                   </Text>
                 </Pressable>
               ))}
             </View>
+
             <Text className="text-app-label text-[13px] mt-3">메모</Text>
             <TextInput
               className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
@@ -166,6 +238,7 @@ export default function PersonDetailScreen() {
               multiline
               style={{ minHeight: 80, textAlignVertical: "top" }}
             />
+
             <Text className="text-app-label text-[13px] mt-3">그룹</Text>
             <View className="flex-row flex-wrap gap-2 mt-1">
               {allGroups.map((g) => (
@@ -174,34 +247,97 @@ export default function PersonDetailScreen() {
                   onPress={() => setGroupId(g.id)}
                   className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? "bg-app-teal" : "bg-app-surface"}`}
                 >
-                  <Text
-                    className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}
-                  >
+                  <Text className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}>
                     {g.emoji} {g.name}
                   </Text>
                 </Pressable>
               ))}
             </View>
-            <Pressable
-              onPress={save}
-              className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
-            >
+
+            {/* 기념일 수정 */}
+            <Text className="text-app-label text-[13px] mt-5">기념일</Text>
+            <View className="flex-row flex-wrap gap-2 mt-1">
+              {ANNIVERSARY_PRESETS.map((preset) => (
+                <Pressable
+                  key={preset}
+                  onPress={() => addPreset(preset)}
+                  className="bg-app-surface rounded-[20px] px-3 py-1.5"
+                >
+                  <Text className="text-app-label text-[13px]">{preset}</Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {draftAnniversaries.map((ann) => (
+              <View key={ann.id} className="bg-app-surface rounded-[10px] p-3 mt-1">
+                <View className="flex-row items-center gap-2">
+                  <TextInput
+                    className="flex-1 text-white text-[14px]"
+                    value={ann.title}
+                    onChangeText={(v) => updateAnniversary(ann.id, "title", v)}
+                    placeholder="기념일 이름"
+                    placeholderTextColor="#555"
+                  />
+                  <Pressable onPress={() => removeAnniversary(ann.id)} hitSlop={8}>
+                    <X size={16} color="#555" />
+                  </Pressable>
+                </View>
+                <View className="flex-row items-center gap-2 mt-2">
+                  <Pressable
+                    onPress={() => setShowPickerFor(ann.id)}
+                    className="flex-1 bg-[#1a1a1a] rounded-[8px] px-2 py-1.5"
+                  >
+                    <Text className="text-[13px]" style={{ color: ann.date ? "#ccc" : "#555" }}>
+                      {ann.date ? dayjs(ann.date).format("YYYY.MM.DD") : "날짜 선택"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => updateAnniversary(ann.id, "isRepeat", !ann.isRepeat)}
+                    className="flex-row items-center gap-1.5 bg-[#1a1a1a] rounded-[8px] px-2.5 py-1.5"
+                  >
+                    <View
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: ann.isRepeat ? "#4ecdc4" : "#444" }}
+                    />
+                    <Text className="text-[12px] text-app-muted">매년</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+
+            <Pressable onPress={addAnniversary} className="flex-row items-center gap-1.5 py-2">
+              <Plus size={14} color="#4ecdc4" />
+              <Text className="text-app-teal text-[13px]">기념일 추가</Text>
+            </Pressable>
+
+            {showPickerFor && (
+              <DatePickerModal
+                visible
+                value={draftAnniversaries.find((a) => a.id === showPickerFor)?.date ?? new Date()}
+                onChange={(date) => {
+                  updateAnniversary(showPickerFor, "date", date);
+                  setShowPickerFor(null);
+                }}
+                onClose={() => setShowPickerFor(null)}
+              />
+            )}
+
+            <Pressable onPress={save} className="bg-app-teal rounded-[12px] p-4 items-center mt-6">
               <Text className="text-[#111] text-base font-bold">저장</Text>
             </Pressable>
           </>
         ) : (
           <>
             <View className="flex-row items-center justify-between mb-1">
-              <Text className="text-white text-2xl font-bold">
-                {person.name}
-              </Text>
+              <Text className="text-white text-2xl font-bold">{person.name}</Text>
               <Pressable
-                onPress={() => setEditing(true)}
+                onPress={startEditing}
                 className="bg-app-surface rounded-lg px-3 py-1.5"
               >
                 <Text className="text-app-teal text-[14px]">수정</Text>
               </Pressable>
             </View>
+
             <View className="flex-row gap-2 mb-2">
               {age !== null && (
                 <Text className="text-[#888] text-[14px]">{age}세</Text>
@@ -210,6 +346,7 @@ export default function PersonDetailScreen() {
                 <Text className="text-[#888] text-[14px]">{person.mbti}</Text>
               )}
             </View>
+
             {person.memo ? (
               <Text className="text-app-label text-[15px] leading-[22px]">
                 {person.memo}
@@ -225,6 +362,33 @@ export default function PersonDetailScreen() {
               </View>
             )}
 
+            {/* 기념일 */}
+            {dbAnniversaries.length > 0 && (
+              <>
+                <Text className="text-app-label text-[13px] font-semibold mt-6 mb-2 uppercase tracking-[0.5px]">
+                  기념일 ({dbAnniversaries.length})
+                </Text>
+                {dbAnniversaries.map((ann) => (
+                  <View
+                    key={ann.id}
+                    className="bg-app-surface rounded-[10px] p-3 mb-1.5 flex-row items-center justify-between"
+                  >
+                    <View>
+                      <Text className="text-white text-[14px]">{ann.title}</Text>
+                      <Text className="text-app-muted text-[12px] mt-0.5">
+                        {dayjs(ann.date).format("YYYY.MM.DD")}
+                        {ann.isRepeat ? " · 매년" : ""}
+                      </Text>
+                    </View>
+                    <Text className="text-app-teal text-[13px] font-semibold">
+                      {dDayLabel(ann.date, ann.isRepeat)}
+                    </Text>
+                  </View>
+                ))}
+              </>
+            )}
+
+            {/* 함께한 기록 */}
             <Text className="text-app-label text-[13px] font-semibold mt-6 mb-2 uppercase tracking-[0.5px]">
               함께한 기록 ({personLogs.length})
             </Text>
@@ -232,10 +396,7 @@ export default function PersonDetailScreen() {
               <Pressable
                 key={log.id}
                 onPress={() =>
-                  router.push({
-                    pathname: "/logs/[id]",
-                    params: { id: log.id },
-                  })
+                  router.push({ pathname: "/logs/[id]", params: { id: log.id } })
                 }
                 className="bg-app-surface rounded-[10px] p-3 mb-1.5"
               >

@@ -4,7 +4,13 @@ import { ChevronRight } from "lucide-react-native";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
 import { db } from "@/db/client";
-import { groups, logPersons, logs, persons } from "@/db/schema";
+import {
+  groups,
+  logPersons,
+  logs,
+  personAnniversaries,
+  persons,
+} from "@/db/schema";
 import { seedDefaultGroups } from "@/db/seed";
 
 export default function SettingsScreen() {
@@ -13,18 +19,27 @@ export default function SettingsScreen() {
   async function resetAllData() {
     Alert.alert(
       "전체 데이터 초기화",
-      "모든 기록, 인물, 그룹이 삭제되고 기본 그룹이 재생성됩니다.",
+      "모든 데이터가 삭제되고 초기 상태로 돌아갑니다. 이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?",
       [
         { text: "취소", style: "cancel" },
         {
           text: "초기화",
           style: "destructive",
           onPress: async () => {
-            await db.delete(logPersons);
-            await db.delete(logs);
-            await db.delete(persons);
-            await db.delete(groups);
-            await seedDefaultGroups();
+            try {
+              await db.delete(logPersons);
+              await db.delete(logs);
+              await db.delete(personAnniversaries);
+              await db.delete(persons);
+              await db.delete(groups);
+
+              // 2. 기본 데이터 다시 넣기
+              await seedDefaultGroups();
+
+              Alert.alert("알림", "데이터가 초기화되었습니다.");
+            } catch (error) {
+              console.error("초기화 중 오류 발생:", error);
+            }
           },
         },
       ],

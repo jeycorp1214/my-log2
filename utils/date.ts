@@ -48,3 +48,21 @@ export function addMonths(date: Date, n: number): Date {
 export function toDateKey(date: Date): string {
   return dayjs(date).format("YYYY-MM-DD");
 }
+
+// isRepeat=true → 올해(지났으면 내년) 기준 D-day, false → 절대 날짜 기준
+export function dDayLabel(dateStr: string, isRepeat: boolean): string {
+  const today = dayjs().startOf("day");
+  let target = dayjs(dateStr).startOf("day");
+
+  if (isRepeat) {
+    target = target.year(today.year());
+    if (target.isBefore(today)) {
+      target = target.add(1, "year");
+    }
+  }
+
+  const diff = target.diff(today, "day");
+  if (diff === 0) return "D-Day";
+  if (diff > 0) return `D-${diff}`;
+  return `${Math.abs(diff)}일 전`;
+}
