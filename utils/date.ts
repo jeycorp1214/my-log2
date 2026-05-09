@@ -49,6 +49,48 @@ export function toDateKey(date: Date): string {
   return dayjs(date).format("YYYY-MM-DD");
 }
 
+// 숫자 문자열에서 생년월일 파싱
+// 2자리: 한국 나이 → 연도 역산 / 4자리: 연도만 / 6자리: YYMMDD / 8자리: YYYYMMDD
+export function parseBirthInput(input: string): Date | null {
+  const digits = input.replace(/\D/g, "");
+
+  if (digits.length === 2) {
+    const age = parseInt(digits, 10);
+    if (age < 1 || age > 120) return null;
+    const year = dayjs().year() - age + 1;
+    return dayjs(`${year}-01-01`).toDate();
+  }
+
+  if (digits.length === 4) {
+    const year = parseInt(digits, 10);
+    if (year < 1900 || year > dayjs().year()) return null;
+    return dayjs(`${year}-01-01`).toDate();
+  }
+
+  if (digits.length === 6) {
+    const yy = parseInt(digits.slice(0, 2), 10);
+    const mm = digits.slice(2, 4);
+    const dd = digits.slice(4, 6);
+    const year = yy >= 30 ? 1900 + yy : 2000 + yy;
+    const dateStr = `${year}-${mm}-${dd}`;
+    const d = dayjs(dateStr);
+    if (d.format("YYYY-MM-DD") !== dateStr) return null;
+    return d.toDate();
+  }
+
+  if (digits.length === 8) {
+    const year = digits.slice(0, 4);
+    const mm = digits.slice(4, 6);
+    const dd = digits.slice(6, 8);
+    const dateStr = `${year}-${mm}-${dd}`;
+    const d = dayjs(dateStr);
+    if (d.format("YYYY-MM-DD") !== dateStr) return null;
+    return d.toDate();
+  }
+
+  return null;
+}
+
 // isRepeat=true → 올해(지났으면 내년) 기준 D-day, false → 절대 날짜 기준
 export function dDayLabel(dateStr: string, isRepeat: boolean): string {
   const today = dayjs().startOf("day");

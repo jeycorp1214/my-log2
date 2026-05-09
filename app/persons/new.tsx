@@ -16,6 +16,7 @@ import {
 import { Plus, X } from "lucide-react-native";
 
 import { DatePickerModal } from "@/components/DatePickerModal";
+import { BirthDateInput } from "@/components/persons/BirthDateInput";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { db } from "@/db/client";
 import { groups, personAnniversaries, persons } from "@/db/schema";
@@ -35,7 +36,6 @@ export default function PersonNewScreen() {
 
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState<Date | null>(null);
-  const [showBirthDatePicker, setShowBirthDatePicker] = useState(false);
   const [mbti, setMbti] = useState("");
   const [memo, setMemo] = useState("");
   const [groupId, setGroupId] = useState("");
@@ -127,22 +127,9 @@ export default function PersonNewScreen() {
           placeholderTextColor="#555"
         />
 
-        <Text className="text-app-label text-[13px] mt-3">생년월일</Text>
-        <Pressable
-          onPress={() => setShowBirthDatePicker(true)}
-          className="bg-app-surface rounded-[10px] p-3 flex-row items-center justify-between"
-        >
-          <Text className={birthDate ? "text-white text-[15px]" : "text-[#555] text-[15px]"}>
-            {birthDate ? dayjs(birthDate).format("YYYY년 M월 D일") : "생년월일 선택"}
-          </Text>
-          <Text className="text-app-muted text-[13px]">변경</Text>
-        </Pressable>
-        <DatePickerModal
-          visible={showBirthDatePicker}
-          value={birthDate ?? new Date()}
-          onChange={setBirthDate}
-          onClose={() => setShowBirthDatePicker(false)}
-        />
+        <View className="mt-3">
+          <BirthDateInput value={birthDate} onChange={setBirthDate} />
+        </View>
 
         <View className="mt-3">
           <MbtiPicker value={mbti} onChange={setMbti} />
