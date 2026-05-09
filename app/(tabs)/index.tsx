@@ -1,5 +1,9 @@
 // 캘린더 탭 — 월별 달력 + 날짜 선택 or 월간 전체 로그 목록
+import { CalendarDebugBar } from "@/components/calendar/CalendarDebugBar";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
+import { CalendarHeader } from "@/components/calendar/CalendarHeader";
+import { MonthNavBar } from "@/components/calendar/MonthNavBar";
+import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import { LogCard } from "@/components/logs/LogCard";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { db } from "@/db/client";
@@ -16,18 +20,9 @@ import {
   toDateKey,
 } from "@/utils/date";
 import { expandRepeatInMonth } from "@/utils/repeat";
-import dayjs from "dayjs";
-import "dayjs/locale/ko";
 import type { InferSelectModel } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  Search,
-} from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   Keyboard,
@@ -35,7 +30,6 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -228,88 +222,30 @@ export default function CalendarScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
-        <Text className="text-white text-2xl font-bold">캘린더</Text>
+      <CalendarHeader
+        viewMode={viewMode}
+        onToggleView={() => setViewMode((v) => (v === "compact" ? "board" : "compact"))}
+        onSearchPress={() => router.push("/search")}
+        onTodayPress={goToday}
+      />
 
-        <View className="flex-row items-center gap-2">
-          <Pressable
-            onPress={() =>
-              setViewMode((v) => (v === "compact" ? "board" : "compact"))
-            }
-            className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
-          >
-            <Text className="text-app-muted text-xs font-semibold">
-              {viewMode === "compact" ? "보드" : "컴팩트"}
-            </Text>
-          </Pressable>
+      <MonthNavBar
+        currentMonth={currentMonth}
+        onPrev={prevMonth}
+        onNext={nextMonth}
+        onPickerOpen={() => setShowPicker(true)}
+      />
 
-          <Pressable
-            onPress={() => router.push("/search")}
-            className="p-2"
-            hitSlop={4}
-          >
-            <Search size={20} color="#888" />
-          </Pressable>
-
-          <Pressable
-            onPress={goToday}
-            className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
-          >
-            <Text className="text-app-teal text-xs font-semibold">오늘</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      {/* 월 헤더 */}
-      <View className="flex-row items-center px-3  pb-1 gap-1">
-        <Pressable onPress={prevMonth} className="p-2">
-          <ChevronLeft size={22} color="#e0e0e0" />
-        </Pressable>
-        <Pressable
-          onPress={() => setShowPicker(true)}
-          className="flex-1 items-center py-2"
-        >
-          <Text className="text-white text-[18px] font-semibold">
-            {formatMonthYear(currentMonth)}
-          </Text>
-        </Pressable>
-
-        <Pressable onPress={nextMonth} className="p-2">
-          <ChevronRight size={22} color="#e0e0e0" />
-        </Pressable>
-      </View>
-
-      {/* 디버그 정보 */}
       {debugMode && (
-        <View className="bg-[#2a1a1a] px-3 py-2 border-b border-[#444]">
-          <Text className="text-[10px] text-app-teal font-mono font-bold">
-            🔍 DEBUG
-          </Text>
-          <Text className="text-[10px] text-app-muted font-mono">
-            월: {dayjs(currentMonth).format("YYYY년 M월")} | 범위:{" "}
-            {dayjs(monthStart).format("YYYY년 M월 D일")} ~{" "}
-            {dayjs(monthEnd).format("YYYY년 M월 D일")}
-          </Text>
-          <Text className="text-[10px] text-[#888] font-mono">
-            monthLogs: {monthLogs.length} | allRepeatLogs:{" "}
-            {allRepeatLogs.length} | selectedDate:{" "}
-            {selectedDate ? "있음" : "없음"} | mode: {viewMode}
-          </Text>
-          {monthLogs.length > 0 && (
-            <View className="mt-1 pl-2 border-l border-[#666]">
-              {monthLogs.slice(0, 3).map((log) => (
-                <Text key={log.id} className="text-[9px] text-[#aaa] font-mono">
-                  • {dayjs(log.logDate).format("YYYY년 M월 D일")} - {log.title}
-                </Text>
-              ))}
-              {monthLogs.length > 3 && (
-                <Text className="text-[9px] text-[#666] font-mono">
-                  ... +{monthLogs.length - 3} more
-                </Text>
-              )}
-            </View>
-          )}
-        </View>
+        <CalendarDebugBar
+          currentMonth={currentMonth}
+          monthStart={monthStart}
+          monthEnd={monthEnd}
+          monthLogs={monthLogs}
+          allRepeatLogs={allRepeatLogs}
+          selectedDate={selectedDate}
+          viewMode={viewMode}
+        />
       )}
 
       {viewMode === "compact" ? (
@@ -428,35 +364,13 @@ export default function CalendarScreen() {
         </ScrollView>
       )}
 
-      {/* 퀵 입력바 */}
-      <View
-        className="absolute left-0 right-0 px-4 pt-2 bg-app-bg"
-        style={{ bottom: inputBarBottom }}
-      >
-        <View className="flex-row items-center gap-2">
-          <TextInput
-            className="flex-1 h-14 bg-app-surface rounded-full px-5 text-white text-[15px]"
-            placeholder={`${dayjs(targetDate).format("M월 D일")}에 기록 추가`}
-            placeholderTextColor="#444"
-            value={quickTitle}
-            onChangeText={setQuickTitle}
-            onSubmitEditing={handleQuickPress}
-            returnKeyType="done"
-            blurOnSubmit={false}
-          />
-          <Pressable
-            onPress={handleQuickPress}
-            className="w-14 h-14 rounded-full bg-app-teal items-center justify-center"
-            style={{ elevation: 6 }}
-          >
-            {quickTitle.trim().length > 0 ? (
-              <Check size={22} color="#111" />
-            ) : (
-              <Plus size={24} color="#111" />
-            )}
-          </Pressable>
-        </View>
-      </View>
+      <QuickInputBar
+        targetDate={targetDate}
+        value={quickTitle}
+        onChange={setQuickTitle}
+        onSubmit={handleQuickPress}
+        bottom={inputBarBottom}
+      />
 
       {/* MonthPicker 모달 */}
       <MonthPickerModal
