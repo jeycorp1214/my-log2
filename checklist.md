@@ -203,3 +203,42 @@
 ## 유틸 구조 (이미 완료)
 - [x] `utils/date.ts` — 날짜 유틸 (기존)
 - [x] `utils/repeat.ts` — 반복 occurrence 계산 (기존)
+
+---
+
+# Phase 7 체크리스트 — UI/UX 고도화
+
+## 리스트 탭 개선
+- [x] list.tsx: 기간 프리셋 → 올해(기본)/작년/최근 1년/전체/직접 선택
+- [x] list.tsx: "직접 선택" 시 시작/종료 월 버튼 + MonthPickerModal 재사용
+- [x] list.tsx: 헤더 필터 아이콘(SlidersHorizontal) + 활성 필터 수 뱃지
+- [x] list.tsx: 필터 바텀 시트 (RN Modal, slide 애니메이션)
+  - [x] 완료 상태: 전체/완료/미완료 (기존 "미완료만" 토글 통합)
+  - [x] 기록 유형: 전체/일반/반복
+  - [x] 정렬: 오래된순/최신순
+- [x] list.tsx: cn 유틸 적용 (프리셋 칩 className 조건부 처리)
+
+## 캘린더 보드 뷰
+- [x] CalendarGrid: `mode?: 'compact' | 'board'` + `boardItems?` prop 추가
+- [x] CalendarGrid: 보드 모드 — 셀 minHeight 68, 이벤트 제목 최대 2개 표시
+- [x] CalendarGrid: 일반 로그(teal) / 반복 로그(amber) 색상 구분
+- [x] CalendarGrid: 3개 이상 이벤트 시 "+N" 오버플로 뱃지
+- [x] CalendarGrid: cn 유틸 적용 (컴팩트 모드 조건부 className 정리)
+- [x] index.tsx: `viewMode` 상태 + 헤더 토글 버튼 (보드/컴팩트)
+- [x] index.tsx: 보드 모드 — ScrollView > 보드 CalendarGrid, 하단 리스트 숨김, 스와이프 비활성
+- [x] index.tsx: `boardItems` useMemo (monthLogs + repeatOccurrences 통합)
+
+## MBTI / 생년월일 입력 개선
+- [x] MbtiPicker: 4축 토글 컴포넌트 (E/I, N/S, T/F, J/P)
+- [x] BirthDateInput: 스마트 숫자 파싱 (2자리 나이 / 4자리 연도 / 6자리 YYMMDD / 8자리 YYYYMMDD)
+- [x] utils/date.ts: parseBirthInput() 추가
+
+## 인물 기념일 (Phase 6 연계)
+- [x] db/schema.ts: personAnniversaries 테이블
+- [x] migration 0002: person_anniversaries 생성
+- [x] persons/new.tsx: 기념일 섹션 (프리셋 + 추가/삭제 + 날짜 + 매년 반복)
+- [x] persons/[id].tsx: 기념일 뷰(D-Day) + 수정 모드
+
+## 설정 — 테이블 초기화
+- [x] db/client.ts: resetDatabase() 함수 (execAsync DROP + runMigrations)
+- [x] settings.tsx: 테이블 구조 초기화 버튼 (resetDatabase 호출)

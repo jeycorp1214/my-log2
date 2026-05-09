@@ -1,6 +1,7 @@
 // 월별 달력 그리드 컴포넌트 — 컴팩트(점 마킹) / 보드(이벤트 제목) 두 모드 지원
 import { WEEKDAYS } from "@/db/seed";
 import { isSameDay } from "@/utils/date";
+import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { Pressable, Text, View } from "react-native";
 
@@ -46,13 +47,10 @@ export function CalendarGrid({
         {WEEKDAYS.map((d) => (
           <Text
             key={d}
-            className={`flex-1 text-center text-xs py-[6px] ${
-              d === "일"
-                ? "text-[#ff6b6b]"
-                : d === "토"
-                  ? "text-app-teal"
-                  : "text-app-muted"
-            }`}
+            className={cn(
+              "flex-1 text-center text-xs py-[6px]",
+              d === "일" ? "text-[#ff6b6b]" : d === "토" ? "text-app-teal" : "text-app-muted",
+            )}
           >
             {d}
           </Text>
@@ -79,30 +77,25 @@ export function CalendarGrid({
                   onPress={() => onSelectDate(date)}
                 >
                   <View
-                    className={`w-9 h-9 rounded-full items-center justify-center ${
-                      isSelected
-                        ? "bg-app-teal"
-                        : isToday
-                          ? "border border-app-teal"
-                          : ""
-                    }`}
+                    className={cn(
+                      "w-9 h-9 rounded-full items-center justify-center",
+                      isSelected ? "bg-app-teal" : isToday ? "border border-app-teal" : null,
+                    )}
                   >
                     <Text
-                      className={`text-[14px] ${
-                        isSelected
-                          ? "text-[#111] font-bold"
-                          : isWeekend
-                            ? "text-[#aaa]"
-                            : "text-[#e0e0e0]"
-                      }`}
+                      className={cn(
+                        "text-[14px]",
+                        isSelected ? "text-[#111] font-bold" : isWeekend ? "text-[#aaa]" : "text-[#e0e0e0]",
+                      )}
                     >
                       {day.date()}
                     </Text>
                     {hasLog && (
                       <View
-                        className={`w-1 h-1 rounded-full mt-[1px] ${
-                          isSelected ? "bg-[#111]" : "bg-app-teal"
-                        }`}
+                        className={cn(
+                          "w-1 h-1 rounded-full mt-[1px]",
+                          isSelected ? "bg-[#111]" : "bg-app-teal",
+                        )}
                       />
                     )}
                   </View>

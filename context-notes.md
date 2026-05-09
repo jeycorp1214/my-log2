@@ -71,3 +71,44 @@
 - app-specific 색상을 tailwind.config.js에 추가: app.bg, surface, teal, muted, label, dim, danger, danger-bg
 - 유지된 inline style: elevation(FAB Android), textAlignVertical:'top'(textarea), dynamic backgroundColor
 - CalendarGrid: selectedDate 타입 Date → Date | null 수정 (null 시 isSelected=false)
+
+---
+
+## 2026-05-09 — Phase 7 UI 개선
+
+### 리스트 탭 기간 프리셋 재설계
+- 기존: 1개월/3개월(기본)/6개월/1년/전체 (상대적 기간)
+- 변경: 올해(기본)/작년/최근 1년/전체/직접 선택 (절대적 연도 기준)
+- 이유: "이번 달에 뭘 했지?" 보다 "올해 기록 전체 보기" 니즈가 더 자연스러움
+- "올해" = dayjs().startOf('year') ~ endOf('year')
+- "직접 선택" = customStart/customEnd, MonthPickerModal 두 개로 시작/종료 월 선택
+
+### 리스트 탭 필터 시스템
+- 기존: "미완료만" 단순 토글
+- 변경: 바텀 시트 (RN Modal animationType:"slide") — 3가지 필터 축
+  - 완료 상태: all/done/undone (기존 토글 통합)
+  - 기록 유형: all/regular/repeat (isRepeat 필드 기반)
+  - 정렬: oldest/newest (Array reverse)
+- filterBadge: 기본값 외 활성 필터 수 → 헤더 아이콘 위 뱃지
+- 바텀 시트 backdrop: 중첩 Pressable 패턴 (MonthPicker와 동일)
+
+### 캘린더 보드 뷰
+- CalendarGrid에 mode prop 추가: 'compact'(기존) | 'board'(신규)
+- 보드 모드 셀 구조: 날짜 텍스트(top-left) + 이벤트 행 최대 2개 + overflow 뱃지
+- 보드 셀 배경: gap:1 + bg-[#1e1e1e] 외부 컨테이너 → 그리드 선 효과 (border 대신)
+- 색상 구분: 일반 로그(bg:#0e2419, text:#4ecdc4) / 반복 로그(bg:#28200c, text:#c9922a)
+- 보드 모드에서 셀 선택 시: backgroundColor:'#142218' (약한 teal tint)
+- index.tsx 보드 모드: GestureDetector 스와이프 비활성, 하단 리스트 숨김, ScrollView로 전체 그리드 스크롤
+- boardItems 출처: monthLogs + repeatOccurrences (useMemo로 memoize)
+
+### cn 유틸 적용 방침
+- utils/utils.ts: clsx + tailwind-merge 기반 cn() 함수
+- 적용 대상: 조건부 className이 있는 컴포넌트 (template literal `${}` → cn())
+- CalendarGrid.tsx, list.tsx 적용 완료
+- inline style 유지: dynamic backgroundColor (tailwind 클래스로 표현 불가한 경우)
+
+### 아키텍처 개선 (2026-05-09)
+- providers/ErrorBoundary.tsx: 클래스 기반 에러 바운더리
+- providers/DatabaseProvider.tsx: DB 초기화 비동기 처리 분리
+- hooks/logs/use-calendar-logs.ts: CalendarScreen useLiveQuery 추출
+- hooks/persons/use-persons-with-groups.ts: PersonsScreen useLiveQuery + 그룹핑 추출

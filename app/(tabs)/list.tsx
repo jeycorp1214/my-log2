@@ -5,6 +5,7 @@ import { db } from "@/db/client";
 import { logs } from "@/db/schema";
 import { type EventItem, useEventFilter } from "@/hooks/logs/use-event-filter";
 import { formatMonthYear } from "@/utils/date";
+import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useRouter } from "expo-router";
@@ -131,12 +132,16 @@ export default function ListScreen() {
         renderItem={({ item }) => (
           <Pressable
             onPress={() => setPreset(item.key)}
-            className="rounded-full px-4 py-1.5"
-            style={{ backgroundColor: preset === item.key ? "#4ecdc4" : "#222" }}
+            className={cn(
+              "rounded-full px-4 py-1.5",
+              preset === item.key ? "bg-app-teal" : "bg-[#222]",
+            )}
           >
             <Text
-              className="text-[13px] font-semibold"
-              style={{ color: preset === item.key ? "#111" : "#888" }}
+              className={cn(
+                "text-[13px] font-semibold",
+                preset === item.key ? "text-[#111]" : "text-[#888]",
+              )}
             >
               {item.label}
             </Text>
