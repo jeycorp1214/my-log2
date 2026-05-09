@@ -85,3 +85,5 @@ export const PRESET_COLORS = [
   "#98D8C8",
   "#F7DC6F",
 ];
+
+export const ANNIVERSARY_PRESETS = ["생일", "결혼", "입사", "퇴사", "이사"];

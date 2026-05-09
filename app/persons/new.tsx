@@ -2,6 +2,7 @@
 import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
+import { Plus, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -13,13 +14,13 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Plus, X } from "lucide-react-native";
 
 import { DatePickerModal } from "@/components/DatePickerModal";
 import { BirthDateInput } from "@/components/persons/BirthDateInput";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { db } from "@/db/client";
 import { groups, personAnniversaries, persons } from "@/db/schema";
+import { ANNIVERSARY_PRESETS } from "@/db/seed";
 
 type DraftAnniversary = {
   id: string;
@@ -27,8 +28,6 @@ type DraftAnniversary = {
   date: Date | null;
   isRepeat: boolean;
 };
-
-const ANNIVERSARY_PRESETS = ["결혼", "졸업", "입사", "첫 만남", "사귀기 시작"];
 
 export default function PersonNewScreen() {
   const router = useRouter();
@@ -86,7 +85,9 @@ export default function PersonNewScreen() {
       .insert(persons)
       .values({
         name: name.trim(),
-        birthDate: birthDate ? dayjs(birthDate).format("YYYY-MM-DD") : undefined,
+        birthDate: birthDate
+          ? dayjs(birthDate).format("YYYY-MM-DD")
+          : undefined,
         mbti: mbti || undefined,
         memo: memo.trim() || undefined,
         groupId,
@@ -155,7 +156,9 @@ export default function PersonNewScreen() {
               onPress={() => setGroupId(g.id)}
               className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? "bg-app-teal" : "bg-app-surface"}`}
             >
-              <Text className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}>
+              <Text
+                className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}
+              >
                 {g.emoji} {g.name}
               </Text>
             </Pressable>
@@ -196,12 +199,19 @@ export default function PersonNewScreen() {
                 onPress={() => setShowPickerFor(ann.id)}
                 className="flex-1 bg-[#1a1a1a] rounded-[8px] px-2 py-1.5"
               >
-                <Text className="text-[13px]" style={{ color: ann.date ? "#ccc" : "#555" }}>
-                  {ann.date ? dayjs(ann.date).format("YYYY.MM.DD") : "날짜 선택"}
+                <Text
+                  className="text-[13px]"
+                  style={{ color: ann.date ? "#ccc" : "#555" }}
+                >
+                  {ann.date
+                    ? dayjs(ann.date).format("YYYY.MM.DD")
+                    : "날짜 선택"}
                 </Text>
               </Pressable>
               <Pressable
-                onPress={() => updateAnniversary(ann.id, "isRepeat", !ann.isRepeat)}
+                onPress={() =>
+                  updateAnniversary(ann.id, "isRepeat", !ann.isRepeat)
+                }
                 className="flex-row items-center gap-1.5 bg-[#1a1a1a] rounded-[8px] px-2.5 py-1.5"
               >
                 <View
@@ -214,7 +224,10 @@ export default function PersonNewScreen() {
           </View>
         ))}
 
-        <Pressable onPress={addAnniversary} className="flex-row items-center gap-1.5 py-2">
+        <Pressable
+          onPress={addAnniversary}
+          className="flex-row items-center gap-1.5 py-2"
+        >
           <Plus size={14} color="#4ecdc4" />
           <Text className="text-app-teal text-[13px]">기념일 추가</Text>
         </Pressable>
@@ -222,7 +235,10 @@ export default function PersonNewScreen() {
         {showPickerFor && (
           <DatePickerModal
             visible
-            value={anniversaries.find((a) => a.id === showPickerFor)?.date ?? new Date()}
+            value={
+              anniversaries.find((a) => a.id === showPickerFor)?.date ??
+              new Date()
+            }
             onChange={(date) => {
               updateAnniversary(showPickerFor, "date", date);
               setShowPickerFor(null);
@@ -231,7 +247,10 @@ export default function PersonNewScreen() {
           />
         )}
 
-        <Pressable onPress={save} className="bg-app-teal rounded-[12px] p-4 items-center mt-6">
+        <Pressable
+          onPress={save}
+          className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
+        >
           <Text className="text-[#111] text-base font-bold">저장</Text>
         </Pressable>
         <Pressable onPress={() => router.back()} className="items-center py-3">
