@@ -40,7 +40,12 @@ import { runOnJS } from "react-native-reanimated";
 type Log = InferSelectModel<typeof logs>;
 type LogItem = { log: Log; isOccurrence: boolean };
 type AnniversaryEntry = { title: string; personId: string };
-type DaySection = { dateKey: string; date: Date; items: LogItem[]; anniversaries: AnniversaryEntry[] };
+type DaySection = {
+  dateKey: string;
+  date: Date;
+  items: LogItem[];
+  anniversaries: AnniversaryEntry[];
+};
 
 export default function CalendarScreen() {
   const router = useRouter();
@@ -72,7 +77,6 @@ export default function CalendarScreen() {
     };
   }, []);
 
-  // 기록 저장 후 해당 달로 이동
   useEffect(() => {
     if (!savedDate) return;
     const d = new Date(savedDate);
@@ -88,9 +92,11 @@ export default function CalendarScreen() {
     monthEnd,
   );
 
-  const { anniversaryDates, anniversaryBoardItems } = useAnniversariesInMonth(monthStart, monthEnd);
+  const { anniversaryDates, anniversaryBoardItems } = useAnniversariesInMonth(
+    monthStart,
+    monthEnd,
+  );
 
-  // 반복 occurrence 확장
   const repeatOccurrences = allRepeatLogs.flatMap((log) =>
     expandRepeatInMonth(log, monthStart, monthEnd).map((date) => ({
       log,
@@ -98,7 +104,6 @@ export default function CalendarScreen() {
     })),
   );
 
-  // 달력 마킹용 날짜 목록
   const logDates = [
     ...monthLogs.map((log) => new Date(log.logDate)),
     ...repeatOccurrences.map(({ date }) => date),
@@ -106,7 +111,6 @@ export default function CalendarScreen() {
 
   const calendarAnniversaryDates = showAnniversaries ? anniversaryDates : [];
 
-  // 보드 뷰용 이벤트 목록
   const boardItems = useMemo(
     () => [
       ...monthLogs.map((log) => ({
@@ -119,18 +123,26 @@ export default function CalendarScreen() {
         title: log.title,
         isRepeat: true as const,
       })),
-      ...(showAnniversaries ? anniversaryBoardItems.map((ann) => ({
-        date: ann.date,
-        title: ann.displayTitle,
-        isRepeat: false as const,
-        type: "anniversary" as const,
-      })) : []),
+      ...(showAnniversaries
+        ? anniversaryBoardItems.map((ann) => ({
+            date: ann.date,
+            title: ann.displayTitle,
+            isRepeat: false as const,
+            type: "anniversary" as const,
+          }))
+        : []),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [monthLogs, allRepeatLogs, monthStart, monthEnd, showAnniversaries, anniversaryBoardItems],
+    [
+      monthLogs,
+      allRepeatLogs,
+      monthStart,
+      monthEnd,
+      showAnniversaries,
+      anniversaryBoardItems,
+    ],
   );
 
-  // 월간 전체 뷰: 날짜별 섹션 그룹
   function buildDaySections(): DaySection[] {
     const map = new Map<string, DaySection>();
 
@@ -149,15 +161,25 @@ export default function CalendarScreen() {
 
     for (const { log, date, isOccurrence } of allItems) {
       const key = toDateKey(date);
-      if (!map.has(key)) map.set(key, { dateKey: key, date, items: [], anniversaries: [] });
+      if (!map.has(key))
+        map.set(key, { dateKey: key, date, items: [], anniversaries: [] });
       map.get(key)!.items.push({ log, isOccurrence });
     }
 
     if (showAnniversaries) {
       for (const ann of anniversaryBoardItems) {
         const key = toDateKey(ann.date);
-        if (!map.has(key)) map.set(key, { dateKey: key, date: ann.date, items: [], anniversaries: [] });
-        map.get(key)!.anniversaries.push({ title: ann.displayTitle, personId: ann.personId });
+        if (!map.has(key))
+          map.set(key, {
+            dateKey: key,
+            date: ann.date,
+            items: [],
+            anniversaries: [],
+          });
+        map.get(key)!.anniversaries.push({
+          title: ann.displayTitle,
+          personId: ann.personId,
+        });
       }
     }
 
@@ -166,7 +188,6 @@ export default function CalendarScreen() {
     );
   }
 
-  // 날짜 선택 뷰: 해당 날짜 로그만
   const selectedLogs: LogItem[] = selectedDate
     ? [
         ...monthLogs
@@ -225,13 +246,25 @@ export default function CalendarScreen() {
     }
   }
 
-  // 수평 스와이프로 월 이동 (컴팩트 모드에서만 활성)
-  const swipe = Gesture.Pan()
+  // 수평: 월 이동
+  const horizontalSwipe = Gesture.Pan()
     .activeOffsetX([-20, 20])
+    .failOffsetY([-10, 10])
     .onEnd((e) => {
       if (e.translationX < -50) runOnJS(nextMonth)();
       else if (e.translationX > 50) runOnJS(prevMonth)();
     });
+
+  // 수직: 모드 전환 (아래 → 보드, 위 → 컴팩트)
+  const verticalSwipe = Gesture.Pan()
+    .activeOffsetY([-30, 30])
+    .failOffsetX([-10, 10])
+    .onEnd((e) => {
+      if (e.translationY > 50) runOnJS(setViewMode)("board");
+      else if (e.translationY < -50) runOnJS(setViewMode)("compact");
+    });
+
+  const calendarGesture = Gesture.Race(horizontalSwipe, verticalSwipe);
 
   const daySections = buildDaySections();
   const today = new Date();
@@ -246,11 +279,17 @@ export default function CalendarScreen() {
 
   const inputBarBottom = keyboardHeight > 0 ? keyboardHeight + 8 : 24;
 
+  // 보드: 날짜 선택 시에만 하단 리스트 표시
+  // 컴팩트: 항상 하단 리스트 표시
+  const showList = viewMode === "compact" || selectedDate !== null;
+
   return (
     <View className="flex-1 bg-app-bg">
       <CalendarHeader
         viewMode={viewMode}
-        onToggleView={() => setViewMode((v) => (v === "compact" ? "board" : "compact"))}
+        onToggleView={() =>
+          setViewMode((v) => (v === "compact" ? "board" : "compact"))
+        }
         onSearchPress={() => router.push("/search")}
         onTodayPress={goToday}
         showAnniversaries={showAnniversaries}
@@ -279,137 +318,135 @@ export default function CalendarScreen() {
         />
       )}
 
-      {viewMode === "compact" ? (
-        <>
-          {/* 컴팩트: 스와이프 + 달력 + 리스트 */}
-          <GestureDetector gesture={swipe}>
-            <View>
-              <CalendarGrid
-                currentMonth={currentMonth}
-                selectedDate={selectedDate}
-                markedDates={logDates}
-                onSelectDate={handleSelectDate}
-                anniversaryDates={calendarAnniversaryDates}
-              />
-            </View>
-          </GestureDetector>
-
-          <View className="flex-row items-center justify-between px-5 py-[10px]">
-            <Text className="text-app-dim text-[14px] font-semibold">
-              {selectedDate
-                ? formatLogDate(selectedDate)
-                : `${formatMonthYear(currentMonth)} 전체`}
-            </Text>
-            {selectedDate && (
-              <Pressable
-                onPress={() => setSelectedDate(null)}
-                className="bg-app-surface rounded-[10px] px-2 py-[3px]"
-              >
-                <Text className="text-app-teal text-xs">전체보기</Text>
-              </Pressable>
-            )}
-          </View>
-
-          <ScrollView
-            className="flex-1"
-            contentContainerStyle={{
-              paddingHorizontal: 16,
-              paddingBottom: 96,
-              gap: 8,
-            }}
-          >
-            {selectedDate ? (
-              selectedLogs.length === 0 && selectedAnniversaries.length === 0 ? (
-                <Text className="text-app-muted text-center mt-6">
-                  기록이 없습니다.
-                </Text>
-              ) : (
-                <>
-                  {selectedAnniversaries.map((ann, i) => (
-                    <AnniversaryItem
-                      key={`ann-${i}`}
-                      title={ann.displayTitle}
-                      onPress={() => router.push({ pathname: "/persons/[id]", params: { id: ann.personId } })}
-                    />
-                  ))}
-                  {selectedLogs.map((item) => (
-                    <LogCard
-                      key={item.log.id}
-                      log={item.log}
-                      onPress={() =>
-                        router.push({
-                          pathname: "/logs/[id]",
-                          params: item.isOccurrence
-                            ? {
-                                id: item.log.id,
-                                occurrenceDate: selectedDate!.toISOString(),
-                              }
-                            : { id: item.log.id },
-                        })
-                      }
-                    />
-                  ))}
-                </>
-              )
-            ) : daySections.length === 0 ? (
-              <Text className="text-app-muted text-center mt-6">
-                이번 달 기록이 없습니다.
-              </Text>
-            ) : (
-              daySections.map((section) => (
-                <View key={section.dateKey}>
-                  <Pressable
-                    onPress={() => setSelectedDate(section.date)}
-                    className="py-1.5 px-1 mt-2"
-                  >
-                    <Text className="text-app-teal text-xs font-semibold tracking-[0.3px]">
-                      {formatLogDate(section.date)}
-                    </Text>
-                  </Pressable>
-                  {section.anniversaries.map((ann, i) => (
-                    <AnniversaryItem
-                      key={`ann-${section.dateKey}-${i}`}
-                      title={ann.title}
-                      onPress={() => router.push({ pathname: "/persons/[id]", params: { id: ann.personId } })}
-                    />
-                  ))}
-                  {section.items.map((item) => (
-                    <LogCard
-                      key={`${section.dateKey}-${item.log.id}`}
-                      log={item.log}
-                      onPress={() =>
-                        router.push({
-                          pathname: "/logs/[id]",
-                          params: item.isOccurrence
-                            ? {
-                                id: item.log.id,
-                                occurrenceDate: section.date.toISOString(),
-                              }
-                            : { id: item.log.id },
-                        })
-                      }
-                    />
-                  ))}
-                </View>
-              ))
-            )}
-          </ScrollView>
-        </>
-      ) : (
-        // 보드: 달력 셀에 이벤트 제목 표시, 하단 리스트 없음
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ paddingBottom: 16 }}
-        >
+      {/* 캘린더 그리드 — 수평(월 이동) + 수직(모드 전환) 제스처 통합 */}
+      <GestureDetector gesture={calendarGesture}>
+        <View>
           <CalendarGrid
             currentMonth={currentMonth}
             selectedDate={selectedDate}
             markedDates={logDates}
             onSelectDate={handleSelectDate}
-            mode="board"
-            boardItems={boardItems}
+            mode={viewMode === "board" ? "board" : "compact"}
+            boardItems={viewMode === "board" ? boardItems : undefined}
             anniversaryDates={calendarAnniversaryDates}
           />
+        </View>
+      </GestureDetector>
+
+      {/* 날짜 레이블 바 */}
+      {showList && (
+        <View className="flex-row items-center justify-between px-5 py-[10px]">
+          <Text className="text-app-dim text-[14px] font-semibold">
+            {selectedDate
+              ? formatLogDate(selectedDate)
+              : `${formatMonthYear(currentMonth)} 전체`}
+          </Text>
+          {selectedDate && (
+            <Pressable
+              onPress={() => setSelectedDate(null)}
+              className="bg-app-surface rounded-[10px] px-2 py-[3px]"
+            >
+              <Text className="text-app-teal text-xs">전체보기</Text>
+            </Pressable>
+          )}
+        </View>
+      )}
+
+      {/* 하단 리스트 — 컴팩트: 항상, 보드: 날짜 선택 시 */}
+      {showList && (
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingBottom: 96,
+            gap: 8,
+          }}
+        >
+          {selectedDate ? (
+            selectedLogs.length === 0 && selectedAnniversaries.length === 0 ? (
+              <Text className="text-app-muted text-center mt-6">
+                기록이 없습니다.
+              </Text>
+            ) : (
+              <>
+                {selectedAnniversaries.map((ann, i) => (
+                  <AnniversaryItem
+                    key={`ann-${i}`}
+                    title={ann.displayTitle}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/persons/[id]",
+                        params: { id: ann.personId },
+                      })
+                    }
+                  />
+                ))}
+                {selectedLogs.map((item) => (
+                  <LogCard
+                    key={item.log.id}
+                    log={item.log}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/logs/[id]",
+                        params: item.isOccurrence
+                          ? {
+                              id: item.log.id,
+                              occurrenceDate: selectedDate!.toISOString(),
+                            }
+                          : { id: item.log.id },
+                      })
+                    }
+                  />
+                ))}
+              </>
+            )
+          ) : daySections.length === 0 ? (
+            <Text className="text-app-muted text-center mt-6">
+              이번 달 기록이 없습니다.
+            </Text>
+          ) : (
+            daySections.map((section) => (
+              <View key={section.dateKey}>
+                <Pressable
+                  onPress={() => setSelectedDate(section.date)}
+                  className="py-1.5 px-1 mt-2"
+                >
+                  <Text className="text-app-teal text-xs font-semibold tracking-[0.3px]">
+                    {formatLogDate(section.date)}
+                  </Text>
+                </Pressable>
+                {section.anniversaries.map((ann, i) => (
+                  <AnniversaryItem
+                    key={`ann-${section.dateKey}-${i}`}
+                    title={ann.title}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/persons/[id]",
+                        params: { id: ann.personId },
+                      })
+                    }
+                  />
+                ))}
+                {section.items.map((item) => (
+                  <LogCard
+                    key={`${section.dateKey}-${item.log.id}`}
+                    log={item.log}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/logs/[id]",
+                        params: item.isOccurrence
+                          ? {
+                              id: item.log.id,
+                              occurrenceDate: section.date.toISOString(),
+                            }
+                          : { id: item.log.id },
+                      })
+                    }
+                  />
+                ))}
+              </View>
+            ))
+          )}
         </ScrollView>
       )}
 
@@ -420,7 +457,6 @@ export default function CalendarScreen() {
         onSubmit={handleQuickPress}
         bottom={inputBarBottom}
       />
-
     </View>
   );
 }
