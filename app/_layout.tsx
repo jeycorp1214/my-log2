@@ -37,65 +37,65 @@ export default function RootLayout() {
             <GluestackUIProvider mode="dark">
               <DebugProvider>
                 <TabPreferencesProvider>
-                <ThemeProvider
-                  value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-                >
-                  <Stack>
-                    <Stack.Screen
-                      name="(tabs)"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="persons/new"
-                      options={{ presentation: "modal", title: "인물 추가" }}
-                    />
-                    <Stack.Screen
-                      name="persons/[id]"
-                      options={{ presentation: "modal", title: "인물 상세" }}
-                    />
-                    <Stack.Screen
-                      name="logs/new"
-                      options={{ presentation: "modal", title: "기록 추가" }}
-                    />
-                    <Stack.Screen
-                      name="logs/[id]"
-                      options={{ presentation: "modal", title: "기록 상세" }}
-                    />
-                    <Stack.Screen
-                      name="memos/new"
-                      options={{ presentation: "modal", title: "메모 추가" }}
-                    />
-                    <Stack.Screen
-                      name="memos/[id]"
-                      options={{ presentation: "modal", title: "메모 상세" }}
-                    />
-                    <Stack.Screen
-                      name="groups/new"
-                      options={{ presentation: "modal", title: "그룹 추가" }}
-                    />
-                    <Stack.Screen
-                      name="settings/groups"
-                      options={{ title: "그룹 관리" }}
-                    />
-                    <Stack.Screen
-                      name="settings/repeats"
-                      options={{ title: "반복 관리" }}
-                    />
-                    <Stack.Screen
-                      name="settings/data"
-                      options={{ title: "데이터 확인" }}
-                    />
-                    <Stack.Screen
-                      name="settings/tab-prefs"
-                      options={{ title: "탭 기본 설정" }}
-                    />
-                    <Stack.Screen
-                      name="search"
-                      options={{ presentation: "modal", headerShown: false }}
-                    />
-                  </Stack>
-                  <StatusBar style="auto" />
-                </ThemeProvider>
+                  <ThemeProvider
+                    value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+                  >
+                    <Stack>
+                      <Stack.Screen
+                        name="(tabs)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="persons/new"
+                        options={{ presentation: "modal", title: "인물 추가" }}
+                      />
+                      <Stack.Screen
+                        name="persons/[id]"
+                        options={{ presentation: "modal", title: "인물 상세" }}
+                      />
+                      <Stack.Screen
+                        name="logs/new"
+                        options={{ presentation: "modal", title: "기록 추가" }}
+                      />
+                      <Stack.Screen
+                        name="logs/[id]"
+                        options={{ presentation: "modal", title: "기록 상세" }}
+                      />
+                      <Stack.Screen
+                        name="memos/new"
+                        options={{ presentation: "modal", title: "메모 추가" }}
+                      />
+                      <Stack.Screen
+                        name="memos/[id]"
+                        options={{ presentation: "modal", title: "메모 상세" }}
+                      />
+                      <Stack.Screen
+                        name="groups/new"
+                        options={{ presentation: "modal", title: "그룹 추가" }}
+                      />
+                      <Stack.Screen
+                        name="settings/groups"
+                        options={{ title: "그룹 관리" }}
+                      />
+                      <Stack.Screen
+                        name="settings/repeats"
+                        options={{ title: "반복 관리" }}
+                      />
+                      <Stack.Screen
+                        name="settings/data"
+                        options={{ title: "데이터 확인" }}
+                      />
+                      <Stack.Screen
+                        name="settings/tab-prefs"
+                        options={{ title: "탭 기본 설정" }}
+                      />
+                      <Stack.Screen
+                        name="search"
+                        options={{ presentation: "modal", headerShown: false }}
+                      />
+                    </Stack>
+                    <StatusBar style="auto" />
+                  </ThemeProvider>
                 </TabPreferencesProvider>
               </DebugProvider>
             </GluestackUIProvider>

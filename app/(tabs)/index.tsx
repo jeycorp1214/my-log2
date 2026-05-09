@@ -302,7 +302,7 @@ export default function CalendarScreen() {
   return (
     <View className="flex-1 bg-app-bg">
       <TabsHeader
-        title="My Log"
+        title="캘린더"
         cakeOnPress={() =>
           setCalendarPrefs({ showAnniversaries: !showAnniversaries })
         }
@@ -311,9 +311,11 @@ export default function CalendarScreen() {
         CustomRight={
           <Pressable
             onPress={goToday}
-            className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
+            className="bg-app-surface rounded-lg px-2 py-2 border border-app-teal"
           >
-            <Text className="text-app-teal text-xs font-semibold">오늘</Text>
+            <Text className="text-app-teal text-xs font-semibold">
+              {dayjs().format("DD")}
+            </Text>
           </Pressable>
         }
       />
@@ -366,7 +368,7 @@ export default function CalendarScreen() {
           {selectedDate && (
             <Pressable
               onPress={() => setSelectedDate(null)}
-              className="bg-app-surface rounded-[10px] px-2 py-[3px]"
+              className="bg-app-surface rounded-lg px-2 py-2"
             >
               <Text className="text-app-teal text-xs">전체보기</Text>
             </Pressable>
