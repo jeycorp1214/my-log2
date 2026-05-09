@@ -107,7 +107,7 @@ export default function DataViewerScreen() {
             <ChevronLeft size={16} color="#aaa" />
           </Pressable>
           <Text className="text-white text-[13px] font-semibold flex-1 text-center">
-            {formatLogDate(viewMonthStart).substring(0, 7)} {/* YYYY-MM 형식 */}
+            {formatLogDate(viewMonthStart).substring(0, 9)} {/* YYYY-MM 형식 */}
           </Text>
           <Pressable
             onPress={() => setViewMonth(addMonths(viewMonth, 1))}
