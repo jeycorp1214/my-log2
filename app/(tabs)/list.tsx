@@ -3,13 +3,14 @@ import { ListEventItem } from "@/components/logs/ListEventItem";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { db } from "@/db/client";
-import { logs } from "@/db/schema";
+import { groups, logPersons, logs } from "@/db/schema";
 import { type EventItem, useEventFilter } from "@/hooks/logs/use-event-filter";
 import { type AnniversaryBoardItem, useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
 import { formatMonthYear } from "@/utils/date";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Cake, SlidersHorizontal } from "lucide-react-native";
 import { useMemo, useState } from "react";
@@ -18,66 +19,68 @@ import {
   Modal,
   Pressable,
   SectionList,
+  ScrollView,
   Text,
   View,
 } from "react-native";
 
-type Preset = "this-year" | "last-year" | "recent-1y" | "all" | "custom";
+type Preset = "this-week" | "this-month" | "recent-3m" | "custom";
 type CompletionFilter = "all" | "done" | "undone";
 type TypeFilter = "all" | "regular" | "repeat";
+type PersonFilter = "all" | "yes" | "no";
 type SortOrder = "oldest" | "newest";
 
 type PresetConfig = { key: Preset; label: string };
 type SectionData = EventItem | AnniversaryBoardItem;
 
 const PRESETS: PresetConfig[] = [
-  { key: "this-year", label: "올해" },
-  { key: "last-year", label: "작년" },
-  { key: "recent-1y", label: "최근 1년" },
-  { key: "all", label: "전체" },
+  { key: "this-week", label: "이번 주" },
+  { key: "this-month", label: "이번 달" },
+  { key: "recent-3m", label: "최근 3개월" },
   { key: "custom", label: "직접 선택" },
 ];
-
-const EPOCH = new Date(0);
-const FAR_FUTURE = new Date(2200, 0, 1);
 
 export default function ListScreen() {
   const router = useRouter();
 
-  const [preset, setPreset] = useState<Preset>("this-year");
+  const [preset, setPreset] = useState<Preset>("this-month");
   const [customStart, setCustomStart] = useState(() =>
-    dayjs().startOf("year").toDate(),
+    dayjs().startOf("month").toDate(),
   );
   const [customEnd, setCustomEnd] = useState(() =>
-    dayjs().endOf("year").toDate(),
+    dayjs().endOf("month").toDate(),
   );
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const [completionFilter, setCompletionFilter] =
-    useState<CompletionFilter>("all");
+  const [completionFilter, setCompletionFilter] = useState<CompletionFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("oldest");
+  const [groupFilter, setGroupFilter] = useState<string>("all");
+  const [personFilter, setPersonFilter] = useState<PersonFilter>("all");
   const [showAnniversaries, setShowAnniversaries] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
+  const { data: allGroups = [] } = useLiveQuery(
+    db.select().from(groups).orderBy(groups.sortOrder),
+  );
+
+  const { data: linkedLogRows = [] } = useLiveQuery(
+    db.selectDistinct({ logId: logPersons.logId }).from(logPersons),
+  );
+  const linkedLogIdSet = useMemo(
+    () => new Set(linkedLogRows.map((r) => r.logId)),
+    [linkedLogRows],
+  );
+
   const { start, end } = useMemo(() => {
     const now = dayjs();
-    if (preset === "this-year")
-      return {
-        start: now.startOf("year").toDate(),
-        end: now.endOf("year").toDate(),
-      };
-    if (preset === "last-year") {
-      const ly = now.subtract(1, "year");
-      return {
-        start: ly.startOf("year").toDate(),
-        end: ly.endOf("year").toDate(),
-      };
-    }
-    if (preset === "recent-1y")
-      return { start: now.subtract(1, "year").toDate(), end: now.toDate() };
-    if (preset === "all") return { start: EPOCH, end: FAR_FUTURE };
+    if (preset === "this-week")
+      return { start: now.startOf("week").toDate(), end: now.endOf("week").toDate() };
+    if (preset === "this-month")
+      return { start: now.startOf("month").toDate(), end: now.endOf("month").toDate() };
+    if (preset === "recent-3m")
+      return { start: now.subtract(3, "month").toDate(), end: now.toDate() };
     return { start: customStart, end: customEnd };
   }, [preset, customStart, customEnd]);
 
@@ -92,8 +95,11 @@ export default function ListScreen() {
       items = items.filter((i) => i.isRepeat || !i.log.checkedAt);
     if (typeFilter === "regular") items = items.filter((i) => !i.isRepeat);
     if (typeFilter === "repeat") items = items.filter((i) => i.isRepeat);
+    if (groupFilter !== "all") items = items.filter((i) => i.log.groupId === groupFilter);
+    if (personFilter === "yes") items = items.filter((i) => linkedLogIdSet.has(i.log.id));
+    if (personFilter === "no") items = items.filter((i) => !linkedLogIdSet.has(i.log.id));
     return sortOrder === "newest" ? [...items].reverse() : items;
-  }, [allItems, completionFilter, typeFilter, sortOrder]);
+  }, [allItems, completionFilter, typeFilter, groupFilter, personFilter, sortOrder, linkedLogIdSet]);
 
   const sections = useMemo(() => {
     const map = new Map<string, { date: Date; data: SectionData[] }>();
@@ -129,6 +135,8 @@ export default function ListScreen() {
     completionFilter !== "all",
     typeFilter !== "all",
     sortOrder !== "oldest",
+    groupFilter !== "all",
+    personFilter !== "all",
   ].filter(Boolean).length;
 
   async function toggleCheck(id: string, current: Date | null) {
@@ -167,18 +175,14 @@ export default function ListScreen() {
         </View>
       </View>
 
+      {/* 기간 프리셋 칩 */}
       <View className="h-11">
-        {/* 기간 프리셋 칩 */}
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
           data={PRESETS}
           keyExtractor={(item) => item.key}
-          contentContainerStyle={{
-            paddingHorizontal: 16,
-            gap: 8,
-            paddingBottom: 8,
-          }}
+          contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingBottom: 8 }}
           renderItem={({ item }) => (
             <Pressable
               onPress={() => setPreset(item.key)}
@@ -299,11 +303,7 @@ export default function ListScreen() {
         visible={showEndPicker}
         currentMonth={customEnd}
         onSelect={(year, month) => {
-          setCustomEnd(
-            dayjs(new Date(year, month, 1))
-              .endOf("month")
-              .toDate(),
-          );
+          setCustomEnd(dayjs(new Date(year, month, 1)).endOf("month").toDate());
           setShowEndPicker(false);
         }}
         onClose={() => setShowEndPicker(false)}
@@ -323,28 +323,23 @@ export default function ListScreen() {
           <Pressable className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10">
             <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
 
+            {/* 완료 상태 */}
             <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
               완료 상태
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "done", "undone"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
+                const label = v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setCompletionFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor:
-                        completionFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
+                    style={{ backgroundColor: completionFilter === v ? "#4ecdc4" : "#2a2a2a" }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
-                      style={{
-                        color: completionFilter === v ? "#111" : "#888",
-                      }}
+                      style={{ color: completionFilter === v ? "#111" : "#888" }}
                     >
                       {label}
                     </Text>
@@ -353,21 +348,19 @@ export default function ListScreen() {
               })}
             </View>
 
+            {/* 기록 유형 */}
             <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
               기록 유형
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "regular", "repeat"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "regular" ? "일반" : "반복";
+                const label = v === "all" ? "전체" : v === "regular" ? "일반" : "반복";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setTypeFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor: typeFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
+                    style={{ backgroundColor: typeFilter === v ? "#4ecdc4" : "#2a2a2a" }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
@@ -380,6 +373,71 @@ export default function ListScreen() {
               })}
             </View>
 
+            {/* 그룹 */}
+            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+              그룹
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-5"
+              contentContainerStyle={{ gap: 8 }}
+            >
+              <Pressable
+                onPress={() => setGroupFilter("all")}
+                className="rounded-[10px] px-4 py-2.5"
+                style={{ backgroundColor: groupFilter === "all" ? "#4ecdc4" : "#2a2a2a" }}
+              >
+                <Text
+                  className="text-[13px] font-semibold"
+                  style={{ color: groupFilter === "all" ? "#111" : "#888" }}
+                >
+                  전체
+                </Text>
+              </Pressable>
+              {allGroups.map((g) => (
+                <Pressable
+                  key={g.id}
+                  onPress={() => setGroupFilter(g.id)}
+                  className="rounded-[10px] px-4 py-2.5"
+                  style={{ backgroundColor: groupFilter === g.id ? "#4ecdc4" : "#2a2a2a" }}
+                >
+                  <Text
+                    className="text-[13px] font-semibold"
+                    style={{ color: groupFilter === g.id ? "#111" : "#888" }}
+                  >
+                    {g.emoji ? `${g.emoji} ${g.name}` : g.name}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            {/* 관련 인물 */}
+            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+              관련 인물
+            </Text>
+            <View className="flex-row gap-2 mb-5">
+              {(["all", "yes", "no"] as const).map((v) => {
+                const label = v === "all" ? "전체" : v === "yes" ? "있음" : "없음";
+                return (
+                  <Pressable
+                    key={v}
+                    onPress={() => setPersonFilter(v)}
+                    className="flex-1 rounded-[10px] py-2.5 items-center"
+                    style={{ backgroundColor: personFilter === v ? "#4ecdc4" : "#2a2a2a" }}
+                  >
+                    <Text
+                      className="text-[13px] font-semibold"
+                      style={{ color: personFilter === v ? "#111" : "#888" }}
+                    >
+                      {label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {/* 정렬 */}
             <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
               정렬
             </Text>
@@ -391,9 +449,7 @@ export default function ListScreen() {
                     key={v}
                     onPress={() => setSortOrder(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
+                    style={{ backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a" }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
