@@ -16,9 +16,9 @@ import {
 import { Plus, X } from "lucide-react-native";
 
 import { DatePickerModal } from "@/components/DatePickerModal";
+import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { db } from "@/db/client";
 import { groups, logPersons, logs, personAnniversaries, persons } from "@/db/schema";
-import { MBTI_OPTIONS } from "@/db/seed";
 import { calcAge, dDayLabel, formatLogDate, fromNow } from "@/utils/date";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 
@@ -215,19 +215,8 @@ export default function PersonDetailScreen() {
               onClose={() => setShowBirthDatePicker(false)}
             />
 
-            <Text className="text-app-label text-[13px] mt-3">MBTI</Text>
-            <View className="flex-row flex-wrap gap-2 mt-1">
-              {MBTI_OPTIONS.map((m) => (
-                <Pressable
-                  key={m}
-                  onPress={() => setMbti(mbti === m ? "" : m)}
-                  className={`rounded-[20px] px-3 py-1.5 ${mbti === m ? "bg-app-teal" : "bg-app-surface"}`}
-                >
-                  <Text className={`text-[13px] ${mbti === m ? "text-[#111] font-semibold" : "text-app-label"}`}>
-                    {m}
-                  </Text>
-                </Pressable>
-              ))}
+            <View className="mt-3">
+              <MbtiPicker value={mbti} onChange={setMbti} />
             </View>
 
             <Text className="text-app-label text-[13px] mt-3">메모</Text>
