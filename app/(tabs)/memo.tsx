@@ -2,10 +2,10 @@
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import { db } from "@/db/client";
 import { memos } from "@/db/schema";
-import { and, asc, desc, isNotNull, isNull } from "drizzle-orm";
+import { asc, desc, eq, isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { eq } from "drizzle-orm";
-import { ChevronRight, SlidersHorizontal, Trash2 } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { SlidersHorizontal, Trash2 } from "lucide-react-native";
 import { useState } from "react";
 import {
   Alert,
@@ -21,8 +21,10 @@ type CompletionFilter = "all" | "done" | "undone";
 type SortOrder = "newest" | "oldest";
 
 export default function MemoScreen() {
+  const router = useRouter();
   const [quickContent, setQuickContent] = useState("");
-  const [completionFilter, setCompletionFilter] = useState<CompletionFilter>("all");
+  const [completionFilter, setCompletionFilter] =
+    useState<CompletionFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
@@ -30,7 +32,9 @@ export default function MemoScreen() {
     db
       .select()
       .from(memos)
-      .orderBy(sortOrder === "newest" ? desc(memos.createdAt) : asc(memos.createdAt)),
+      .orderBy(
+        sortOrder === "newest" ? desc(memos.createdAt) : asc(memos.createdAt),
+      ),
     [sortOrder],
   );
 
@@ -44,7 +48,10 @@ export default function MemoScreen() {
 
   async function handleQuickAdd() {
     const content = quickContent.trim();
-    if (content.length === 0) return;
+    if (content.length === 0) {
+      router.push("/memos/new");
+      return;
+    }
     await db.insert(memos).values({ content });
     setQuickContent("");
     Keyboard.dismiss();
@@ -57,8 +64,19 @@ export default function MemoScreen() {
       .where(eq(memos.id, id));
   }
 
-  async function deleteMemo(id: string) {
-    await db.delete(memos).where(eq(memos.id, id));
+  async function deleteMemo(id: string, isChecked: boolean) {
+    if (isChecked) {
+      await db.delete(memos).where(eq(memos.id, id));
+      return;
+    }
+    Alert.alert("메모 삭제", "이 메모를 삭제하시겠습니까?", [
+      { text: "취소", style: "cancel" },
+      {
+        text: "삭제",
+        style: "destructive",
+        onPress: () => db.delete(memos).where(eq(memos.id, id)),
+      },
+    ]);
   }
 
   async function deleteChecked() {
@@ -86,11 +104,20 @@ export default function MemoScreen() {
       <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
         <Text className="text-white text-2xl font-bold">메모</Text>
         <View className="flex-row items-center gap-1">
-          <Pressable onPress={() => setShowFilterSheet(true)} hitSlop={8} style={{ padding: 6 }}>
-            <SlidersHorizontal size={22} color={filterBadge > 0 ? "#4ecdc4" : "#888"} />
+          <Pressable
+            onPress={() => setShowFilterSheet(true)}
+            hitSlop={8}
+            style={{ padding: 6 }}
+          >
+            <SlidersHorizontal
+              size={22}
+              color={filterBadge > 0 ? "#4ecdc4" : "#888"}
+            />
             {filterBadge > 0 && (
               <View className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-app-teal items-center justify-center">
-                <Text style={{ color: "#111", fontSize: 10, fontWeight: "bold" }}>
+                <Text
+                  style={{ color: "#111", fontSize: 10, fontWeight: "bold" }}
+                >
                   {filterBadge}
                 </Text>
               </View>
@@ -110,7 +137,7 @@ export default function MemoScreen() {
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 96 }}
+        contentContainerStyle={{ paddingBottom: 96 }} // 퀵 입력 바 겹침 방지
         renderItem={({ item }) => {
           const isChecked = !!item.checkedAt;
           return (
@@ -118,17 +145,28 @@ export default function MemoScreen() {
               {/* 체크박스 */}
               <Pressable
                 onPress={() => toggleCheck(item.id, item.checkedAt ?? null)}
-                hitSlop={8}
+                hitSlop={8} // 터치 영역 확대
                 className="w-6 h-6 rounded-full border-2 items-center justify-center"
                 style={{ borderColor: isChecked ? "#4ecdc4" : "#444" }}
               >
-                {isChecked && <View className="w-3 h-3 rounded-full bg-app-teal" />}
+                {isChecked && (
+                  <View className="w-3 h-3 rounded-full bg-app-teal" />
+                )}
               </Pressable>
 
-              {/* 내용 */}
-              <View className="flex-1">
+              {/* 내용 — 탭 시 상세 이동 */}
+              <Pressable
+                className="flex-1 flex-row items-center gap-2"
+                onPress={() =>
+                  router.push({
+                    pathname: "/memos/[id]",
+                    params: { id: item.id },
+                  })
+                }
+              >
                 <Text
-                  className="text-white text-[15px]"
+                  className="flex-1 text-white text-[15px]"
+                  numberOfLines={5}
                   style={{
                     textDecorationLine: isChecked ? "line-through" : "none",
                     opacity: isChecked ? 0.45 : 1,
@@ -136,11 +174,11 @@ export default function MemoScreen() {
                 >
                   {item.content}
                 </Text>
-              </View>
+              </Pressable>
 
               {/* 삭제 */}
               <Pressable
-                onPress={() => deleteMemo(item.id)}
+                onPress={() => deleteMemo(item.id, isChecked)}
                 hitSlop={8}
                 className="p-1"
               >
@@ -187,17 +225,23 @@ export default function MemoScreen() {
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "undone", "done"] as const).map((v) => {
-                const label = v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
+                const label =
+                  v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setCompletionFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: completionFilter === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor:
+                        completionFilter === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
-                      style={{ color: completionFilter === v ? "#111" : "#888" }}
+                      style={{
+                        color: completionFilter === v ? "#111" : "#888",
+                      }}
                     >
                       {label}
                     </Text>
@@ -218,7 +262,9 @@ export default function MemoScreen() {
                     key={v}
                     onPress={() => setSortOrder(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a" }}
+                    style={{
+                      backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a",
+                    }}
                   >
                     <Text
                       className="text-[13px] font-semibold"
@@ -239,7 +285,9 @@ export default function MemoScreen() {
                 style={{ backgroundColor: "#2a1a1a" }}
               >
                 <Trash2 size={15} color="#ff6b6b" />
-                <Text style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}>
+                <Text
+                  style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}
+                >
                   완료 항목 {doneCount}개 삭제
                 </Text>
               </Pressable>
