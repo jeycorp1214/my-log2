@@ -16,6 +16,7 @@ import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import {
   Cake,
   ChevronDown,
@@ -99,13 +100,18 @@ export default function PersonsScreen() {
   }, []);
 
   // ── 인물 모드 상태 ─────────────────────────────────────
-  const [sortOrder, setSortOrder] = useState<SortOrder>("name-asc");
+  const { prefs, setPersonsPrefs } = useTabPreferences();
+  const sortOrder = prefs.persons.sortOrder as SortOrder;
+  const setSortOrder = (v: SortOrder) => setPersonsPrefs({ sortOrder: v });
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
     new Set(),
   );
-  const [groupFilter, setGroupFilter] = useState<string>("all");
-  const [mbtiFilter, setMbtiFilter] = useState<MbtiFilter>("all");
-  const [mbtiDetail, setMbtiDetail] = useState("");
+  const groupFilter = prefs.persons.groupFilter;
+  const setGroupFilter = (v: string) => setPersonsPrefs({ groupFilter: v });
+  const mbtiFilter = prefs.persons.mbtiFilter as MbtiFilter;
+  const setMbtiFilter = (v: MbtiFilter) => setPersonsPrefs({ mbtiFilter: v });
+  const mbtiDetail = prefs.persons.mbtiDetail;
+  const setMbtiDetail = (v: string) => setPersonsPrefs({ mbtiDetail: v });
 
   // ── 기념일 모드 상태 ───────────────────────────────────
   const [annPreset, setAnnPreset] = useState<AnnPreset>("this-month");

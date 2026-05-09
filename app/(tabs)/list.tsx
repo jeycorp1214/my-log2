@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { Cake, SlidersHorizontal } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
@@ -43,7 +44,9 @@ const PRESETS: PresetConfig[] = [
 export default function ListScreen() {
   const router = useRouter();
 
-  const [preset, setPreset] = useState<Preset>("this-month");
+  const { prefs, setListPrefs } = useTabPreferences();
+  const preset = prefs.list.preset as Preset;
+  const setPreset = (v: Preset) => setListPrefs({ preset: v });
   const [customStart, setCustomStart] = useState(() =>
     dayjs().startOf("month").toDate(),
   );
@@ -53,12 +56,18 @@ export default function ListScreen() {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const [completionFilter, setCompletionFilter] = useState<CompletionFilter>("all");
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("oldest");
-  const [groupFilter, setGroupFilter] = useState<string>("all");
-  const [personFilter, setPersonFilter] = useState<PersonFilter>("all");
-  const [showAnniversaries, setShowAnniversaries] = useState(false);
+  const completionFilter = prefs.list.completionFilter as CompletionFilter;
+  const setCompletionFilter = (v: CompletionFilter) => setListPrefs({ completionFilter: v });
+  const typeFilter = prefs.list.typeFilter as TypeFilter;
+  const setTypeFilter = (v: TypeFilter) => setListPrefs({ typeFilter: v });
+  const sortOrder = prefs.list.sortOrder as SortOrder;
+  const setSortOrder = (v: SortOrder) => setListPrefs({ sortOrder: v });
+  const groupFilter = prefs.list.groupFilter;
+  const setGroupFilter = (v: string) => setListPrefs({ groupFilter: v });
+  const personFilter = prefs.list.personFilter as PersonFilter;
+  const setPersonFilter = (v: PersonFilter) => setListPrefs({ personFilter: v });
+  const showAnniversaries = prefs.list.showAnniversaries;
+  const setShowAnniversaries = (v: boolean) => setListPrefs({ showAnniversaries: v });
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   const { data: allGroups = [] } = useLiveQuery(
@@ -152,7 +161,7 @@ export default function ListScreen() {
       <View className="flex-row items-center justify-between px-5 pt-14 pb-3">
         <Text className="text-white text-2xl font-bold">리스트</Text>
         <View className="flex-row items-center gap-1">
-          <Pressable onPress={() => setShowAnniversaries((v) => !v)} className="p-2" hitSlop={4}>
+          <Pressable onPress={() => setShowAnniversaries(!showAnniversaries)} className="p-2" hitSlop={4}>
             <Cake size={20} color={showAnniversaries ? "#c084fc" : "#888"} />
           </Pressable>
           <Pressable

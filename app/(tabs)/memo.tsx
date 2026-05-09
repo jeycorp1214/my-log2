@@ -5,6 +5,7 @@ import { memos } from "@/db/schema";
 import { asc, desc, eq, isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { SlidersHorizontal, Trash2 } from "lucide-react-native";
 import { useState } from "react";
 import {
@@ -23,9 +24,11 @@ type SortOrder = "newest" | "oldest";
 export default function MemoScreen() {
   const router = useRouter();
   const [quickContent, setQuickContent] = useState("");
-  const [completionFilter, setCompletionFilter] =
-    useState<CompletionFilter>("all");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const { prefs, setMemoPrefs } = useTabPreferences();
+  const completionFilter = prefs.memo.completionFilter as CompletionFilter;
+  const setCompletionFilter = (v: CompletionFilter) => setMemoPrefs({ completionFilter: v });
+  const sortOrder = prefs.memo.sortOrder as SortOrder;
+  const setSortOrder = (v: SortOrder) => setMemoPrefs({ sortOrder: v });
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   const { data: allMemos = [] } = useLiveQuery(

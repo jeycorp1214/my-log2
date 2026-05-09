@@ -16,6 +16,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { DatabaseProvider } from "@/providers/DatabaseProvider";
 import { DebugProvider } from "@/providers/DebugProvider";
 import { ErrorBoundary } from "@/providers/ErrorBoundary";
+import { TabPreferencesProvider } from "@/providers/TabPreferencesProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: { mutations: { retry: 1 } },
@@ -35,6 +36,7 @@ export default function RootLayout() {
           <QueryClientProvider client={queryClient}>
             <GluestackUIProvider mode="dark">
               <DebugProvider>
+                <TabPreferencesProvider>
                 <ThemeProvider
                   value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
                 >
@@ -90,6 +92,7 @@ export default function RootLayout() {
                   </Stack>
                   <StatusBar style="auto" />
                 </ThemeProvider>
+                </TabPreferencesProvider>
               </DebugProvider>
             </GluestackUIProvider>
           </QueryClientProvider>

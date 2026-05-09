@@ -13,10 +13,12 @@ import {
 } from "@/db/schema";
 import { seedDefaultGroups } from "@/db/seed";
 import { useDebugMode } from "@/providers/DebugProvider";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { debugMode, toggleDebugMode } = useDebugMode();
+  const { prefs } = useTabPreferences();
 
   async function resetAllData() {
     Alert.alert(
@@ -113,6 +115,102 @@ export default function SettingsScreen() {
               <Text className="flex-1 text-white text-[15px]">데이터 확인</Text>
               <ChevronRight size={16} color="#666" />
             </Pressable>
+          </View>
+        </View>
+
+        {/* 탭 설정 현황 */}
+        <View className="mb-8">
+          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+            탭 설정 현황
+          </Text>
+          <View className="bg-app-surface rounded-[12px] overflow-hidden">
+            {/* 캘린더 */}
+            <View className="px-[14px] py-[14px]">
+              <Text className="text-app-muted text-[11px] font-semibold uppercase tracking-[0.5px] mb-1.5">
+                캘린더
+              </Text>
+              <Text className="text-white text-[14px]">
+                뷰모드. {prefs.calendar.viewMode === "board" ? "보드" : "컴팩트"}
+                {"  ·  "}
+                기념일. {prefs.calendar.showAnniversaries ? "ON" : "OFF"}
+              </Text>
+            </View>
+            <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
+            {/* 리스트 */}
+            <View className="px-[14px] py-[14px]">
+              <Text className="text-app-muted text-[11px] font-semibold uppercase tracking-[0.5px] mb-1.5">
+                리스트
+              </Text>
+              <Text className="text-white text-[14px]">
+                {(() => {
+                  const presetLabel =
+                    prefs.list.preset === "this-week"
+                      ? "이번 주"
+                      : prefs.list.preset === "this-month"
+                        ? "이번 달"
+                        : prefs.list.preset === "recent-3m"
+                          ? "최근 3개월"
+                          : "직접 선택";
+                  const completionLabel =
+                    prefs.list.completionFilter === "done"
+                      ? "완료"
+                      : prefs.list.completionFilter === "undone"
+                        ? "미완료"
+                        : "전체";
+                  const personLabel =
+                    prefs.list.personFilter === "yes"
+                      ? "있음"
+                      : prefs.list.personFilter === "no"
+                        ? "없음"
+                        : "전체";
+                  return `기간. ${presetLabel}  ·  완료. ${completionLabel}  ·  인물. ${personLabel}  ·  기념일. ${prefs.list.showAnniversaries ? "ON" : "OFF"}`;
+                })()}
+              </Text>
+            </View>
+            <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
+            {/* 인물 */}
+            <View className="px-[14px] py-[14px]">
+              <Text className="text-app-muted text-[11px] font-semibold uppercase tracking-[0.5px] mb-1.5">
+                인물
+              </Text>
+              <Text className="text-white text-[14px]">
+                {(() => {
+                  const sortLabel =
+                    prefs.persons.sortOrder === "name-asc" ? "이름순" : "나이순";
+                  const mbtiLabel =
+                    prefs.persons.mbtiFilter === "yes"
+                      ? prefs.persons.mbtiDetail
+                        ? `있음(${prefs.persons.mbtiDetail})`
+                        : "있음"
+                      : prefs.persons.mbtiFilter === "no"
+                        ? "없음"
+                        : "전체";
+                  const groupLabel =
+                    prefs.persons.groupFilter === "all" ? "전체" : "그룹 선택됨";
+                  return `정렬. ${sortLabel}  ·  MBTI. ${mbtiLabel}  ·  그룹. ${groupLabel}`;
+                })()}
+              </Text>
+            </View>
+            <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
+            {/* 메모 */}
+            <View className="px-[14px] py-[14px]">
+              <Text className="text-app-muted text-[11px] font-semibold uppercase tracking-[0.5px] mb-1.5">
+                메모
+              </Text>
+              <Text className="text-white text-[14px]">
+                {(() => {
+                  const completionLabel =
+                    prefs.memo.completionFilter === "done"
+                      ? "완료"
+                      : prefs.memo.completionFilter === "undone"
+                        ? "미완료"
+                        : "전체";
+                  const sortLabel =
+                    prefs.memo.sortOrder === "newest" ? "최신순" : "오래된순";
+                  return `표시. ${completionLabel}  ·  정렬. ${sortLabel}`;
+                })()}
+              </Text>
+            </View>
           </View>
         </View>
 

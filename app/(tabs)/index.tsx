@@ -12,6 +12,7 @@ import { groups, logs } from "@/db/schema";
 import { useCalendarLogs } from "@/hooks/logs/use-calendar-logs";
 import { useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
 import { useDebugMode } from "@/providers/DebugProvider";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import {
   addMonths,
   endOfMonth,
@@ -26,7 +27,7 @@ import dayjs from "dayjs";
 import type { InferSelectModel } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Keyboard,
   Platform,
@@ -53,8 +54,13 @@ export default function CalendarScreen() {
   const { savedDate } = useLocalSearchParams<{ savedDate?: string }>();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [viewMode, setViewMode] = useState<"compact" | "board">("compact");
-  const [showAnniversaries, setShowAnniversaries] = useState(false);
+  const { prefs, setCalendarPrefs } = useTabPreferences();
+  const viewMode = prefs.calendar.viewMode;
+  const setViewMode = useCallback(
+    (v: "compact" | "board") => setCalendarPrefs({ viewMode: v }),
+    [setCalendarPrefs],
+  );
+  const showAnniversaries = prefs.calendar.showAnniversaries;
   const [showDayModal, setShowDayModal] = useState(false);
   const [quickTitle, setQuickTitle] = useState("");
   const { debugMode } = useDebugMode();
@@ -298,12 +304,12 @@ export default function CalendarScreen() {
       <CalendarHeader
         viewMode={viewMode}
         onToggleView={() =>
-          setViewMode((v) => (v === "compact" ? "board" : "compact"))
+          setViewMode(viewMode === "compact" ? "board" : "compact")
         }
         onSearchPress={() => router.push("/search")}
         onTodayPress={goToday}
         showAnniversaries={showAnniversaries}
-        onToggleAnniversaries={() => setShowAnniversaries((v) => !v)}
+        onToggleAnniversaries={() => setCalendarPrefs({ showAnniversaries: !showAnniversaries })}
       />
 
       <MonthNavBar
