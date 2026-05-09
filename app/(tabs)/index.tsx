@@ -5,6 +5,7 @@ import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { DayDetailModal } from "@/components/calendar/DayDetailModal";
 import { MonthNavBar } from "@/components/calendar/MonthNavBar";
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
+import TabsHeader from "@/components/layout/TabsHeader";
 import { LogCard } from "@/components/logs/LogCard";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { db } from "@/db/client";
@@ -301,15 +302,29 @@ export default function CalendarScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <CalendarHeader
-        viewMode={viewMode}
-        onToggleView={() =>
-          setViewMode(viewMode === "compact" ? "board" : "compact")
+      <TabsHeader
+        title="My Log"
+        cakeOnPress={() =>
+          setCalendarPrefs({ showAnniversaries: !showAnniversaries })
         }
+        searchOnPress={true}
+        CustomRight={
+          <Pressable
+            onPress={goToday}
+            className="bg-app-surface rounded-[12px] px-[10px] py-[5px]"
+          >
+            <Text className="text-app-teal text-xs font-semibold">오늘</Text>
+          </Pressable>
+        }
+      />
+
+      <CalendarHeader
         onSearchPress={() => router.push("/search")}
         onTodayPress={goToday}
-        showAnniversaries={showAnniversaries}
-        onToggleAnniversaries={() => setCalendarPrefs({ showAnniversaries: !showAnniversaries })}
+        showAnniversaries={showAnniversaries} // 기념일 토글은 캘린더 헤더에 넣는 게 낫겠어서 옮김
+        onToggleAnniversaries={
+          () => setCalendarPrefs({ showAnniversaries: !showAnniversaries }) //
+        }
       />
 
       <MonthNavBar

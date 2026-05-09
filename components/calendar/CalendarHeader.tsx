@@ -3,8 +3,6 @@ import { Cake, Search } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 
 type Props = {
-  viewMode: "compact" | "board";
-  onToggleView: () => void;
   onSearchPress: () => void;
   onTodayPress: () => void;
   showAnniversaries?: boolean;
@@ -12,8 +10,6 @@ type Props = {
 };
 
 export function CalendarHeader({
-  viewMode,
-  onToggleView,
   onSearchPress,
   onTodayPress,
   showAnniversaries = false,
