@@ -11,14 +11,15 @@ export function useKeyboardHeight() {
     const hideEvent =
       Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
 
-    const show = Keyboard.addListener(showEvent, (e) =>
-      setKeyboardHeight(e.endCoordinates.height),
+    const show = Keyboard.addListener(
+      showEvent,
+      (e) => setKeyboardHeight(e.endCoordinates.height), // 키보드 높이 업데이트
     );
     const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
 
     return () => {
-      show.remove();
-      hide.remove();
+      show.remove(); // 이벤트 리스너 정리
+      hide.remove(); // 이벤트 리스너 정리
     };
   }, []);
 
