@@ -1,5 +1,6 @@
 // 탭별 기본 설정 제어 화면 — 각 탭의 필터·뷰 설정을 저장
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
+import { cn } from "@/utils/utils";
 import { db } from "@/db/client";
 import { groups } from "@/db/schema";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -40,17 +41,10 @@ function Chips<T extends string>({
         <Pressable
           key={opt.value}
           onPress={() => onSelect(opt.value)}
-          className="rounded-[10px] px-4 py-2 items-center"
-          style={{
-            backgroundColor: current === opt.value ? "#4ecdc4" : "#2a2a2a",
-          }}
+          className={cn("rounded-[10px] px-4 py-2 items-center", current === opt.value ? "bg-app-teal" : "bg-[#2a2a2a]")}
         >
           <Text
-            style={{
-              color: current === opt.value ? "#111" : "#888",
-              fontSize: 13,
-              fontWeight: "600",
-            }}
+            className={cn("text-[13px] font-semibold", current === opt.value ? "text-[#111]" : "text-[#888]")}
           >
             {opt.label}
           </Text>
@@ -181,18 +175,10 @@ export default function TabPrefsScreen() {
             <Pressable
               key={opt.value}
               onPress={() => setListPrefs({ groupFilter: opt.value })}
-              className="rounded-[10px] px-4 py-2 items-center"
-              style={{
-                backgroundColor:
-                  list.groupFilter === opt.value ? "#4ecdc4" : "#2a2a2a",
-              }}
+              className={cn("rounded-[10px] px-4 py-2 items-center", list.groupFilter === opt.value ? "bg-app-teal" : "bg-[#2a2a2a]")}
             >
               <Text
-                style={{
-                  color: list.groupFilter === opt.value ? "#111" : "#888",
-                  fontSize: 13,
-                  fontWeight: "600",
-                }}
+                className={cn("text-[13px] font-semibold", list.groupFilter === opt.value ? "text-[#111]" : "text-[#888]")}
               >
                 {opt.label}
               </Text>
@@ -226,18 +212,10 @@ export default function TabPrefsScreen() {
             <Pressable
               key={opt.value}
               onPress={() => setPersonsPrefs({ groupFilter: opt.value })}
-              className="rounded-[10px] px-4 py-2 items-center"
-              style={{
-                backgroundColor:
-                  persons.groupFilter === opt.value ? "#4ecdc4" : "#2a2a2a",
-              }}
+              className={cn("rounded-[10px] px-4 py-2 items-center", persons.groupFilter === opt.value ? "bg-app-teal" : "bg-[#2a2a2a]")}
             >
               <Text
-                style={{
-                  color: persons.groupFilter === opt.value ? "#111" : "#888",
-                  fontSize: 13,
-                  fontWeight: "600",
-                }}
+                className={cn("text-[13px] font-semibold", persons.groupFilter === opt.value ? "text-[#111]" : "text-[#888]")}
               >
                 {opt.label}
               </Text>

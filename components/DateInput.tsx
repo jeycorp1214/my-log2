@@ -1,6 +1,7 @@
 // 날짜 입력 필드 컴포넌트 — field(폼 필드) / compact(인라인) 두 가지 형태
 import { DatePickerModal } from "@/components/DatePickerModal";
 import { formatLogDate } from "@/utils/date";
+import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { Calendar } from "lucide-react-native";
 import { useState } from "react";
@@ -50,8 +51,7 @@ export function DateInput({
           className="flex-1 bg-[#1a1a1a] rounded-[8px] px-2 py-1.5"
         >
           <Text
-            className="text-[13px]"
-            style={{ color: value ? "#ccc" : "#555" }}
+            className={cn("text-[13px]", value ? "text-[#ccc]" : "text-[#555]")}
           >
             {value ? dayjs(value).format("YYYY.MM.DD") : placeholder}
           </Text>
@@ -78,8 +78,7 @@ export function DateInput({
         className="bg-app-surface rounded-[10px] p-3 flex-row items-center justify-between"
       >
         <Text
-          className="text-[15px]"
-          style={{ color: value ? "#fff" : "#555" }}
+          className={cn("text-[15px]", value ? "text-white" : "text-[#555]")}
         >
           {value ? formatLogDate(value) : placeholder}
         </Text>

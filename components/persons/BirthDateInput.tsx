@@ -1,6 +1,7 @@
 // 생년월일 스마트 입력 컴포넌트 — 나이·연도·6자리·8자리 숫자 자동 파싱
 import { DatePickerModal } from "@/components/DatePickerModal";
 import { calcAge, parseBirthInput } from "@/utils/date";
+import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { Calendar } from "lucide-react-native";
 import { useState } from "react";
@@ -72,8 +73,7 @@ export function BirthDateInput({ value, onChange }: Props) {
         />
         <Pressable
           onPress={() => setShowPicker(true)}
-          className="bg-app-surface rounded-[10px] items-center justify-center"
-          style={{ width: 48 }}
+          className="bg-app-surface rounded-[10px] items-center justify-center w-12"
         >
           <Calendar size={20} color="#4ecdc4" />
         </Pressable>
@@ -81,8 +81,7 @@ export function BirthDateInput({ value, onChange }: Props) {
 
       {previewStr && (
         <Text
-          className="text-[13px] mt-2 px-1"
-          style={{ color: showError ? "#ff6b6b" : "#4ecdc4" }}
+          className={cn("text-[13px] mt-2 px-1", showError ? "text-[#ff6b6b]" : "text-[#4ecdc4]")}
         >
           {text ? `→ ${previewStr}` : previewStr}
         </Text>

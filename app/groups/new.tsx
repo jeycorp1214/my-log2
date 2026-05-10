@@ -1,4 +1,5 @@
 // 그룹 추가 모달 화면
+import { cn } from "@/utils/utils";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -70,11 +71,8 @@ export default function GroupNewScreen() {
             <Pressable
               key={c}
               onPress={() => setColor(c)}
-              className="w-9 h-9 rounded-full"
-              style={[
-                { backgroundColor: c },
-                color === c && { borderWidth: 3, borderColor: "#fff" },
-              ]}
+              className={cn("w-9 h-9 rounded-full", color === c && "border-[3px] border-white")}
+              style={{ backgroundColor: c }}
             />
           ))}
         </View>

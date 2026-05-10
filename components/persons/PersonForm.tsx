@@ -4,6 +4,7 @@ import { BirthDateInput } from "@/components/persons/BirthDateInput";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { groups } from "@/db/schema";
 import { ANNIVERSARY_PRESETS } from "@/db/seed";
+import { cn } from "@/utils/utils";
 import { Plus, X } from "lucide-react-native";
 import { Pressable, Text, TextInput, View } from "react-native";
 
@@ -98,13 +99,13 @@ export function PersonForm({
 
       <Text className="text-app-label text-[13px] mt-3">메모</Text>
       <TextInput
-        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px] min-h-[80px]"
         value={memo}
         onChangeText={onMemoChange}
         placeholder="메모"
         placeholderTextColor="#555"
         multiline
-        style={{ minHeight: 80, textAlignVertical: "top" }}
+        style={{ textAlignVertical: "top" }}
       />
 
       <Text className="text-app-label text-[13px] mt-3">그룹</Text>
@@ -164,8 +165,7 @@ export function PersonForm({
               className="flex-row items-center gap-1.5 bg-[#1a1a1a] rounded-[8px] px-2.5 py-1.5"
             >
               <View
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: ann.isRepeat ? "#4ecdc4" : "#444" }}
+                className={cn("w-2.5 h-2.5 rounded-full", ann.isRepeat ? "bg-[#4ecdc4]" : "bg-[#444]")}
               />
               <Text className="text-[12px] text-app-muted">매년</Text>
             </Pressable>

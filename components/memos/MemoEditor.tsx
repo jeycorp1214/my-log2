@@ -1,3 +1,4 @@
+// 메모 내용 입력 텍스트 에디터 컴포넌트
 import { TextInput } from "react-native";
 
 interface Props {
@@ -11,22 +12,15 @@ export function MemoEditor({ value, onChange, autoFocus = false }: Props) {
   return (
     <>
       <TextInput
-        style={{
-          flex: 1,
-          paddingHorizontal: 20,
-          paddingVertical: 16,
-          color: "#e0e0e0",
-          fontSize: 16,
-          lineHeight: 26,
-          textAlignVertical: "top",
-        }}
+        className="flex-1 px-5 py-4 text-[#e0e0e0] text-base leading-[26px]"
+        style={{ textAlignVertical: "top" }}
         placeholder="메모 내용을 입력하세요."
         placeholderTextColor="#555"
         multiline
         autoFocus={autoFocus}
         value={value}
         onChangeText={onChange}
-        scrollEnabled={false} // ScrollView가 스크롤을 담당하므로 꺼줌
+        scrollEnabled={false}
       />
     </>
   );

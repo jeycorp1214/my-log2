@@ -283,30 +283,33 @@
 
 ## Step 1 — StyleSheet.create 제거 (4개, 최단순)
 
-- [ ] `components/ui/collapsible.tsx` — heading/content StyleSheet → className
-- [ ] `components/themed-text.tsx` — typography StyleSheet → gluestack Text + className
-- [ ] `components/parallax-scroll-view.tsx` — header/content StyleSheet → className
-- [ ] `app/modal.tsx` — container/link StyleSheet → className
+- [x] `components/ui/collapsible.tsx` — heading/content StyleSheet → className
+- [x] `components/themed-text.tsx` — typography StyleSheet → TYPE_CLASS 맵 + className
+- [x] `components/parallax-scroll-view.tsx` — header/content StyleSheet → className (Animated 제외)
+- [x] `app/modal.tsx` — container/link StyleSheet → className
 
 ## Step 2 — inline style 단순 케이스 (flex/padding/margin)
 
-- [ ] `app/_layout.tsx` — GestureHandlerRootView `style={{ flex: 1 }}` → `className="flex-1"`
-- [ ] `app/logs/[id].tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
-- [ ] `app/logs/new.tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
-- [ ] `app/memos/new.tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
-- [ ] `app/memos/[id].tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
-- [ ] `components/memos/MemoEditor.tsx` — TextInput flex/padding/minHeight → className
+- [ ] `app/_layout.tsx` — GestureHandlerRootView (써드파티 미지원, 보류)
+- [x] `app/logs/[id].tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
+- [x] `app/logs/new.tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
+- [x] `app/memos/new.tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
+- [x] `app/memos/[id].tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
+- [x] `app/persons/new.tsx` — KeyboardAvoidingView → `className="flex-1"`
+- [x] `app/persons/[id].tsx` — KeyboardAvoidingView → `className="flex-1"`
+- [x] `app/groups/new.tsx` — KeyboardAvoidingView → `className="flex-1"` (Step 3에서 함께)
+- [x] `components/memos/MemoEditor.tsx` — TextInput flex/padding → className, textAlignVertical inline 유지
 
 ## Step 3 — 조건부 컬러 inline style
 
-- [ ] `components/DateInput.tsx` — 조건부 text color → `cn()` + className
-- [ ] `components/persons/BirthDateInput.tsx` — 에러 state width/color → className
-- [ ] `app/groups/new.tsx` — 색상 선택 UI inline backgroundColor → `cn()` 조건부 className
+- [x] `components/DateInput.tsx` — 조건부 text color → `cn()` + className
+- [x] `components/persons/BirthDateInput.tsx` — 에러 state color + width → className
+- [x] `app/groups/new.tsx` — 색상 선택 border → `cn()`, backgroundColor 런타임값 inline 유지
 
 ## Step 4 — 중간 난이도 inline style
 
-- [ ] `components/persons/PersonForm.tsx` — TextInput minHeight + Anniversary dot backgroundColor → className
-- [ ] `app/settings/tab-prefs.tsx` — 선택 버튼 backgroundColor/color 다중 inline → `cn()` 조건부
+- [x] `components/persons/PersonForm.tsx` — minHeight → className, dot color → cn()
+- [x] `app/settings/tab-prefs.tsx` — Chips + 그룹칩 3곳 backgroundColor/color → cn()
 
 ## Step 5 — 대규모 (마지막)
 
