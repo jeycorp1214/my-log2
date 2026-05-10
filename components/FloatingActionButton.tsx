@@ -11,7 +11,7 @@ export function FloatingActionButton({ onPress }: Props) {
     <Pressable
       onPress={onPress}
       className="absolute right-5 bottom-8 w-14 h-14 rounded-full bg-app-teal items-center justify-center"
-      style={{ elevation: 6 }}
+      style={{ elevation: 6 }} // 안드로이드에서 그림자 효과를 위해 elevation 속성 추가
     >
       <Plus size={24} color="#111" />
     </Pressable>

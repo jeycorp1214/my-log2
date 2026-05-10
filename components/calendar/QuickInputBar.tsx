@@ -1,28 +1,32 @@
 // 퀵 입력바 — 텍스트 입력 후 즉시 저장 or 상세 화면 이동
+// 키보드 높이·safe area를 자체 관리하여 어느 화면에서든 동일한 위치 보장
+import { useKeyboardHeight } from "@/hooks/useKeyboardHeight";
 import { cn } from "@/utils/utils";
 import { Check, Plus } from "lucide-react-native";
 import { Pressable, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   placeholder: string;
   value: string;
   onChange: (text: string) => void;
   onSubmit: () => void;
-  bottom: number;
 };
 
-export function QuickInputBar({
-  placeholder,
-  value,
-  onChange,
-  onSubmit,
-  bottom,
-}: Props) {
+export function QuickInputBar({ placeholder, value, onChange, onSubmit }: Props) {
+  const keyboardHeight = useKeyboardHeight();
+  const insets = useSafeAreaInsets();
   const hasText = value.trim().length > 0;
+
+  // 키보드 up: 키보드 상단에 밀착 + 8px 내부 패딩 (갭 없음)
+  // 키보드 down: safe area 위에 안착
+  const bottom = keyboardHeight > 0 ? keyboardHeight : insets.bottom;
+  const paddingBottom = keyboardHeight > 0 ? 8 : 0;
+
   return (
     <View
       className="absolute left-0 right-0 px-4 pt-2 bg-app-bg"
-      style={{ bottom }}
+      style={{ bottom, paddingBottom }}
     >
       <View className="flex-row items-center gap-2">
         <TextInput

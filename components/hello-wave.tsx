@@ -1,5 +1,6 @@
-import Animated from 'react-native-reanimated';
+import Animated from "react-native-reanimated";
 
+// 인사말 웨이브 애니메이션 — 👋 이모지가 흔들리는 효과
 export function HelloWave() {
   return (
     <Animated.Text
@@ -8,11 +9,12 @@ export function HelloWave() {
         lineHeight: 32,
         marginTop: -6,
         animationName: {
-          '50%': { transform: [{ rotate: '25deg' }] },
+          "50%": { transform: [{ rotate: "25deg" }] },
         },
         animationIterationCount: 4,
-        animationDuration: '300ms',
-      }}>
+        animationDuration: "300ms",
+      }}
+    >
       👋
     </Animated.Text>
   );

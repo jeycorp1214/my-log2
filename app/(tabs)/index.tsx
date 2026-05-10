@@ -30,7 +30,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Keyboard,
-  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -64,26 +63,10 @@ export default function CalendarScreen() {
   const [showDayModal, setShowDayModal] = useState(false);
   const [quickTitle, setQuickTitle] = useState("");
   const { debugMode } = useDebugMode();
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
   );
 
-  useEffect(() => {
-    const showEvent =
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent =
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const show = Keyboard.addListener(showEvent, (e) =>
-      setKeyboardHeight(e.endCoordinates.height),
-    );
-    const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
-    return () => {
-      show.remove();
-      hide.remove();
-    };
-  }, []);
 
   useEffect(() => {
     if (!savedDate) return;
@@ -293,7 +276,7 @@ export default function CalendarScreen() {
       ? today
       : new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1));
 
-  const inputBarBottom = keyboardHeight > 0 ? keyboardHeight + 8 : 24;
+
 
   // 확장: 날짜 선택 시에만 하단 리스트 표시
   // 일반: 항상 하단 리스트 표시
@@ -479,7 +462,6 @@ export default function CalendarScreen() {
         value={quickTitle}
         onChange={setQuickTitle}
         onSubmit={handleQuickPress}
-        bottom={inputBarBottom}
       />
 
       <DayDetailModal

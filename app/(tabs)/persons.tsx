@@ -19,12 +19,11 @@ import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { ChevronDown, ChevronRight } from "lucide-react-native";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   FlatList,
   Keyboard,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   SectionList,
@@ -72,27 +71,11 @@ export default function PersonsScreen() {
 
   const [tabMode, setTabMode] = useState<TabMode>("persons");
   const [quickName, setQuickName] = useState("");
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
   );
-
-  useEffect(() => {
-    const showEvent =
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent =
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const show = Keyboard.addListener(showEvent, (e) =>
-      setKeyboardHeight(e.endCoordinates.height),
-    );
-    const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
-    return () => {
-      show.remove();
-      hide.remove();
-    };
-  }, []);
 
   // ── 인물 모드 상태 ─────────────────────────────────────
   const { prefs, setPersonsPrefs } = useTabPreferences();
@@ -238,7 +221,7 @@ export default function PersonsScreen() {
         ? 1
         : 0;
 
-  const inputBarBottom = keyboardHeight > 0 ? keyboardHeight + 8 : 24;
+
 
   return (
     <View className="flex-1 bg-app-bg">
@@ -348,7 +331,6 @@ export default function PersonsScreen() {
             value={quickName}
             onChange={setQuickName}
             onSubmit={handleQuickAdd}
-            bottom={inputBarBottom}
           />
         </>
       )}

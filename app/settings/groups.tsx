@@ -9,22 +9,13 @@ import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Trash2 } from "lucide-react-native";
-import { useEffect, useState } from "react";
-import { Alert, Keyboard, Platform, Pressable, ScrollView, Text, View } from "react-native";
+import { useState } from "react";
+import { Alert, Keyboard, Pressable, ScrollView, Text, View } from "react-native";
 
 export default function GroupsScreen() {
   const router = useRouter();
   const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
   const [quickName, setQuickName] = useState("");
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  useEffect(() => {
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const show = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
-    const hide = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
-    return () => { show.remove(); hide.remove(); };
-  }, []);
 
   async function handleQuickAdd() {
     const name = quickName.trim();
@@ -57,8 +48,6 @@ export default function GroupsScreen() {
       },
     ]);
   }
-
-  const inputBarBottom = keyboardHeight > 0 ? keyboardHeight + 8 : 24;
 
   return (
     <View className="flex-1 bg-app-bg">
@@ -95,7 +84,6 @@ export default function GroupsScreen() {
         value={quickName}
         onChange={setQuickName}
         onSubmit={handleQuickAdd}
-        bottom={inputBarBottom}
       />
     </View>
   );

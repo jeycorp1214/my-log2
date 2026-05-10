@@ -184,7 +184,6 @@ export default function MemoScreen() {
         value={quickContent}
         onChange={setQuickContent}
         onSubmit={handleQuickAdd}
-        bottom={24}
       />
 
       {/* 필터 바텀 시트 */}
