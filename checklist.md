@@ -273,3 +273,54 @@
 
 - [x] db/client.ts: resetDatabase() 함수 (execAsync DROP + runMigrations)
 - [x] settings.tsx: 테이블 구조 초기화 버튼 (resetDatabase 호출)
+
+---
+
+# Phase 8 체크리스트 — Gluestack / cn / Tailwind 스타일 통일
+
+> 규칙: `StyleSheet.create` 및 inline `style={{}}` 제거 → `className` + `cn()` 사용.
+> 예외: Android elevation, Reanimated transform → inline 유지 OK.
+
+## Step 1 — StyleSheet.create 제거 (4개, 최단순)
+
+- [ ] `components/ui/collapsible.tsx` — heading/content StyleSheet → className
+- [ ] `components/themed-text.tsx` — typography StyleSheet → gluestack Text + className
+- [ ] `components/parallax-scroll-view.tsx` — header/content StyleSheet → className
+- [ ] `app/modal.tsx` — container/link StyleSheet → className
+
+## Step 2 — inline style 단순 케이스 (flex/padding/margin)
+
+- [ ] `app/_layout.tsx` — GestureHandlerRootView `style={{ flex: 1 }}` → `className="flex-1"`
+- [ ] `app/logs/[id].tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
+- [ ] `app/logs/new.tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
+- [ ] `app/memos/new.tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
+- [ ] `app/memos/[id].tsx` — KeyboardAvoidingView `style={{ flex: 1 }}` → `className="flex-1"`
+- [ ] `components/memos/MemoEditor.tsx` — TextInput flex/padding/minHeight → className
+
+## Step 3 — 조건부 컬러 inline style
+
+- [ ] `components/DateInput.tsx` — 조건부 text color → `cn()` + className
+- [ ] `components/persons/BirthDateInput.tsx` — 에러 state width/color → className
+- [ ] `app/groups/new.tsx` — 색상 선택 UI inline backgroundColor → `cn()` 조건부 className
+
+## Step 4 — 중간 난이도 inline style
+
+- [ ] `components/persons/PersonForm.tsx` — TextInput minHeight + Anniversary dot backgroundColor → className
+- [ ] `app/settings/tab-prefs.tsx` — 선택 버튼 backgroundColor/color 다중 inline → `cn()` 조건부
+
+## Step 5 — 대규모 (마지막)
+
+- [ ] `components/MonthPickerModal.tsx` — 전체 inline style → className 전환
+
+## 보류 (inline 유지 OK)
+
+- `components/FloatingActionButton.tsx` — elevation: 6 (Android 플랫폼 전용)
+- `components/calendar/QuickInputBar.tsx` — elevation: 6 + bottom 위치값
+- `components/hello-wave.tsx` — Reanimated animation inline
+- `components/parallax-scroll-view.tsx` — Animated transform inline
+
+## 참고 파일 (올바른 패턴 예시)
+
+- `components/logs/LogCard.tsx` — className 우수 사용 예
+- `components/ui/button/index.tsx` — tva() + className 기준 패턴
+- `app/(tabs)/index.tsx` — 화면 레벨 className 우수 사용 예
