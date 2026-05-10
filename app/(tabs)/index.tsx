@@ -486,7 +486,10 @@ export default function CalendarScreen() {
         visible={showDayModal}
         date={selectedDate}
         items={selectedLogs}
-        anniversaries={selectedAnniversaries}
+        anniversaries={selectedAnniversaries.map((ann) => ({
+          title: ann.displayTitle,
+          personId: ann.personId,
+        }))}
         onClose={() => setShowDayModal(false)}
         onLogPress={(item) =>
           router.push({
