@@ -122,7 +122,8 @@ export default function MemoScreen() {
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 96 }} // 퀵 입력 바 겹침 방지
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 96 }}
         renderItem={({ item }) => {
           const isChecked = !!item.checkedAt;
           return (

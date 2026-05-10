@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import "react-native-reanimated";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
@@ -33,6 +34,7 @@ export default function RootLayout() {
     <ErrorBoundary>
       <DatabaseProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
+          <KeyboardProvider>
           <QueryClientProvider client={queryClient}>
             <GluestackUIProvider mode="dark">
               <DebugProvider>
@@ -100,6 +102,7 @@ export default function RootLayout() {
               </DebugProvider>
             </GluestackUIProvider>
           </QueryClientProvider>
+          </KeyboardProvider>
         </GestureHandlerRootView>
       </DatabaseProvider>
     </ErrorBoundary>

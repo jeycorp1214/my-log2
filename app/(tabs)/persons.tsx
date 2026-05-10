@@ -221,8 +221,6 @@ export default function PersonsScreen() {
         ? 1
         : 0;
 
-
-
   return (
     <View className="flex-1 bg-app-bg">
       <TabsHeader
@@ -240,6 +238,7 @@ export default function PersonsScreen() {
       {tabMode === "persons" && (
         <>
           <ScrollView
+            className="flex-1"
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}
           >
             {allPersons.length === 0 ? (
@@ -436,7 +435,7 @@ export default function PersonsScreen() {
                 해당 기간에 기념일이 없습니다.
               </Text>
             }
-            contentContainerStyle={{ paddingBottom: 96 }}
+            contentContainerStyle={{ paddingBottom: 16 }} // 섹션 헤더가 아이템과 겹치는 문제 완화
             stickySectionHeadersEnabled
           />
 

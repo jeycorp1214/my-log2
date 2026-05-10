@@ -59,6 +59,7 @@ export default function GroupsScreen() {
   return (
     <View className="flex-1 bg-app-bg">
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={{
           paddingHorizontal: 16,
           paddingTop: 16,
