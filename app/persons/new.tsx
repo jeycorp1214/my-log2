@@ -74,7 +74,7 @@ export default function PersonNewScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+      className="flex-1"
     >
       <ScrollView
         className="flex-1 bg-app-bg"
