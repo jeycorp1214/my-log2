@@ -62,7 +62,7 @@ export function LogForm({
 
       <Text className="text-app-label text-[13px] mt-3">제목 *</Text>
       <TextInput
-        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+        className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
         value={title}
         onChangeText={onTitleChange}
         placeholder="기록 제목"
@@ -71,7 +71,7 @@ export function LogForm({
 
       <Text className="text-app-label text-[13px] mt-3">메모</Text>
       <TextInput
-        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+        className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
         value={memo}
         onChangeText={onMemoChange}
         placeholder="메모"

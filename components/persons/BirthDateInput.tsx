@@ -64,7 +64,7 @@ export function BirthDateInput({ value, onChange }: Props) {
 
       <View className="flex-row gap-2">
         <TextInput
-          className="flex-1 bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+          className="flex-1 bg-app-surface text-white rounded-[10px] p-3 text-sm"
           value={text}
           onChangeText={handleChange}
           placeholder="나이(77) · 연도(1950) · 날짜(800510)"
@@ -81,7 +81,10 @@ export function BirthDateInput({ value, onChange }: Props) {
 
       {previewStr && (
         <Text
-          className={cn("text-[13px] mt-2 px-1", showError ? "text-[#ff6b6b]" : "text-[#4ecdc4]")}
+          className={cn(
+            "text-[13px] mt-2 px-1",
+            showError ? "text-[#ff6b6b]" : "text-[#4ecdc4]",
+          )}
         >
           {text ? `→ ${previewStr}` : previewStr}
         </Text>
@@ -89,7 +92,8 @@ export function BirthDateInput({ value, onChange }: Props) {
 
       {showError && (
         <Text className="text-[#ff6b6b] text-[11px] mt-1 px-1">
-          인식 불가 — 나이 2자리 / 연도 4자리 / 날짜 6자리(YYMMDD) / 8자리(YYYYMMDD)
+          인식 불가 — 나이 2자리 / 연도 4자리 / 날짜 6자리(YYMMDD) /
+          8자리(YYYYMMDD)
         </Text>
       )}
 

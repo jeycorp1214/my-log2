@@ -13,7 +13,12 @@ type Props = {
   onSubmit: () => void;
 };
 
-export function QuickInputBar({ placeholder, value, onChange, onSubmit }: Props) {
+export function QuickInputBar({
+  placeholder,
+  value,
+  onChange,
+  onSubmit,
+}: Props) {
   const keyboardHeight = useKeyboardHeight();
   const insets = useSafeAreaInsets();
   const hasText = value.trim().length > 0;
@@ -25,12 +30,12 @@ export function QuickInputBar({ placeholder, value, onChange, onSubmit }: Props)
 
   return (
     <View
-      className="absolute left-0 right-0 px-4 pt-2 bg-app-bg"
+      className="absolute bottom-0 w-full px-4 bg-app-teal"
       style={{ bottom, paddingBottom }}
     >
-      <View className="flex-row items-center gap-2">
+      <View className="flex-row items-center gap-2 py-1">
         <TextInput
-          className="flex-1 h-14 bg-app-surface rounded-full px-5 text-white text-[15px]"
+          className="flex-1 h-full bg-app-surface rounded-full px-5 text-white text-sm"
           placeholder={placeholder}
           placeholderTextColor="#444"
           value={value}

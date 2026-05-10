@@ -1,8 +1,5 @@
 // 인물 상세 / 수정 / 삭제 모달 화면
-import {
-  DraftAnniversary,
-  PersonForm,
-} from "@/components/persons/PersonForm";
+import { DraftAnniversary, PersonForm } from "@/components/persons/PersonForm";
 import { db } from "@/db/client";
 import {
   groups,
@@ -204,7 +201,7 @@ export default function PersonDetailScreen() {
             </View>
 
             {person.memo ? (
-              <Text className="text-app-label text-[15px] leading-[22px]">
+              <Text className="text-app-label text-sm leading-[22px]">
                 {person.memo}
               </Text>
             ) : null}
@@ -270,7 +267,7 @@ export default function PersonDetailScreen() {
               onPress={deletePerson}
               className="mt-8 bg-app-danger-bg rounded-[12px] p-[14px] items-center"
             >
-              <Text className="text-app-danger text-[15px]">인물 삭제</Text>
+              <Text className="text-app-danger text-sm">인물 삭제</Text>
             </Pressable>
           </>
         )}

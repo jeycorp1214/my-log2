@@ -82,7 +82,7 @@ export function PersonForm({
     <>
       <Text className="text-app-label text-[13px] mt-3">이름 *</Text>
       <TextInput
-        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+        className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
         value={name}
         onChangeText={onNameChange}
         placeholder="이름 입력"
@@ -99,7 +99,7 @@ export function PersonForm({
 
       <Text className="text-app-label text-[13px] mt-3">메모</Text>
       <TextInput
-        className="bg-app-surface text-white rounded-[10px] p-3 text-[15px] min-h-[80px]"
+        className="bg-app-surface text-white rounded-[10px] p-3 text-sm min-h-[80px]"
         value={memo}
         onChangeText={onMemoChange}
         placeholder="메모"
@@ -165,7 +165,10 @@ export function PersonForm({
               className="flex-row items-center gap-1.5 bg-[#1a1a1a] rounded-[8px] px-2.5 py-1.5"
             >
               <View
-                className={cn("w-2.5 h-2.5 rounded-full", ann.isRepeat ? "bg-[#4ecdc4]" : "bg-[#444]")}
+                className={cn(
+                  "w-2.5 h-2.5 rounded-full",
+                  ann.isRepeat ? "bg-[#4ecdc4]" : "bg-[#444]",
+                )}
               />
               <Text className="text-[12px] text-app-muted">매년</Text>
             </Pressable>

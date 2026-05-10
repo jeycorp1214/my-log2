@@ -77,9 +77,7 @@ export function DateInput({
         onPress={() => setShowPicker(true)}
         className="bg-app-surface rounded-[10px] p-3 flex-row items-center justify-between"
       >
-        <Text
-          className={cn("text-[15px]", value ? "text-white" : "text-[#555]")}
-        >
+        <Text className={cn("text-sm", value ? "text-white" : "text-[#555]")}>
           {value ? formatLogDate(value) : placeholder}
         </Text>
         <Calendar size={18} color="#4ecdc4" />

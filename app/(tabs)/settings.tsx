@@ -61,7 +61,10 @@ export default function SettingsScreen() {
             try {
               await resetDatabase();
               await seedDefaultGroups();
-              Alert.alert("완료", "테이블 구조부터 데이터까지 모두 초기화되었습니다.");
+              Alert.alert(
+                "완료",
+                "테이블 구조부터 데이터까지 모두 초기화되었습니다.",
+              );
             } catch (e) {
               console.error("[resetTableStructure]", e);
               Alert.alert("오류", String(e));
@@ -92,7 +95,7 @@ export default function SettingsScreen() {
               className="flex-row items-center px-[14px] py-[16px]"
               style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
             >
-              <Text className="flex-1 text-white text-[15px]">그룹 관리</Text>
+              <Text className="flex-1 text-white text-sm">그룹 관리</Text>
               <ChevronRight size={16} color="#666" />
             </Pressable>
             <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
@@ -101,7 +104,7 @@ export default function SettingsScreen() {
               className="flex-row items-center px-[14px] py-[16px]"
               style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
             >
-              <Text className="flex-1 text-white text-[15px]">반복 관리</Text>
+              <Text className="flex-1 text-white text-sm">반복 관리</Text>
               <ChevronRight size={16} color="#666" />
             </Pressable>
             <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
@@ -110,7 +113,7 @@ export default function SettingsScreen() {
               className="flex-row items-center px-[14px] py-[16px]"
               style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
             >
-              <Text className="flex-1 text-white text-[15px]">데이터 확인</Text>
+              <Text className="flex-1 text-white text-sm">데이터 확인</Text>
               <ChevronRight size={16} color="#666" />
             </Pressable>
           </View>
@@ -127,7 +130,7 @@ export default function SettingsScreen() {
               className="flex-row items-center px-[14px] py-[16px]"
               style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
             >
-              <Text className="flex-1 text-white text-[15px]">탭 기본 설정</Text>
+              <Text className="flex-1 text-white text-sm">탭 기본 설정</Text>
               <ChevronRight size={16} color="#666" />
             </Pressable>
           </View>
@@ -141,7 +144,7 @@ export default function SettingsScreen() {
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
             <View className="flex-row items-center px-[14px] py-[16px]">
               <View className="flex-1">
-                <Text className="text-white text-[15px]">디버그 모드</Text>
+                <Text className="text-white text-sm">디버그 모드</Text>
                 <Text className="text-app-muted text-[12px] mt-0.5">
                   캘린더 상단에 쿼리 정보 표시
                 </Text>
@@ -166,7 +169,7 @@ export default function SettingsScreen() {
               onPress={resetAllData}
               className="bg-app-danger-bg rounded-[12px] p-[14px] items-center"
             >
-              <Text className="text-app-danger text-[15px] font-semibold">
+              <Text className="text-app-danger text-sm font-semibold">
                 전체 데이터 초기화
               </Text>
             </Pressable>
@@ -175,7 +178,7 @@ export default function SettingsScreen() {
               onPress={resetTableStructure}
               className="bg-app-danger-bg rounded-[12px] p-[14px] items-center mt-2"
             >
-              <Text className="text-app-danger text-[15px] font-semibold">
+              <Text className="text-app-danger text-sm font-semibold">
                 테이블 초기화 (DROP + 재생성)
               </Text>
             </Pressable>

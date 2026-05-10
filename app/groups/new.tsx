@@ -49,7 +49,7 @@ export default function GroupNewScreen() {
       >
         <Text className="text-app-label text-[13px] mt-3">그룹 이름 *</Text>
         <TextInput
-          className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+          className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
           value={name}
           onChangeText={setName}
           placeholder="그룹 이름"
@@ -58,7 +58,7 @@ export default function GroupNewScreen() {
 
         <Text className="text-app-label text-[13px] mt-3">이모지</Text>
         <TextInput
-          className="bg-app-surface text-white rounded-[10px] p-3 text-[15px]"
+          className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
           value={emoji}
           onChangeText={setEmoji}
           placeholder="🎯"
@@ -71,7 +71,10 @@ export default function GroupNewScreen() {
             <Pressable
               key={c}
               onPress={() => setColor(c)}
-              className={cn("w-9 h-9 rounded-full", color === c && "border-[3px] border-white")}
+              className={cn(
+                "w-9 h-9 rounded-full",
+                color === c && "border-[3px] border-white",
+              )}
               style={{ backgroundColor: c }}
             />
           ))}

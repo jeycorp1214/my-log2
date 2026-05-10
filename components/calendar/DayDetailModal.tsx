@@ -47,7 +47,7 @@ export function DayDetailModal({
           onPress={(e) => e.stopPropagation()}
         >
           <View className="flex-row items-center justify-between px-5 pt-5 pb-3">
-            <Text className="text-app-dim text-[15px] font-semibold">
+            <Text className="text-app-dim text-sm font-semibold">
               {formatLogDate(date)}
             </Text>
             <Pressable onPress={onClose} hitSlop={8}>

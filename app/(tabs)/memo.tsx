@@ -150,7 +150,7 @@ export default function MemoScreen() {
                 }
               >
                 <Text
-                  className="flex-1 text-white text-[15px]"
+                  className="flex-1 text-white text-sm"
                   numberOfLines={5}
                   style={{
                     textDecorationLine: isChecked ? "line-through" : "none",

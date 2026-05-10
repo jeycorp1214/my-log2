@@ -33,10 +33,13 @@ export function ListEventItem({ item, onToggleCheck, onPress }: Props) {
         </Pressable>
       )}
 
-      <Pressable onPress={onPress} className="flex-1 flex-row items-center gap-2">
+      <Pressable
+        onPress={onPress}
+        className="flex-1 flex-row items-center gap-2"
+      >
         <View className="flex-1">
           <Text
-            className="text-white text-[15px]"
+            className="text-white text-sm"
             style={{
               textDecorationLine: isChecked ? "line-through" : "none",
               opacity: isChecked ? 0.45 : 1,

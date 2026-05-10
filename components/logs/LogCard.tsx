@@ -23,7 +23,7 @@ export function LogCard({ log, onPress }: Props) {
       <View className="gap-1">
         <View className="flex-row items-center gap-[6px]">
           <Text
-            className="flex-1 text-white text-[15px] font-semibold"
+            className="flex-1 text-white text-sm font-semibold"
             numberOfLines={1}
           >
             {log.title}

@@ -26,7 +26,7 @@ export function SearchLogItem({ log, onPress }: Props) {
       </Text>
       <View className="flex-row items-center gap-[6px]">
         <Text
-          className="flex-1 text-white text-[15px] font-semibold"
+          className="flex-1 text-white text-sm font-semibold"
           numberOfLines={1}
         >
           {log.title}

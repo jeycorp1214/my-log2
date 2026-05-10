@@ -250,7 +250,7 @@ export default function LogDetailScreen() {
               {formatLogDate(displayDate)}
             </Text>
             {log.memo ? (
-              <Text className="text-app-label text-[15px] leading-[22px] mt-2">
+              <Text className="text-app-label text-sm leading-[22px] mt-2">
                 {log.memo}
               </Text>
             ) : null}
@@ -285,7 +285,7 @@ export default function LogDetailScreen() {
               onPress={deleteLog}
               className="mt-8 bg-app-danger-bg rounded-[12px] p-[14px] items-center"
             >
-              <Text className="text-app-danger text-[15px]">기록 삭제</Text>
+              <Text className="text-app-danger text-sm">기록 삭제</Text>
             </Pressable>
           </>
         )}

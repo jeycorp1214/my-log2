@@ -115,7 +115,7 @@ export default function SearchScreen() {
         <View className="flex-1 flex-row items-center gap-2 bg-app-surface rounded-[12px] px-3 h-12">
           <Search size={16} color="#666" />
           <TextInput
-            className="flex-1 text-white text-[15px]"
+            className="flex-1 text-white text-sm"
             placeholder="기록, 인물 검색..."
             placeholderTextColor="#555"
             value={inputText}
@@ -139,7 +139,7 @@ export default function SearchScreen() {
       {status === "idle" && (
         <View className="flex-1 items-center justify-center pb-20">
           <Search size={40} color="#333" />
-          <Text className="text-app-muted text-[15px] mt-4">
+          <Text className="text-app-muted text-sm mt-4">
             기록과 인물을 검색합니다.
           </Text>
           <Text className="text-[#444] text-[13px] mt-1">
@@ -150,7 +150,7 @@ export default function SearchScreen() {
 
       {status === "empty" && (
         <View className="flex-1 items-center justify-center pb-20">
-          <Text className="text-app-muted text-[15px]">
+          <Text className="text-app-muted text-sm">
             {debouncedQuery}에 대한 결과가 없습니다.
           </Text>
         </View>

@@ -1,16 +1,23 @@
 // 그룹 관리 화면 — 그룹 목록 조회/삭제 + 퀵 추가
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
+import { HStack } from "@/components/ui/hstack";
+import { VStack } from "@/components/ui/vstack";
 import { db } from "@/db/client";
 import { groups } from "@/db/schema";
 import { PRESET_COLORS } from "@/db/seed";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Trash2 } from "lucide-react-native";
 import { useState } from "react";
-import { Alert, Keyboard, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  Alert,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
 export default function GroupsScreen() {
   const router = useRouter();
@@ -51,18 +58,29 @@ export default function GroupsScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 96 }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: 16,
+          paddingBottom: 96,
+        }}
+      >
         <VStack space="sm">
           {allGroups.length === 0 ? (
-            <Text className="text-app-muted text-center mt-8">그룹이 없습니다.</Text>
+            <Text className="text-app-muted text-center mt-8">
+              그룹이 없습니다.
+            </Text>
           ) : (
             allGroups.map((group) => (
-              <HStack key={group.id} className="items-center bg-app-surface rounded-[12px] p-[14px]">
+              <HStack
+                key={group.id}
+                className="items-center bg-app-surface rounded-[12px] p-[14px]"
+              >
                 <View
                   className="w-3 h-3 rounded-full mr-[10px]"
                   style={{ backgroundColor: group.color }}
                 />
-                <Text className="flex-1 text-white text-[15px]">
+                <Text className="flex-1 text-white text-sm">
                   {group.emoji} {group.name}
                 </Text>
                 {!group.isDefault && (
