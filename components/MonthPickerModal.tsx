@@ -1,4 +1,5 @@
 // 연도별 월 선택 모달 — 12개 미니 캘린더 스크롤로 월 선택
+import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -42,52 +43,41 @@ function MiniCalendar({ year, month }: { year: number; month: number }) {
 
   return (
     <View>
-      <View style={{ flexDirection: "row" }}>
+      <View className="flex-row">
         {WEEKDAYS_SHORT.map((d, i) => (
           <Text
             key={d}
-            style={{
-              flex: 1,
-              textAlign: "center",
-              fontSize: 9,
-              color: i === 0 ? "#ff6b6b" : i === 6 ? "#4ecdc4" : "#555",
-            }}
+            className={cn(
+              "flex-1 text-center text-[9px]",
+              i === 0 ? "text-[#ff6b6b]" : i === 6 ? "text-[#4ecdc4]" : "text-[#555]",
+            )}
           >
             {d}
           </Text>
         ))}
       </View>
       {weeks.map((week, wi) => (
-        <View key={wi} style={{ flexDirection: "row" }}>
+        <View key={wi} className="flex-row">
           {week.map((day, di) => (
-            <View
-              key={di}
-              style={{ flex: 1, alignItems: "center", paddingVertical: 1 }}
-            >
+            <View key={di} className="flex-1 items-center py-[1px]">
               {day !== null && (
                 <View
-                  style={{
-                    width: 15,
-                    height: 15,
-                    borderRadius: 8,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor:
-                      day === todayDate ? "#4ecdc4" : "transparent",
-                  }}
+                  className={cn(
+                    "w-[15px] h-[15px] rounded-[8px] items-center justify-center",
+                    day === todayDate ? "bg-[#4ecdc4]" : "bg-transparent",
+                  )}
                 >
                   <Text
-                    style={{
-                      fontSize: 10,
-                      color:
-                        day === todayDate
-                          ? "#111"
-                          : di === 0
-                            ? "#ff6b6b"
-                            : di === 6
-                              ? "#4ecdc4"
-                              : "#bbb",
-                    }}
+                    className={cn(
+                      "text-[10px]",
+                      day === todayDate
+                        ? "text-[#111]"
+                        : di === 0
+                          ? "text-[#ff6b6b]"
+                          : di === 6
+                            ? "text-[#4ecdc4]"
+                            : "text-[#bbb]",
+                    )}
                   >
                     {day}
                   </Text>
@@ -115,33 +105,20 @@ export function MonthPickerModal({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: "#111" }}>
-        <SafeAreaView style={{ backgroundColor: "#111" }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              borderBottomWidth: 1,
-              borderBottomColor: "#222",
-              paddingTop: 40,
-            }}
-          >
+      <View className="flex-1 bg-[#111]">
+        <SafeAreaView className="bg-[#111]">
+          <View className="flex-row items-center justify-between px-4 pb-3 pt-10 border-b border-[#222]">
             <Pressable onPress={onClose} hitSlop={8}>
               <X size={22} color="#e0e0e0" />
             </Pressable>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 20 }}
-            >
+            <View className="flex-row items-center gap-5">
               <Pressable
                 onPress={() => setPickerYear((y) => y - 1)}
                 hitSlop={8}
               >
                 <ChevronLeft size={20} color="#e0e0e0" />
               </Pressable>
-              <Text style={{ color: "#fff", fontSize: 18, fontWeight: "600" }}>
+              <Text className="text-white text-lg font-semibold">
                 {pickerYear}년
               </Text>
               <Pressable
@@ -151,7 +128,7 @@ export function MonthPickerModal({
                 <ChevronRight size={20} color="#e0e0e0" />
               </Pressable>
             </View>
-            <View style={{ width: 22 }} />
+            <View className="w-[22px]" />
           </View>
         </SafeAreaView>
 
@@ -160,7 +137,7 @@ export function MonthPickerModal({
           showsVerticalScrollIndicator={false}
         >
           {[0, 2, 4, 6, 8, 10].map((startMonth) => (
-            <View key={startMonth} style={{ flexDirection: "row", gap: 12 }}>
+            <View key={startMonth} className="flex-row gap-3">
               {[startMonth, startMonth + 1].map((m) => {
                 const isSelected =
                   pickerYear === currentMonth.getFullYear() &&
@@ -169,23 +146,16 @@ export function MonthPickerModal({
                   <Pressable
                     key={m}
                     onPress={() => onSelect(pickerYear, m)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#1a1a1a",
-                      borderRadius: 12,
-                      padding: 10,
-                      borderWidth: isSelected ? 1.5 : 0,
-                      borderColor: "#4ecdc4",
-                    }}
+                    className={cn(
+                      "flex-1 bg-[#1a1a1a] rounded-[12px] p-[10px]",
+                      isSelected && "border-[1.5px] border-[#4ecdc4]",
+                    )}
                   >
                     <Text
-                      style={{
-                        color: isSelected ? "#4ecdc4" : "#fff",
-                        fontSize: 13,
-                        fontWeight: "600",
-                        textAlign: "center",
-                        marginBottom: 6,
-                      }}
+                      className={cn(
+                        "text-[13px] font-semibold text-center mb-1.5",
+                        isSelected ? "text-[#4ecdc4]" : "text-white",
+                      )}
                     >
                       {m + 1}월
                     </Text>

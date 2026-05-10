@@ -313,7 +313,7 @@
 
 ## Step 5 — 대규모 (마지막)
 
-- [ ] `components/MonthPickerModal.tsx` — 전체 inline style → className 전환
+- [x] `components/MonthPickerModal.tsx` — 전체 inline style → className 전환
 
 ## 보류 (inline 유지 OK)
 
