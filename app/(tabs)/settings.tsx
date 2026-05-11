@@ -147,7 +147,18 @@ export default function SettingsScreen() {
               className="flex-row items-center px-[14px] py-[16px]"
               style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
             >
-              <Text className="flex-1 text-white text-sm">KeyboardStickyView 테스트</Text>
+              <Text className="flex-1 text-white text-sm">
+                KeyboardStickyView 테스트
+              </Text>
+              <ChevronRight size={16} color="#666" />
+            </Pressable>
+            <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
+            <Pressable
+              onPress={() => router.push("/settings/calendar-test")}
+              className="flex-row items-center px-[14px] py-[16px]"
+              style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+            >
+              <Text className="flex-1 text-white text-sm">캘린더 테스트</Text>
               <ChevronRight size={16} color="#666" />
             </Pressable>
           </View>
