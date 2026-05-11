@@ -1,6 +1,5 @@
 // 로그 폼 공유 컴포넌트 — 생성/수정에서 공통 사용
 import { DateInput } from "@/components/DateInput";
-import { DatePickerModal } from "@/components/DatePickerModal";
 import { groups, persons } from "@/db/schema";
 import { REPEAT_OPTIONS } from "@/db/seed";
 import { formatLogDate } from "@/utils/date";
@@ -137,12 +136,6 @@ export function LogForm({
                   </Text>
                 </Pressable>
               </View>
-              <DatePickerModal
-                visible={showRepeatUntilPicker}
-                value={repeatUntil ?? logDate}
-                onChange={onRepeatUntilChange}
-                onClose={() => setShowRepeatUntilPicker(false)}
-              />
             </View>
           )}
         </>

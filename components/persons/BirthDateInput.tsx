@@ -1,5 +1,4 @@
 // 생년월일 스마트 입력 컴포넌트 — 나이·연도·6자리·8자리 숫자 자동 파싱
-import { DatePickerModal } from "@/components/DatePickerModal";
 import { calcAge, parseBirthInput } from "@/utils/date";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
@@ -96,13 +95,6 @@ export function BirthDateInput({ value, onChange }: Props) {
           8자리(YYYYMMDD)
         </Text>
       )}
-
-      <DatePickerModal
-        visible={showPicker}
-        value={value ?? new Date()}
-        onChange={handlePickerSelect}
-        onClose={() => setShowPicker(false)}
-      />
     </View>
   );
 }

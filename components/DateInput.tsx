@@ -1,5 +1,4 @@
 // 날짜 입력 필드 컴포넌트 — field(폼 필드) / compact(인라인) 두 가지 형태
-import { DatePickerModal } from "@/components/DatePickerModal";
 import { formatLogDate } from "@/utils/date";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
@@ -31,18 +30,6 @@ export function DateInput({
   const [showPicker, setShowPicker] = useState(false);
   const pickerValue = value ?? defaultValue ?? new Date();
 
-  const modal = (
-    <DatePickerModal
-      visible={showPicker}
-      value={pickerValue}
-      onChange={(date) => {
-        onChange(date);
-        setShowPicker(false);
-      }}
-      onClose={() => setShowPicker(false)}
-    />
-  );
-
   if (variant === "compact") {
     return (
       <>
@@ -56,7 +43,6 @@ export function DateInput({
             {value ? dayjs(value).format("YYYY.MM.DD") : placeholder}
           </Text>
         </Pressable>
-        {modal}
       </>
     );
   }
@@ -82,7 +68,6 @@ export function DateInput({
         </Text>
         <Calendar size={18} color="#4ecdc4" />
       </Pressable>
-      {modal}
     </View>
   );
 }
