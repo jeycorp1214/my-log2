@@ -1,8 +1,7 @@
 // 캘린더 탭 — 월별 달력 + 날짜 선택 or 월간 전체 로그 목록
 import { CalendarDebugBar } from "@/components/calendar/CalendarDebugBar";
-import { CalendarGrid } from "@/components/calendar/CalendarGrid";
+import { CalendarView } from "@/components/calendar/CalendarView";
 import { DayDetailModal } from "@/components/calendar/DayDetailModal";
-import { MonthNavBar } from "@/components/calendar/MonthNavBar";
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { LogCard } from "@/components/logs/LogCard";
@@ -14,7 +13,6 @@ import { useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-mo
 import { useDebugMode } from "@/providers/DebugProvider";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import {
-  addMonths,
   endOfMonth,
   formatLogDate,
   formatMonthYear,
@@ -37,6 +35,7 @@ import {
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
+
 
 type Log = InferSelectModel<typeof logs>;
 type LogItem = { log: Log; isOccurrence: boolean };
@@ -195,16 +194,6 @@ export default function CalendarScreen() {
       ? anniversaryBoardItems.filter((ann) => isSameDay(ann.date, selectedDate))
       : [];
 
-  function prevMonth() {
-    setCurrentMonth(addMonths(currentMonth, -1));
-    setSelectedDate(null);
-  }
-
-  function nextMonth() {
-    setCurrentMonth(addMonths(currentMonth, 1));
-    setSelectedDate(null);
-  }
-
   function goToday() {
     setCurrentMonth(new Date());
     setSelectedDate(new Date());
@@ -245,15 +234,6 @@ export default function CalendarScreen() {
     }
   }
 
-  // 수평: 월 이동
-  const horizontalSwipe = Gesture.Pan()
-    .activeOffsetX([-20, 20])
-    .failOffsetY([-10, 10])
-    .onEnd((e) => {
-      if (e.translationX < -50) runOnJS(nextMonth)();
-      else if (e.translationX > 50) runOnJS(prevMonth)();
-    });
-
   // 수직: 모드 전환 (아래 → 확장, 위 → 일반)
   const verticalSwipe = Gesture.Pan()
     .activeOffsetY([-30, 30])
@@ -262,8 +242,6 @@ export default function CalendarScreen() {
       if (e.translationY > 50) runOnJS(setViewMode)("board");
       else if (e.translationY < -50) runOnJS(setViewMode)("compact");
     });
-
-  const calendarGesture = Gesture.Race(horizontalSwipe, verticalSwipe);
 
   const daySections = buildDaySections();
   const today = new Date();
@@ -303,16 +281,6 @@ export default function CalendarScreen() {
         }
       />
 
-      <MonthNavBar
-        currentMonth={currentMonth}
-        onPrev={prevMonth}
-        onNext={nextMonth}
-        onMonthChange={(date) => {
-          setCurrentMonth(date);
-          setSelectedDate(null);
-        }}
-      />
-
       {debugMode && (
         <CalendarDebugBar
           currentMonth={currentMonth}
@@ -325,10 +293,10 @@ export default function CalendarScreen() {
         />
       )}
 
-      {/* 캘린더 그리드 — 수평(월 이동) + 수직(모드 전환) 제스처 통합 */}
-      <GestureDetector gesture={calendarGesture}>
+      {/* CalendarView — 수직 제스처로 모드 전환 (수평은 CalendarList 내장) */}
+      <GestureDetector gesture={verticalSwipe}>
         <View>
-          <CalendarGrid
+          <CalendarView
             currentMonth={currentMonth}
             selectedDate={selectedDate}
             markedDates={logDates}
@@ -336,6 +304,10 @@ export default function CalendarScreen() {
             mode={viewMode === "board" ? "board" : "compact"}
             boardItems={viewMode === "board" ? boardItems : undefined}
             anniversaryDates={calendarAnniversaryDates}
+            onMonthChange={(date) => {
+              setCurrentMonth(date);
+              setSelectedDate(null);
+            }}
           />
         </View>
       </GestureDetector>
