@@ -5,6 +5,7 @@ import { Check, ChevronLeft, Plus, Trash2, X } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
   Alert,
+  FlatList,
   Modal,
   Pressable,
   ScrollView,
@@ -12,7 +13,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Agenda, Calendar, CalendarList } from "react-native-calendars";
+import { Calendar, CalendarList } from "react-native-calendars";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── 타입 ─────────────────────────────────────────────────────────────
@@ -228,25 +229,30 @@ export default function CalendarTestScreen() {
     return marks;
   }, [events]);
 
-  // Agenda items (오늘 기준 -30 ~ +60일)
-  const agendaItems = useMemo(() => {
-    const items: Record<string, any[]> = {};
-    for (let i = -30; i <= 60; i++) {
-      items[dayjs().add(i, "day").format("YYYY-MM-DD")] = [];
-    }
+  // Agenda 뷰 전용: 선택 날짜 (month 뷰의 selectedDate와 분리)
+  const [agendaDate, setAgendaDate] = useState<string>(TODAY);
+
+  const agendaMarks = useMemo(() => {
+    const marks: Record<string, any> = {};
     events.forEach((e) => {
-      if (items[e.date] !== undefined) {
-        items[e.date].push({
-          id: e.id,
-          name: e.title,
-          category: e.category,
-          isDone: e.isDone,
+      if (!marks[e.date]) marks[e.date] = { dots: [] };
+      const alreadyAdded = marks[e.date].dots.some(
+        (d: any) => d.key === e.category,
+      );
+      if (!alreadyAdded)
+        marks[e.date].dots.push({
+          key: e.category,
           color: CATEGORY_COLORS[e.category],
         });
-      }
     });
-    return items;
-  }, [events]);
+    if (!marks[agendaDate]) marks[agendaDate] = {};
+    marks[agendaDate] = {
+      ...(marks[agendaDate] ?? {}),
+      selected: true,
+      selectedColor: "#4ECDC4",
+    };
+    return marks;
+  }, [events, agendaDate]);
 
   // ─── 핸들러 ───────────────────────────────────────────────────────
   function handleDayPress(day: { dateString: string }) {
@@ -671,51 +677,127 @@ export default function CalendarTestScreen() {
         </View>
       )}
 
-      {/* ── Agenda View ───────────────────────────────────────────── */}
+      {/* ── Agenda View (커스텀 — Agenda 컴포넌트 내부 무한루프 버그 회피) ── */}
       {viewMode === "agenda" && (
-        <View className="flex-1 mx-4">
-          <Text className="text-app-label text-[10px] uppercase tracking-widest mb-2">
-            Agenda — 날짜 탭 ↔ 일정 목록 연동
-          </Text>
-          <View className="flex-1 rounded-[12px] overflow-hidden">
-            <Agenda
-              items={agendaItems}
-              selected={TODAY}
-              renderItem={(item: any) => (
-                <View
-                  className="bg-app-surface rounded-[10px] px-3 py-3 mr-4 mb-2"
-                  style={{ borderLeftWidth: 3, borderLeftColor: item.color }}
-                >
-                  <Text className="text-white text-sm">{item.name}</Text>
-                  <Text
-                    className="text-[11px] mt-0.5"
-                    style={{ color: item.color }}
-                  >
-                    {CATEGORY_LABELS[item.category as EventCategory]}
-                    {item.isDone !== undefined && (
-                      <Text className="text-app-muted">
-                        {item.isDone ? " · 완료" : " · 미완"}
-                      </Text>
-                    )}
-                  </Text>
-                </View>
-              )}
-              renderEmptyDate={() => (
-                <View className="h-12 justify-center mr-4">
-                  <Text className="text-app-muted text-sm">일정 없음</Text>
-                </View>
-              )}
-              rowHasChanged={(r1: any, r2: any) => r1.id !== r2.id}
-              theme={{
-                ...DARK_THEME,
-                agendaDayTextColor: "#4ECDC4",
-                agendaDayNumColor: "#ffffff",
-                agendaTodayColor: "#4ECDC4",
-                agendaKnobColor: "#4ECDC4",
-                reservationsBackgroundColor: "#111111",
-              }}
+        <View className="flex-1">
+          {/* 상단 달력 */}
+          <View className="mx-4 rounded-[12px] overflow-hidden">
+            <Calendar
+              current={agendaDate}
+              markedDates={agendaMarks}
+              markingType="multi-dot"
+              onDayPress={(day) => setAgendaDate(day.dateString)}
+              onMonthChange={(month) =>
+                setLastEvent(`onMonthChange → ${month.dateString}`)
+              }
+              theme={DARK_THEME}
+              enableSwipeMonths
             />
           </View>
+
+          {/* 선택 날짜 헤더 */}
+          <View className="flex-row items-center px-4 mt-3 mb-2">
+            <Text className="flex-1 text-app-label text-[10px] uppercase tracking-widest">
+              {agendaDate} 일정
+            </Text>
+            <Pressable
+              onPress={() => {
+                setSelectedDate(agendaDate);
+                setShowModal(true);
+                setEditingId(null);
+                setInputTitle("");
+                setInputCategory("work");
+              }}
+              className="bg-app-teal rounded-full w-6 h-6 items-center justify-center"
+              style={({ pressed }) => (pressed ? { opacity: 0.75 } : undefined)}
+            >
+              <Plus size={14} color="#111111" />
+            </Pressable>
+          </View>
+
+          {/* 일정 리스트 */}
+          {(() => {
+            const dayEvents = events.filter((e) => e.date === agendaDate);
+            if (dayEvents.length === 0) {
+              return (
+                <View className="mx-4 bg-app-surface rounded-[10px] py-6 items-center">
+                  <Text className="text-app-muted text-sm">
+                    등록된 일정 없음
+                  </Text>
+                </View>
+              );
+            }
+            return (
+              <FlatList
+                data={dayEvents}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{
+                  paddingHorizontal: 16,
+                  paddingBottom: insets.bottom + 24,
+                }}
+                ItemSeparatorComponent={() => (
+                  <View className="h-[1px] bg-[#2a2a2a] mx-1" />
+                )}
+                style={{ backgroundColor: "transparent" }}
+                renderItem={({ item: event }) => (
+                  <Pressable
+                    onPress={() => openEditModal(event)}
+                    className="bg-app-surface flex-row items-center px-3 py-3"
+                    style={({ pressed }) => [
+                      {
+                        borderLeftWidth: 3,
+                        borderLeftColor: CATEGORY_COLORS[event.category],
+                      },
+                      pressed && { opacity: 0.7 },
+                    ]}
+                  >
+                    <View className="flex-1">
+                      <Text
+                        className={`text-sm ${
+                          event.isDone
+                            ? "line-through text-app-muted"
+                            : "text-white"
+                        }`}
+                      >
+                        {event.title}
+                      </Text>
+                      <Text
+                        className="text-[11px] mt-0.5"
+                        style={{ color: CATEGORY_COLORS[event.category] }}
+                      >
+                        {CATEGORY_LABELS[event.category]}
+                        {event.category === "todo" &&
+                          (event.isDone ? " · 완료" : " · 미완")}
+                      </Text>
+                    </View>
+                    {event.category === "todo" && (
+                      <Pressable
+                        onPress={() => toggleTodo(event.id)}
+                        className="w-5 h-5 rounded border mr-2 items-center justify-center shrink-0"
+                        style={
+                          event.isDone
+                            ? {
+                                backgroundColor: "#a855f7",
+                                borderColor: "#a855f7",
+                              }
+                            : { borderColor: "#555" }
+                        }
+                      >
+                        {event.isDone && <Check size={11} color="#fff" />}
+                      </Pressable>
+                    )}
+                    <Pressable
+                      onPress={() => deleteEvent(event.id)}
+                      className="p-1 shrink-0"
+                      hitSlop={8}
+                    >
+                      <Trash2 size={14} color="#555" />
+                    </Pressable>
+                  </Pressable>
+                )}
+              />
+            );
+          })()}
         </View>
       )}
 
