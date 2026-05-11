@@ -1,10 +1,11 @@
-// 퀵 입력바 — KeyboardStickyView로 키보드 바로 위에 고정
+// 퀵 입력바 — Reanimated로 키보드 바로 위에 고정
 import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { cn } from "@/utils/utils";
 import { Check, Plus } from "lucide-react-native";
 import { useContext } from "react";
 import { Pressable, TextInput, View } from "react-native";
-import { KeyboardStickyView } from "react-native-keyboard-controller";
+import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
+import Reanimated, { useAnimatedStyle } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
@@ -23,12 +24,20 @@ export function QuickInputBar({
   const insets = useSafeAreaInsets();
   const hasText = value.trim().length > 0;
 
-  // 탭바 높이만큼 opened offset 보정: 탭바 있을 때 input과 키보드 사이 gap 제거.
-  // 탭바 밖에서 렌더링 시 context가 undefined → 0으로 폴백.
+  // 탭바 높이 보정: 탭바 있을 때 input과 키보드 사이 gap 제거.
+  // 탭바 밖에서 렌더링 시 context undefined → 0 폴백.
   const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
 
+  // Animated(JS 스레드) 대신 Reanimated(UI 스레드) 사용.
+  // Android 신 아키텍처 + edge-to-edge에서 Animated는 타이밍 문제로
+  // 포커스 시 즉시 반응 안 함. Reanimated는 UI 스레드에서 즉시 처리.
+  const { height, progress } = useReanimatedKeyboardAnimation();
+  const stickyStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: height.value + tabBarHeight * progress.value }],
+  }));
+
   return (
-    <KeyboardStickyView offset={{ closed: 0, opened: tabBarHeight }}>
+    <Reanimated.View style={stickyStyle}>
       <View
         className="w-full px-4 bg-app-teal"
         style={{ paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }}
@@ -60,6 +69,6 @@ export function QuickInputBar({
           </Pressable>
         </View>
       </View>
-    </KeyboardStickyView>
+    </Reanimated.View>
   );
 }

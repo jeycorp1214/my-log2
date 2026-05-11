@@ -1,10 +1,8 @@
 // KeyboardStickyView 동작 테스트 — 더미 목록 + 키보드 고정 입력창
 import { useState } from "react";
 import { Text, TextInput, View } from "react-native";
-import {
-  KeyboardAwareScrollView,
-  KeyboardStickyView,
-} from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView, useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
+import Reanimated, { useAnimatedStyle } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DUMMY_ITEMS = Array.from({ length: 30 }, (_, i) => ({
@@ -18,6 +16,14 @@ export default function KeyboardTestScreen() {
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState<string[]>([]);
 
+  // KeyboardStickyView(Animated/JS 스레드) 대신 Reanimated(UI 스레드) 사용.
+  // Android 신 아키텍처 + edge-to-edge 환경에서 Animated 이벤트는 타이밍 문제로
+  // 포커스 시 즉시 반응 안 하고, 키보드 내림 시 복귀 안 하는 문제 발생.
+  const { height } = useReanimatedKeyboardAnimation();
+  const stickyStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: height.value }],
+  }));
+
   function handleSubmit() {
     if (!text.trim()) return;
     setSubmitted((prev) => [text.trim(), ...prev]);
@@ -26,12 +32,6 @@ export default function KeyboardTestScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      {/*
-        KeyboardAwareScrollView 사용 이유:
-        ScrollView 기본값인 automaticallyAdjustKeyboardInsets(iOS)가
-        KeyboardStickyView 애니메이션과 충돌해 이슈 발생.
-        KeyboardAwareScrollView는 내부적으로 Reanimated로 처리해 충돌 없음.
-      */}
       <KeyboardAwareScrollView
         contentContainerStyle={{
           paddingHorizontal: 16,
@@ -68,11 +68,7 @@ export default function KeyboardTestScreen() {
         ))}
       </KeyboardAwareScrollView>
 
-      {/*
-        offset.opened = 0: 탭바 없는 화면이므로 보정 불필요.
-        탭바 있는 화면에서 gap 발생 시 opened = tabBarHeight 로 보정 (QuickInputBar 참고).
-      */}
-      <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
+      <Reanimated.View style={stickyStyle}>
         <View
           className="px-4 bg-app-surface border-t border-[#2a2a2a]"
           style={{
@@ -104,7 +100,7 @@ export default function KeyboardTestScreen() {
             </View>
           </View>
         </View>
-      </KeyboardStickyView>
+      </Reanimated.View>
     </View>
   );
 }
