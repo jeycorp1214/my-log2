@@ -3,10 +3,10 @@ import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { formatMonthYear } from "@/utils/date";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
-import { Calendar } from "react-native-calendars";
 import type { DateData } from "react-native-calendars";
+import { Calendar } from "react-native-calendars";
 
 interface Props {
   visible: boolean;
@@ -144,7 +144,10 @@ export function DatePickerModal({ visible, value, onChange, onClose }: Props) {
             >
               <ChevronLeft size={20} color="#e0e0e0" />
             </Pressable>
-            <Pressable onPress={() => setShowMonthPicker(true)} className="py-1 px-2">
+            <Pressable
+              onPress={() => setShowMonthPicker(true)}
+              className="py-1 px-2"
+            >
               <Text className="text-white text-base font-semibold">
                 {formatMonthYear(pickerMonth)}
               </Text>
@@ -166,7 +169,6 @@ export function DatePickerModal({ visible, value, onChange, onClose }: Props) {
               hideExtraDays
               onDayPress={(day) => handleSelect(new Date(day.dateString))}
               markedDates={markedDates}
-              markingType="dot"
               dayComponent={DayComponent}
               theme={PICKER_THEME as any}
             />
