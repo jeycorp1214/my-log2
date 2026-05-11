@@ -92,6 +92,10 @@ export default function RootLayout() {
                         options={{ title: "탭 기본 설정" }}
                       />
                       <Stack.Screen
+                        name="settings/keyboard-test"
+                        options={{ title: "KeyboardStickyView 테스트" }}
+                      />
+                      <Stack.Screen
                         name="search"
                         options={{ presentation: "modal", headerShown: false }}
                       />

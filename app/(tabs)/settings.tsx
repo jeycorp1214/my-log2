@@ -136,6 +136,23 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* 테스트 */}
+        <View className="mb-8">
+          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+            테스트
+          </Text>
+          <View className="bg-app-surface rounded-[12px] overflow-hidden">
+            <Pressable
+              onPress={() => router.push("/settings/keyboard-test")}
+              className="flex-row items-center px-[14px] py-[16px]"
+              style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+            >
+              <Text className="flex-1 text-white text-sm">KeyboardStickyView 테스트</Text>
+              <ChevronRight size={16} color="#666" />
+            </Pressable>
+          </View>
+        </View>
+
         {/* 개발자 옵션 */}
         <View className="mb-8">
           <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
