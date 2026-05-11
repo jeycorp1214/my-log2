@@ -1,6 +1,8 @@
 // 퀵 입력바 — KeyboardStickyView로 키보드 바로 위에 고정
+import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { cn } from "@/utils/utils";
 import { Check, Plus } from "lucide-react-native";
+import { useContext } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,8 +23,12 @@ export function QuickInputBar({
   const insets = useSafeAreaInsets();
   const hasText = value.trim().length > 0;
 
+  // 탭바 높이만큼 opened offset 보정: 탭바 있을 때 input과 키보드 사이 gap 제거.
+  // 탭바 밖에서 렌더링 시 context가 undefined → 0으로 폴백.
+  const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
+
   return (
-    <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
+    <KeyboardStickyView offset={{ closed: 0, opened: tabBarHeight }}>
       <View
         className="w-full px-4 bg-app-teal"
         style={{ paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }}

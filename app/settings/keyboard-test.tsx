@@ -1,13 +1,16 @@
 // KeyboardStickyView 동작 테스트 — 더미 목록 + 키보드 고정 입력창
 import { useState } from "react";
-import { ScrollView, Text, TextInput, View } from "react-native";
-import { KeyboardStickyView } from "react-native-keyboard-controller";
+import { Text, TextInput, View } from "react-native";
+import {
+  KeyboardAwareScrollView,
+  KeyboardStickyView,
+} from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DUMMY_ITEMS = Array.from({ length: 30 }, (_, i) => ({
   id: i,
   label: `더미 항목 ${i + 1}`,
-  desc: `KeyboardStickyView 테스트용 항목입니다 — 스크롤해도 입력창이 키보드 바로 위에 붙어있는지 확인`,
+  desc: `스크롤해도 입력창이 키보드 바로 위에 붙어있는지 확인`,
 }));
 
 export default function KeyboardTestScreen() {
@@ -23,9 +26,20 @@ export default function KeyboardTestScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 100 }}
+      {/*
+        KeyboardAwareScrollView 사용 이유:
+        ScrollView 기본값인 automaticallyAdjustKeyboardInsets(iOS)가
+        KeyboardStickyView 애니메이션과 충돌해 이슈 발생.
+        KeyboardAwareScrollView는 내부적으로 Reanimated로 처리해 충돌 없음.
+      */}
+      <KeyboardAwareScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: 12,
+          paddingBottom: 120,
+        }}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         {submitted.length > 0 && (
           <View className="mb-4">
@@ -52,15 +66,22 @@ export default function KeyboardTestScreen() {
             <Text className="text-app-muted text-[11px] mt-0.5">{item.desc}</Text>
           </View>
         ))}
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
+      {/*
+        offset.opened = 0: 탭바 없는 화면이므로 보정 불필요.
+        탭바 있는 화면에서 gap 발생 시 opened = tabBarHeight 로 보정 (QuickInputBar 참고).
+      */}
       <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
         <View
           className="px-4 bg-app-surface border-t border-[#2a2a2a]"
-          style={{ paddingBottom: insets.bottom > 0 ? insets.bottom : 12, paddingTop: 10 }}
+          style={{
+            paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
+            paddingTop: 10,
+          }}
         >
           <Text className="text-app-muted text-[10px] mb-1 text-center">
-            KeyboardStickyView — 키보드가 열리면 이 입력창이 키보드 바로 위로 이동해야 함
+            포커스 시 즉시 올라오고 · 키보드 내리면 즉시 내려와야 함
           </Text>
           <View className="flex-row items-center gap-2">
             <TextInput
@@ -73,9 +94,7 @@ export default function KeyboardTestScreen() {
               returnKeyType="send"
               blurOnSubmit={false}
             />
-            <View
-              className="px-4 h-11 rounded-full bg-app-teal items-center justify-center"
-            >
+            <View className="px-4 h-11 rounded-full bg-app-teal items-center justify-center">
               <Text
                 className="text-black text-sm font-semibold"
                 onPress={handleSubmit}
