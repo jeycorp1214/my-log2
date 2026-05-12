@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-12T12:13:06.236Z",
+  "lastUpdated": "2026-05-12T12:19:33.725Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -19,9 +19,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T11:21:29.856Z",
-        "lastUpdated": "2026-05-12T11:32:25.128Z"
+        "lastUpdated": "2026-05-12T12:19:26.067Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/settings/calendar-test.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/settings/heatmap.tsx"
     },
     "calendar": {
       "phase": "do",
@@ -45,9 +45,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-12T12:13:06.235Z"
+        "lastUpdated": "2026-05-12T12:19:33.725Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/_layout.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/settings.tsx"
     },
     "db": {
       "phase": "do",
@@ -84,7 +84,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-12T12:13:06.236Z"
+    "lastActivity": "2026-05-12T12:19:33.725Z"
   },
   "history": [
     {
@@ -275,6 +275,30 @@
     },
     {
       "timestamp": "2026-05-12T12:13:06.236Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T12:18:37.666Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T12:18:57.313Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T12:19:26.068Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T12:19:33.725Z",
       "feature": "(tabs)",
       "phase": "do",
       "action": "updated"
