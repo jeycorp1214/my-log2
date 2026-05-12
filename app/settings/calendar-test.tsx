@@ -2,7 +2,7 @@
 import dayjs from "dayjs";
 import { useRouter } from "expo-router";
 import { Check, ChevronLeft, Plus, Trash2, X } from "lucide-react-native";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -11,6 +11,7 @@ import {
   ScrollView,
   Text,
   TextInput,
+  useColorScheme,
   View,
 } from "react-native";
 import { Calendar, CalendarList } from "react-native-calendars";
@@ -20,6 +21,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 type ViewMode = "month" | "infinite" | "agenda";
 type MarkingMode = "dots" | "selected" | "period" | "custom";
 type EventCategory = "work" | "personal" | "family" | "todo";
+type RepeatType = "none" | "daily" | "weekly" | "monthly" | "yearly";
+
+const REPEAT_LABELS: Record<RepeatType, string> = {
+  none: "없음",
+  daily: "매일",
+  weekly: "매주",
+  monthly: "매월",
+  yearly: "매년",
+};
 
 interface CalendarEvent {
   id: string;
@@ -27,6 +37,7 @@ interface CalendarEvent {
   title: string;
   category: EventCategory;
   isDone?: boolean;
+  repeatType?: RepeatType;
 }
 
 // ─── 상수 ─────────────────────────────────────────────────────────────
@@ -59,6 +70,34 @@ const DARK_THEME = {
   arrowColor: "#4ECDC4",
   disabledArrowColor: "#444444",
   monthTextColor: "#ffffff",
+  indicatorColor: "#4ECDC4",
+  textDayFontSize: 14,
+  textMonthFontSize: 15,
+  textDayHeaderFontSize: 11,
+  "stylesheet.calendar.header": {
+    week: {
+      marginTop: 4,
+      flexDirection: "row" as const,
+      justifyContent: "space-around" as const,
+    },
+  },
+};
+
+const LIGHT_THEME = {
+  backgroundColor: "#ffffff",
+  calendarBackground: "#f8f8f8",
+  textSectionTitleColor: "#999999",
+  selectedDayBackgroundColor: "#4ECDC4",
+  selectedDayTextColor: "#ffffff",
+  todayTextColor: "#4ECDC4",
+  todayBackgroundColor: "#e0f5f4",
+  dayTextColor: "#111111",
+  textDisabledColor: "#cccccc",
+  dotColor: "#4ECDC4",
+  selectedDotColor: "#ffffff",
+  arrowColor: "#4ECDC4",
+  disabledArrowColor: "#cccccc",
+  monthTextColor: "#111111",
   indicatorColor: "#4ECDC4",
   textDayFontSize: 14,
   textMonthFontSize: 15,
@@ -114,6 +153,8 @@ const INITIAL_EVENTS: CalendarEvent[] = [
 export default function CalendarTestScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const colorScheme = useColorScheme();
+  const calTheme = colorScheme === "dark" ? DARK_THEME : LIGHT_THEME;
 
   // ─── 뷰·마킹 모드 ─────────────────────────────────────────────────
   const [viewMode, setViewMode] = useState<ViewMode>("month");
@@ -129,12 +170,18 @@ export default function CalendarTestScreen() {
   const [maxDateEnabled, setMaxDateEnabled] = useState(false);
   const [lastEvent, setLastEvent] = useState<string>("");
 
+  // ─── Infinite 뷰 — Bug 1 패치 (스와이프 재스크롤 방지) ────────────
+  const [infiniteCurrentMonth, setInfiniteCurrentMonth] = useState<string>(TODAY);
+  const isSwipingRef = useRef(false);
+  const swipeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // ─── 일정 CRUD ────────────────────────────────────────────────────
   const [events, setEvents] = useState<CalendarEvent[]>(INITIAL_EVENTS);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [inputTitle, setInputTitle] = useState("");
   const [inputCategory, setInputCategory] = useState<EventCategory>("work");
+  const [inputRepeatType, setInputRepeatType] = useState<RepeatType>("none");
 
   // ─── 마킹 데이터 파생 ─────────────────────────────────────────────
   const markedDates = useMemo(() => {
@@ -276,10 +323,12 @@ export default function CalendarTestScreen() {
     }
   }
 
-  function openAddModal() {
+  function openAddModal(date: string = selectedDate) {
+    setSelectedDate(date);
     setEditingId(null);
     setInputTitle("");
     setInputCategory("work");
+    setInputRepeatType("none");
     setShowModal(true);
   }
 
@@ -287,6 +336,7 @@ export default function CalendarTestScreen() {
     setEditingId(e.id);
     setInputTitle(e.title);
     setInputCategory(e.category);
+    setInputRepeatType(e.repeatType ?? "none");
     setShowModal(true);
   }
 
@@ -296,7 +346,12 @@ export default function CalendarTestScreen() {
       setEvents((prev) =>
         prev.map((e) =>
           e.id === editingId
-            ? { ...e, title: inputTitle.trim(), category: inputCategory }
+            ? {
+                ...e,
+                title: inputTitle.trim(),
+                category: inputCategory,
+                repeatType: inputRepeatType !== "none" ? inputRepeatType : undefined,
+              }
             : e,
         ),
       );
@@ -309,6 +364,7 @@ export default function CalendarTestScreen() {
           title: inputTitle.trim(),
           category: inputCategory,
           isDone: inputCategory === "todo" ? false : undefined,
+          repeatType: inputRepeatType !== "none" ? inputRepeatType : undefined,
         },
       ]);
     }
@@ -465,7 +521,7 @@ export default function CalendarTestScreen() {
               onMonthChange={(month) =>
                 setLastEvent(`월 변경: ${month.dateString}`)
               }
-              theme={DARK_THEME}
+              theme={calTheme}
               enableSwipeMonths
             />
           </View>
@@ -539,7 +595,7 @@ export default function CalendarTestScreen() {
                 {selectedDate} 일정 ({selectedDateEvents.length})
               </Text>
               <Pressable
-                onPress={openAddModal}
+                onPress={() => openAddModal()}
                 className="bg-app-teal rounded-full w-6 h-6 items-center justify-center"
                 style={({ pressed }) =>
                   pressed ? { opacity: 0.75 } : undefined
@@ -552,7 +608,7 @@ export default function CalendarTestScreen() {
             {selectedDateEvents.length === 0 ? (
               <View className="bg-app-surface rounded-[10px] py-6 items-center">
                 <Text className="text-app-muted text-sm">등록된 일정 없음</Text>
-                <Pressable onPress={openAddModal} className="mt-2">
+                <Pressable onPress={() => openAddModal()} className="mt-2">
                   <Text className="text-app-teal text-xs">+ 일정 추가</Text>
                 </Pressable>
               </View>
@@ -589,6 +645,7 @@ export default function CalendarTestScreen() {
                           style={{ color: CATEGORY_COLORS[event.category] }}
                         >
                           {CATEGORY_LABELS[event.category]}
+                          {event.repeatType && ` · ${REPEAT_LABELS[event.repeatType]}`}
                         </Text>
                       </View>
                       {event.category === "todo" && (
@@ -653,6 +710,7 @@ export default function CalendarTestScreen() {
           </Text>
           <View className="flex-1 rounded-[12px] overflow-hidden">
             <CalendarList
+              current={isSwipingRef.current ? undefined : infiniteCurrentMonth}
               pastScrollRange={6}
               futureScrollRange={6}
               markedDates={infiniteMarks}
@@ -661,10 +719,17 @@ export default function CalendarTestScreen() {
                 setLastEvent(`날짜 탭: ${day.dateString}`);
               }}
               onVisibleMonthsChange={(months) => {
-                if (months.length > 0)
+                if (months.length > 0) {
+                  isSwipingRef.current = true;
+                  setInfiniteCurrentMonth(months[0].dateString);
                   setLastEvent(`표시 월: ${months[0].dateString}`);
+                  if (swipeTimerRef.current) clearTimeout(swipeTimerRef.current);
+                  swipeTimerRef.current = setTimeout(() => {
+                    isSwipingRef.current = false;
+                  }, 500);
+                }
               }}
-              theme={DARK_THEME}
+              theme={calTheme}
               calendarHeight={340}
               showScrollIndicator={false}
             />
@@ -690,7 +755,7 @@ export default function CalendarTestScreen() {
               onMonthChange={(month) =>
                 setLastEvent(`월 변경: ${month.dateString}`)
               }
-              theme={DARK_THEME}
+              theme={calTheme}
               enableSwipeMonths
             />
           </View>
@@ -701,13 +766,7 @@ export default function CalendarTestScreen() {
               {agendaDate} 일정
             </Text>
             <Pressable
-              onPress={() => {
-                setSelectedDate(agendaDate);
-                setShowModal(true);
-                setEditingId(null);
-                setInputTitle("");
-                setInputCategory("work");
-              }}
+              onPress={() => openAddModal(agendaDate)}
               className="bg-app-teal rounded-full w-6 h-6 items-center justify-center"
               style={({ pressed }) => (pressed ? { opacity: 0.75 } : undefined)}
             >
@@ -766,6 +825,7 @@ export default function CalendarTestScreen() {
                         style={{ color: CATEGORY_COLORS[event.category] }}
                       >
                         {CATEGORY_LABELS[event.category]}
+                        {event.repeatType && ` · ${REPEAT_LABELS[event.repeatType]}`}
                         {event.category === "todo" &&
                           (event.isDone ? " · 완료" : " · 미완")}
                       </Text>
@@ -875,6 +935,39 @@ export default function CalendarTestScreen() {
                       }}
                     >
                       {CATEGORY_LABELS[cat]}
+                    </Text>
+                  </Pressable>
+                ),
+              )}
+            </View>
+
+            <Text className="text-app-label text-[10px] uppercase tracking-widest mb-1.5">
+              반복
+            </Text>
+            <View className="flex-row gap-1.5 mb-5">
+              {(["none", "daily", "weekly", "monthly", "yearly"] as RepeatType[]).map(
+                (type) => (
+                  <Pressable
+                    key={type}
+                    onPress={() => setInputRepeatType(type)}
+                    className="flex-1 py-2 rounded-[8px] items-center"
+                    style={
+                      inputRepeatType === type
+                        ? {
+                            backgroundColor: "#4ECDC420",
+                            borderWidth: 1,
+                            borderColor: "#4ECDC4",
+                          }
+                        : { backgroundColor: "#2a2a2a" }
+                    }
+                  >
+                    <Text
+                      className="text-[10px] font-medium"
+                      style={{
+                        color: inputRepeatType === type ? "#4ECDC4" : "#777",
+                      }}
+                    >
+                      {REPEAT_LABELS[type]}
                     </Text>
                   </Pressable>
                 ),
