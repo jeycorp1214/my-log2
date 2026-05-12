@@ -29,6 +29,13 @@
       "when": 1747094400000,
       "tag": "0003_add_memos",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1747267200000,
+      "tag": "0004_add_todos",
+      "breakpoints": true
     }
   ]
 }

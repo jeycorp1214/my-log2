@@ -1,8 +1,8 @@
-// 메모 탭 — 체크박스 기반 메모/할일 목록 + 완료 상태 필터
+// 노트 탭 — 메모(체크리스트) | 할 일(아이젠하워 매트릭스) 서브탭
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { db } from "@/db/client";
-import { memos } from "@/db/schema";
+import { memos, todos, type Quadrant } from "@/db/schema";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { asc, desc, eq, isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -19,39 +19,73 @@ import {
   View,
 } from "react-native";
 
+// ─── 상수 ───────────────────────────────────────────────
 type CompletionFilter = "all" | "done" | "undone";
 type SortOrder = "newest" | "oldest";
+type NoteTab = "memo" | "todo";
 
-export default function MemoScreen() {
+type QuadrantConfig = {
+  key: Quadrant;
+  label: string;
+  sub: string;
+  color: string;
+};
+
+const QUADRANTS: QuadrantConfig[] = [
+  { key: "do",       label: "즉시 실행", sub: "긴급 + 중요",    color: "#ff6b6b" },
+  { key: "schedule", label: "계획",      sub: "중요 + 여유",    color: "#4ecdc4" },
+  { key: "delegate", label: "빠르게 처리", sub: "긴급 + 비중요", color: "#f59e0b" },
+  { key: "eliminate",label: "제거",       sub: "비긴급 + 비중요", color: "#666666" },
+];
+
+// ─── 컴포넌트 ────────────────────────────────────────────
+export default function NoteScreen() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<NoteTab>("memo");
+
+  // ── 메모 상태 ──
   const [quickContent, setQuickContent] = useState("");
   const { prefs, setMemoPrefs } = useTabPreferences();
   const completionFilter = prefs.memo.completionFilter as CompletionFilter;
-  const setCompletionFilter = (v: CompletionFilter) =>
-    setMemoPrefs({ completionFilter: v });
+  const setCompletionFilter = (v: CompletionFilter) => setMemoPrefs({ completionFilter: v });
   const sortOrder = prefs.memo.sortOrder as SortOrder;
   const setSortOrder = (v: SortOrder) => setMemoPrefs({ sortOrder: v });
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   const { data: allMemos = [] } = useLiveQuery(
-    db
-      .select()
-      .from(memos)
-      .orderBy(
-        sortOrder === "newest" ? desc(memos.createdAt) : asc(memos.createdAt),
-      ),
+    db.select().from(memos).orderBy(
+      sortOrder === "newest" ? desc(memos.createdAt) : asc(memos.createdAt),
+    ),
     [sortOrder],
   );
-
-  const filtered = allMemos.filter((m) => {
+  const filteredMemos = allMemos.filter((m) => {
     if (completionFilter === "done") return !!m.checkedAt;
     if (completionFilter === "undone") return !m.checkedAt;
     return true;
   });
+  const memoDoneCount = allMemos.filter((m) => !!m.checkedAt).length;
 
-  const doneCount = allMemos.filter((m) => !!m.checkedAt).length;
+  // ── 할 일 상태 ──
+  const [selectedQuadrant, setSelectedQuadrant] = useState<Quadrant>("do");
+  const [todoInput, setTodoInput] = useState("");
 
-  async function handleQuickAdd() {
+  const { data: allTodos = [] } = useLiveQuery(
+    db.select().from(todos).orderBy(asc(todos.createdAt)),
+  );
+  const quadrantTodos = allTodos
+    .filter((t) => t.quadrant === selectedQuadrant)
+    .sort((a, b) => {
+      // 미완료 먼저
+      if (!a.checkedAt && b.checkedAt) return -1;
+      if (a.checkedAt && !b.checkedAt) return 1;
+      return 0;
+    });
+  const todoCounts = Object.fromEntries(
+    QUADRANTS.map((q) => [q.key, allTodos.filter((t) => t.quadrant === q.key && !t.checkedAt).length]),
+  ) as Record<Quadrant, number>;
+
+  // ── 메모 핸들러 ──
+  async function handleMemoQuickAdd() {
     const content = quickContent.trim();
     if (content.length === 0) {
       router.push("/memos/new");
@@ -62,11 +96,8 @@ export default function MemoScreen() {
     Keyboard.dismiss();
   }
 
-  async function toggleCheck(id: string, current: Date | null) {
-    await db
-      .update(memos)
-      .set({ checkedAt: current ? null : new Date(), updatedAt: new Date() })
-      .where(eq(memos.id, id));
+  async function toggleMemoCheck(id: string, current: Date | null) {
+    await db.update(memos).set({ checkedAt: current ? null : new Date(), updatedAt: new Date() }).where(eq(memos.id, id));
   }
 
   async function deleteMemo(id: string, isChecked: boolean) {
@@ -76,16 +107,12 @@ export default function MemoScreen() {
     }
     Alert.alert("메모 삭제", "이 메모를 삭제하시겠습니까?", [
       { text: "취소", style: "cancel" },
-      {
-        text: "삭제",
-        style: "destructive",
-        onPress: () => db.delete(memos).where(eq(memos.id, id)),
-      },
+      { text: "삭제", style: "destructive", onPress: () => db.delete(memos).where(eq(memos.id, id)) },
     ]);
   }
 
-  async function deleteChecked() {
-    Alert.alert("완료 항목 삭제", `완료된 메모 ${doneCount}개를 삭제합니다.`, [
+  async function deleteCheckedMemos() {
+    Alert.alert("완료 항목 삭제", `완료된 메모 ${memoDoneCount}개를 삭제합니다.`, [
       { text: "취소", style: "cancel" },
       {
         text: "삭제",
@@ -98,136 +125,227 @@ export default function MemoScreen() {
     ]);
   }
 
-  const filterBadge = [
-    completionFilter !== "all",
-    sortOrder !== "newest",
-  ].filter(Boolean).length;
+  // ── 할 일 핸들러 ──
+  async function handleTodoQuickAdd() {
+    const title = todoInput.trim();
+    if (!title) return;
+    await db.insert(todos).values({ title, quadrant: selectedQuadrant });
+    setTodoInput("");
+    Keyboard.dismiss();
+  }
 
+  async function toggleTodo(id: string, current: Date | null) {
+    await db.update(todos).set({ checkedAt: current ? null : new Date(), updatedAt: new Date() }).where(eq(todos.id, id));
+  }
+
+  async function deleteTodo(id: string) {
+    await db.delete(todos).where(eq(todos.id, id));
+  }
+
+  const memoFilterBadge = [completionFilter !== "all", sortOrder !== "newest"].filter(Boolean).length;
+
+  // ── 렌더 ──
   return (
     <View className="flex-1 bg-app-bg">
       <TabsHeader
-        title="메모"
-        slidersOnPress={() => setShowFilterSheet(true)}
-        slidersActive={filterBadge > 0}
+        title="노트"
+        slidersOnPress={activeTab === "memo" ? () => setShowFilterSheet(true) : undefined}
+        slidersActive={activeTab === "memo" && memoFilterBadge > 0}
       />
 
-      {/* 요약 */}
-      <View className="flex-row items-center px-5 py-2 border-b border-[#1e1e1e]">
-        <Text className="text-app-muted text-[13px]">
-          총 {allMemos.length}개 · 완료 {doneCount}개
-        </Text>
+      {/* 서브탭 */}
+      <View className="flex-row px-5 border-b border-[#1e1e1e]">
+        {(["memo", "todo"] as NoteTab[]).map((tab) => (
+          <Pressable
+            key={tab}
+            onPress={() => setActiveTab(tab)}
+            className="mr-5 pb-2.5 pt-1"
+            style={{ borderBottomWidth: activeTab === tab ? 2 : 0, borderColor: "#4ecdc4" }}
+          >
+            <Text
+              className="text-[14px] font-semibold"
+              style={{ color: activeTab === tab ? "#4ecdc4" : "#666" }}
+            >
+              {tab === "memo" ? "메모" : "할 일"}
+            </Text>
+          </Pressable>
+        ))}
       </View>
 
-      {/* 메모 리스트 */}
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 96 }}
-        renderItem={({ item }) => {
-          const isChecked = !!item.checkedAt;
-          return (
-            <View className="flex-row items-center gap-3 py-3 px-4 border-b border-[#1e1e1e]">
-              {/* 체크박스 */}
-              <Pressable
-                onPress={() => toggleCheck(item.id, item.checkedAt ?? null)}
-                hitSlop={8} // 터치 영역 확대
-                className="w-6 h-6 rounded-full border-2 items-center justify-center"
-                style={{ borderColor: isChecked ? "#4ecdc4" : "#444" }}
-              >
-                {isChecked && (
-                  <View className="w-3 h-3 rounded-full bg-app-teal" />
-                )}
-              </Pressable>
+      {activeTab === "memo" ? (
+        // ────────────── 메모 탭 ──────────────
+        <>
+          <View className="flex-row items-center px-5 py-2 border-b border-[#1e1e1e]">
+            <Text className="text-app-muted text-[13px]">
+              총 {allMemos.length}개 · 완료 {memoDoneCount}개
+            </Text>
+          </View>
 
-              {/* 내용 — 탭 시 상세 이동 */}
-              <Pressable
-                className="flex-1 flex-row items-center gap-2"
-                onPress={() =>
-                  router.push({
-                    pathname: "/memos/[id]",
-                    params: { id: item.id },
-                  })
-                }
-              >
-                <Text
-                  className="flex-1 text-white text-sm"
-                  numberOfLines={5}
-                  style={{
-                    textDecorationLine: isChecked ? "line-through" : "none",
-                    opacity: isChecked ? 0.45 : 1,
-                  }}
-                >
-                  {item.content}
-                </Text>
-              </Pressable>
+          <FlatList
+            data={filteredMemos}
+            keyExtractor={(item) => item.id}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: 96 }}
+            renderItem={({ item }) => {
+              const isChecked = !!item.checkedAt;
+              return (
+                <View className="flex-row items-center gap-3 py-3 px-4 border-b border-[#1e1e1e]">
+                  <Pressable
+                    onPress={() => toggleMemoCheck(item.id, item.checkedAt ?? null)}
+                    hitSlop={8}
+                    className="w-6 h-6 rounded-full border-2 items-center justify-center"
+                    style={{ borderColor: isChecked ? "#4ecdc4" : "#444" }}
+                  >
+                    {isChecked && <View className="w-3 h-3 rounded-full bg-app-teal" />}
+                  </Pressable>
+                  <Pressable
+                    className="flex-1"
+                    onPress={() => router.push({ pathname: "/memos/[id]", params: { id: item.id } })}
+                  >
+                    <Text
+                      className="flex-1 text-white text-sm"
+                      numberOfLines={5}
+                      style={{ textDecorationLine: isChecked ? "line-through" : "none", opacity: isChecked ? 0.45 : 1 }}
+                    >
+                      {item.content}
+                    </Text>
+                  </Pressable>
+                  <Pressable onPress={() => deleteMemo(item.id, isChecked)} hitSlop={8} className="p-1">
+                    <Trash2 size={15} color="#444" />
+                  </Pressable>
+                </View>
+              );
+            }}
+            ListEmptyComponent={
+              <Text className="text-app-muted text-center mt-16 text-[14px]">메모가 없습니다.</Text>
+            }
+          />
 
-              {/* 삭제 */}
-              <Pressable
-                onPress={() => deleteMemo(item.id, isChecked)}
-                hitSlop={8}
-                className="p-1"
-              >
-                <Trash2 size={15} color="#444" />
-              </Pressable>
-            </View>
-          );
-        }}
-        ListEmptyComponent={
-          <Text className="text-app-muted text-center mt-16 text-[14px]">
-            메모가 없습니다.
-          </Text>
-        }
-      />
+          <QuickInputBar
+            placeholder="메모 추가"
+            value={quickContent}
+            onChange={setQuickContent}
+            onSubmit={handleMemoQuickAdd}
+          />
+        </>
+      ) : (
+        // ────────────── 할 일 탭 (아이젠하워 매트릭스) ──────────────
+        <>
+          {/* 2×2 그리드 */}
+          <View>
+            {([0, 2] as const).map((rowStart) => (
+              <View key={rowStart} className="flex-row">
+                {QUADRANTS.slice(rowStart, rowStart + 2).map((q) => {
+                  const isSelected = selectedQuadrant === q.key;
+                  return (
+                    <Pressable
+                      key={q.key}
+                      onPress={() => setSelectedQuadrant(q.key)}
+                      className="flex-1 p-3"
+                      style={{
+                        borderWidth: isSelected ? 1.5 : 0.5,
+                        borderColor: isSelected ? q.color : "#2a2a2a",
+                        backgroundColor: isSelected ? `${q.color}18` : "#141414",
+                        minHeight: 76,
+                      }}
+                    >
+                      <Text style={{ color: q.color, fontSize: 13, fontWeight: "700" }}>
+                        {q.label}
+                      </Text>
+                      <Text style={{ color: "#555", fontSize: 10, marginTop: 1 }}>
+                        {q.sub}
+                      </Text>
+                      {todoCounts[q.key] > 0 && (
+                        <View
+                          className="mt-1.5 self-start rounded-full px-2 py-0.5"
+                          style={{ backgroundColor: `${q.color}22` }}
+                        >
+                          <Text style={{ color: q.color, fontSize: 11, fontWeight: "600" }}>
+                            {todoCounts[q.key]}개
+                          </Text>
+                        </View>
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
 
-      <QuickInputBar
-        placeholder="메모 추가"
-        value={quickContent}
-        onChange={setQuickContent}
-        onSubmit={handleQuickAdd}
-      />
+          {/* 선택 사분면 항목 */}
+          <FlatList
+            data={quadrantTodos}
+            keyExtractor={(item) => item.id}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: 96 }}
+            renderItem={({ item }) => {
+              const isChecked = !!item.checkedAt;
+              return (
+                <View className="flex-row items-center gap-3 py-3 px-4 border-b border-[#1e1e1e]">
+                  <Pressable
+                    onPress={() => toggleTodo(item.id, item.checkedAt ?? null)}
+                    hitSlop={8}
+                    className="w-6 h-6 rounded-full border-2 items-center justify-center"
+                    style={{ borderColor: isChecked ? "#4ecdc4" : "#444" }}
+                  >
+                    {isChecked && <View className="w-3 h-3 rounded-full bg-app-teal" />}
+                  </Pressable>
+                  <Text
+                    className="flex-1 text-white text-sm"
+                    style={{ textDecorationLine: isChecked ? "line-through" : "none", opacity: isChecked ? 0.45 : 1 }}
+                  >
+                    {item.title}
+                  </Text>
+                  <Pressable onPress={() => deleteTodo(item.id)} hitSlop={8} className="p-1">
+                    <Trash2 size={15} color="#444" />
+                  </Pressable>
+                </View>
+              );
+            }}
+            ListEmptyComponent={
+              <Text className="text-app-muted text-center mt-10 text-[14px]">
+                {QUADRANTS.find((q) => q.key === selectedQuadrant)?.label} 항목이 없습니다.
+              </Text>
+            }
+          />
 
-      {/* 필터 바텀 시트 */}
+          <QuickInputBar
+            placeholder={`${QUADRANTS.find((q) => q.key === selectedQuadrant)?.label}에 추가`}
+            value={todoInput}
+            onChange={setTodoInput}
+            onSubmit={handleTodoQuickAdd}
+          />
+        </>
+      )}
+
+      {/* 메모 필터 바텀 시트 */}
       <Modal
         visible={showFilterSheet}
         transparent
         animationType="slide"
         onRequestClose={() => setShowFilterSheet(false)}
       >
-        <Pressable
-          className="flex-1 bg-black/50 justify-end"
-          onPress={() => setShowFilterSheet(false)}
-        >
+        <Pressable className="flex-1 bg-black/50 justify-end" onPress={() => setShowFilterSheet(false)}>
           <Pressable
             className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10"
             onPress={(e) => e.stopPropagation()}
           >
             <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
 
-            {/* 완료 상태 */}
             <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
               완료 상태
             </Text>
             <View className="flex-row gap-2 mb-5">
               {(["all", "undone", "done"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
+                const label = v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
                 return (
                   <Pressable
                     key={v}
                     onPress={() => setCompletionFilter(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor:
-                        completionFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
+                    style={{ backgroundColor: completionFilter === v ? "#4ecdc4" : "#2a2a2a" }}
                   >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{
-                        color: completionFilter === v ? "#111" : "#888",
-                      }}
-                    >
+                    <Text className="text-[13px] font-semibold" style={{ color: completionFilter === v ? "#111" : "#888" }}>
                       {label}
                     </Text>
                   </Pressable>
@@ -235,7 +353,6 @@ export default function MemoScreen() {
               })}
             </View>
 
-            {/* 정렬 */}
             <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
               정렬
             </Text>
@@ -247,14 +364,9 @@ export default function MemoScreen() {
                     key={v}
                     onPress={() => setSortOrder(v)}
                     className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
+                    style={{ backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a" }}
                   >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{ color: sortOrder === v ? "#111" : "#888" }}
-                    >
+                    <Text className="text-[13px] font-semibold" style={{ color: sortOrder === v ? "#111" : "#888" }}>
                       {label}
                     </Text>
                   </Pressable>
@@ -262,18 +374,15 @@ export default function MemoScreen() {
               })}
             </View>
 
-            {/* 완료 항목 일괄 삭제 */}
-            {doneCount > 0 && (
+            {memoDoneCount > 0 && (
               <Pressable
-                onPress={deleteChecked}
+                onPress={deleteCheckedMemos}
                 className="flex-row items-center justify-center gap-2 rounded-[10px] py-3"
                 style={{ backgroundColor: "#2a1a1a" }}
               >
                 <Trash2 size={15} color="#ff6b6b" />
-                <Text
-                  style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}
-                >
-                  완료 항목 {doneCount}개 삭제
+                <Text style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}>
+                  완료 항목 {memoDoneCount}개 삭제
                 </Text>
               </Pressable>
             )}

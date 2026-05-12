@@ -42,7 +42,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="memo"
         options={{
-          title: "메모",
+          title: "노트",
           tabBarIcon: ({ color }) => <NotebookPen size={24} color={color} />,
         }}
       />

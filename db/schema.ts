@@ -94,6 +94,23 @@ export const logPersons = sqliteTable("log_persons", {
     .references(() => persons.id, { onDelete: "cascade" }),
 });
 
+export type Quadrant = "do" | "schedule" | "delegate" | "eliminate";
+
+export const todos = sqliteTable("todos", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => Crypto.randomUUID()),
+  title: text("title").notNull(),
+  quadrant: text("quadrant").notNull().$type<Quadrant>(),
+  checkedAt: int("checked_at", { mode: "timestamp_ms" }),
+  createdAt: int("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: int("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 export const memos = sqliteTable("memos", {
   id: text("id")
     .primaryKey()

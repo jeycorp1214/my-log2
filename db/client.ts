@@ -23,6 +23,8 @@ export async function resetDatabase() {
     DROP TABLE IF EXISTS logs;
     DROP TABLE IF EXISTS persons;
     DROP TABLE IF EXISTS groups;
+    DROP TABLE IF EXISTS todos;
+    DROP TABLE IF EXISTS memos;
     DROP TABLE IF EXISTS __drizzle_migrations;
   `);
   await runMigrations();
