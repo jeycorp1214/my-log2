@@ -257,7 +257,7 @@ export default function CalendarTestScreen() {
   // ─── 핸들러 ───────────────────────────────────────────────────────
   function handleDayPress(day: { dateString: string }) {
     const date = day.dateString;
-    setLastEvent(`onDayPress → ${date}`);
+    setLastEvent(`날짜 탭: ${date}`);
 
     if (markingMode === "period") {
       if (!rangeStart || (rangeStart && rangeEnd)) {
@@ -380,10 +380,10 @@ export default function CalendarTestScreen() {
               }`}
             >
               {mode === "month"
-                ? "Month"
+                ? "월간"
                 : mode === "infinite"
-                  ? "Infinite"
-                  : "Agenda"}
+                  ? "무한 스크롤"
+                  : "일정"}
             </Text>
           </Pressable>
         ))}
@@ -418,12 +418,12 @@ export default function CalendarTestScreen() {
                     }`}
                   >
                     {mode === "dots"
-                      ? "Dots"
+                      ? "점 표시"
                       : mode === "selected"
-                        ? "Selected"
+                        ? "선택"
                         : mode === "period"
-                          ? "Period"
-                          : "Custom"}
+                          ? "기간"
+                          : "커스텀"}
                   </Text>
                 </Pressable>
               ),
@@ -463,7 +463,7 @@ export default function CalendarTestScreen() {
               maxDate={maxDate}
               onDayPress={handleDayPress}
               onMonthChange={(month) =>
-                setLastEvent(`onMonthChange → ${month.dateString}`)
+                setLastEvent(`월 변경: ${month.dateString}`)
               }
               theme={DARK_THEME}
               enableSwipeMonths
@@ -489,7 +489,7 @@ export default function CalendarTestScreen() {
                     minDateEnabled ? "text-[#3b82f6]" : "text-app-label"
                   }`}
                 >
-                  minDate {minDateEnabled ? "ON" : "OFF"}
+                  최소 날짜 {minDateEnabled ? "ON" : "OFF"}
                 </Text>
                 {minDateEnabled && (
                   <Text className="text-[#3b82f6]/70 text-[10px] mt-0.5">
@@ -510,7 +510,7 @@ export default function CalendarTestScreen() {
                     maxDateEnabled ? "text-[#3b82f6]" : "text-app-label"
                   }`}
                 >
-                  maxDate {maxDateEnabled ? "ON" : "OFF"}
+                  최대 날짜 {maxDateEnabled ? "ON" : "OFF"}
                 </Text>
                 {maxDateEnabled && (
                   <Text className="text-[#3b82f6]/70 text-[10px] mt-0.5">
@@ -649,7 +649,7 @@ export default function CalendarTestScreen() {
       {viewMode === "infinite" && (
         <View className="flex-1 px-4">
           <Text className="text-app-label text-[10px] uppercase tracking-widest mb-2">
-            CalendarList — 위아래로 스크롤하여 월 이동
+            위아래로 스크롤하여 월 이동 (±6개월)
           </Text>
           <View className="flex-1 rounded-[12px] overflow-hidden">
             <CalendarList
@@ -658,11 +658,11 @@ export default function CalendarTestScreen() {
               markedDates={infiniteMarks}
               markingType="multi-dot"
               onDayPress={(day) => {
-                setLastEvent(`onDayPress → ${day.dateString}`);
+                setLastEvent(`날짜 탭: ${day.dateString}`);
               }}
               onVisibleMonthsChange={(months) => {
                 if (months.length > 0)
-                  setLastEvent(`표시 중: ${months[0].dateString}`);
+                  setLastEvent(`표시 월: ${months[0].dateString}`);
               }}
               theme={DARK_THEME}
               calendarHeight={340}
@@ -688,7 +688,7 @@ export default function CalendarTestScreen() {
               markingType="multi-dot"
               onDayPress={(day) => setAgendaDate(day.dateString)}
               onMonthChange={(month) =>
-                setLastEvent(`onMonthChange → ${month.dateString}`)
+                setLastEvent(`월 변경: ${month.dateString}`)
               }
               theme={DARK_THEME}
               enableSwipeMonths

@@ -1,9 +1,25 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-07T13:39:20.326Z",
-  "activeFeatures": [],
-  "primaryFeature": null,
-  "features": {},
+  "lastUpdated": "2026-05-12T11:22:08.354Z",
+  "activeFeatures": [
+    "settings"
+  ],
+  "primaryFeature": "settings",
+  "features": {
+    "settings": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-12T11:21:29.856Z",
+        "lastUpdated": "2026-05-12T11:22:08.353Z"
+      },
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/settings/calendar-test.tsx"
+    }
+  },
   "pipeline": {
     "currentPhase": 1,
     "level": "Dynamic",
@@ -12,9 +28,58 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-07T13:39:20.326Z"
+    "lastActivity": "2026-05-12T11:22:08.354Z"
   },
-  "history": [],
+  "history": [
+    {
+      "timestamp": "2026-05-12T11:21:29.857Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T11:21:33.754Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T11:21:38.664Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T11:21:42.770Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T11:21:46.036Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T11:22:00.719Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T11:22:04.765Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-12T11:22:08.354Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    }
+  ],
   "stateMachine": {
     "defaultWorkflow": "default",
     "activeWorkflows": {},
