@@ -1,5 +1,4 @@
 // 리스트 탭 — 기간 필터링된 로그를 월별 섹션으로 표시 + 체크 완료 관리
-import { MonthPickerModal } from "@/components/MonthPickerModal";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { ListEventItem } from "@/components/logs/ListEventItem";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
@@ -309,30 +308,6 @@ export default function ListScreen() {
         }
         contentContainerStyle={{ paddingBottom: 96 }}
         stickySectionHeadersEnabled
-      />
-
-      {/* 날짜 범위 피커 */}
-      <MonthPickerModal
-        visible={showStartPicker}
-        currentMonth={customStart}
-        onSelect={(year, month) => {
-          setCustomStart(new Date(year, month, 1));
-          setShowStartPicker(false);
-        }}
-        onClose={() => setShowStartPicker(false)}
-      />
-      <MonthPickerModal
-        visible={showEndPicker}
-        currentMonth={customEnd}
-        onSelect={(year, month) => {
-          setCustomEnd(
-            dayjs(new Date(year, month, 1))
-              .endOf("month")
-              .toDate(),
-          );
-          setShowEndPicker(false);
-        }}
-        onClose={() => setShowEndPicker(false)}
       />
 
       {/* 필터 바텀 시트 */}

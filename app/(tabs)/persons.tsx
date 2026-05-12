@@ -1,7 +1,6 @@
 // 인물 목록 탭 — 인물 리스트 / 기념일 리스트 모드 전환 + 필터/정렬
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
-import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { PersonCard } from "@/components/persons/PersonCard";
@@ -437,29 +436,6 @@ export default function PersonsScreen() {
             }
             contentContainerStyle={{ paddingBottom: 16 }} // 섹션 헤더가 아이템과 겹치는 문제 완화
             stickySectionHeadersEnabled
-          />
-
-          <MonthPickerModal
-            visible={showAnnStartPicker}
-            currentMonth={annCustomStart}
-            onSelect={(year, month) => {
-              setAnnCustomStart(new Date(year, month, 1));
-              setShowAnnStartPicker(false);
-            }}
-            onClose={() => setShowAnnStartPicker(false)}
-          />
-          <MonthPickerModal
-            visible={showAnnEndPicker}
-            currentMonth={annCustomEnd}
-            onSelect={(year, month) => {
-              setAnnCustomEnd(
-                dayjs(new Date(year, month, 1))
-                  .endOf("month")
-                  .toDate(),
-              );
-              setShowAnnEndPicker(false);
-            }}
-            onClose={() => setShowAnnEndPicker(false)}
           />
         </View>
       )}
