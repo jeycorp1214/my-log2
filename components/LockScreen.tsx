@@ -59,8 +59,13 @@ export function LockScreen() {
   }
 
   return (
-    <View style={[StyleSheet.absoluteFill, { zIndex: 999 }]} className="bg-app-bg items-center justify-center">
-      <Text className="text-white text-xl font-semibold mb-2">비밀번호 입력</Text>
+    <View
+      style={[StyleSheet.absoluteFill, { zIndex: 999 }]}
+      className="bg-app-bg items-center justify-center"
+    >
+      <Text className="text-white text-xl font-semibold mb-2">
+        비밀번호 입력
+      </Text>
       <Text className="text-app-muted text-sm mb-10">
         {isError ? "비밀번호가 틀렸습니다." : "6자리 비밀번호를 입력하세요."}
       </Text>

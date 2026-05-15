@@ -1,6 +1,8 @@
 // 6자리 숫자 PIN 입력 키패드 — 점 표시 + 숫자 버튼
 import { Pressable, Text, View } from "react-native";
 
+import { cn } from "@/utils/utils";
+
 type Props = {
   pin: string;
   onChange: (pin: string) => void;
@@ -12,68 +14,73 @@ const ROWS = [
   ["1", "2", "3"],
   ["4", "5", "6"],
   ["7", "8", "9"],
-  ["", "0", "⌫"],
+  ["C", "0", "⌫"],
 ];
 
-export function PinPad({ pin, onChange, isError = false, disabled = false }: Props) {
+export function PinPad({
+  pin,
+  onChange,
+  isError = false,
+  disabled = false,
+}: Props) {
   function handleKey(key: string) {
     if (disabled) return;
     if (key === "⌫") {
       onChange(pin.slice(0, -1));
-    } else if (key !== "" && pin.length < 6) {
+    } else if (key === "C") {
+      onChange("");
+    } else if (pin.length < 6) {
       onChange(pin + key);
     }
   }
 
-  const dotColor = isError ? "#ff6b6b" : "#4ECDC4";
-
   return (
-    <View style={{ alignItems: "center" }}>
+    <View className="w-full items-center">
       {/* PIN 점 6개 */}
-      <View style={{ flexDirection: "row", gap: 16, marginBottom: 48 }}>
+      <View className="flex-row gap-5 mb-14">
         {Array.from({ length: 6 }).map((_, i) => (
           <View
             key={i}
-            style={{
-              width: 14,
-              height: 14,
-              borderRadius: 7,
-              backgroundColor: i < pin.length ? dotColor : "#333333",
-            }}
+            className={cn(
+              "w-4 h-4 rounded-full",
+              i < pin.length
+                ? isError
+                  ? "bg-app-danger"
+                  : "bg-app-teal"
+                : "bg-[#333]",
+            )}
           />
         ))}
       </View>
 
-      {/* 키패드 */}
-      <View style={{ width: 280 }}>
+      {/* 키패드: flex-1 셀 래퍼로 동일 너비 확보, px-1.5가 버튼 간격 역할 */}
+      <View className="w-full px-4 gap-3">
         {ROWS.map((row, rowIdx) => (
-          <View
-            key={rowIdx}
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: rowIdx < 3 ? 12 : 0,
-            }}
-          >
+          <View key={rowIdx} className="flex-row">
             {row.map((key, colIdx) => (
-              <Pressable
-                key={colIdx}
-                onPress={() => handleKey(key)}
-                disabled={key === "" || disabled}
-                style={({ pressed }) => ({
-                  width: 84,
-                  height: 60,
-                  borderRadius: 14,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: key === "" ? "transparent" : pressed ? "#2a2a2a" : "#1e1e1e",
-                  opacity: key === "" ? 0 : 1,
-                })}
-              >
-                <Text style={{ color: "#ffffff", fontSize: 22, fontWeight: "300" }}>
-                  {key}
-                </Text>
-              </Pressable>
+              <View key={colIdx} className="flex-1 px-1.5">
+                <Pressable
+                  onPress={() => handleKey(key)}
+                  disabled={disabled}
+                  className={cn(
+                    "w-full h-20 rounded-2xl items-center justify-center",
+                    key === "C" ? "bg-[#1e1414]" : "bg-app-surface",
+                  )}
+                  style={({ pressed }) =>
+                    pressed ? { opacity: 0.6 } : undefined
+                  }
+                >
+                  <Text
+                    className={cn(
+                      key === "C"
+                        ? "text-app-danger text-sm font-medium"
+                        : "text-white text-[22px] font-light",
+                    )}
+                  >
+                    {key}
+                  </Text>
+                </Pressable>
+              </View>
             ))}
           </View>
         ))}
