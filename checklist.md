@@ -412,6 +412,27 @@
 - [x] `app/_layout.tsx` — `settings/stats` Stack.Screen 등록
 - [x] `app/(tabs)/settings.tsx` — 통계 섹션에 `/settings/stats` 링크 추가
 
+## 추가 아이디어 구현 계획
+
+### P1 — 즉시 구현 (데이터 없어도 의미 있음)
+
+- [ ] **반복 기록 비율** — `logs WHERE repeatType IS NOT NULL AND repeatType != 'none'` 카운트 / 전체. `use-stats.ts`에 `useRepeatRatio(period)` 추가. stats.tsx 완료율 카드 옆 또는 아래 배치.
+  - 쿼리: `count(CASE WHEN repeatType != 'none' AND repeatType IS NOT NULL THEN 1 END)` + `sql` template
+- [ ] **평균 기록 간격** — 첫 기록일~오늘 일수 / 전체 기록수. `use-stats.ts`에 `useAvgInterval()` 추가 (JS 계산). 스트릭 카드와 같은 섹션.
+  - 계산: `(today - firstLogDate) / totalLogs` (일 단위)
+- [ ] **할일 사분면별 완료율** — `todos GROUP BY quadrant` + `checkedAt IS NOT NULL / total per quadrant`. `useQuadrantStats()` 훅. stats.tsx 하단 별도 섹션.
+  - 사분면 라벨: do → 중요·긴급 / schedule → 중요·비긴급 / delegate → 비중요·긴급 / eliminate → 비중요·비긴급
+
+### P2 — 데이터 어느 정도 필요 (기록 30개↑)
+
+- [ ] **기록 없는 최장 공백** — `logs.logDate` 정렬 후 날짜 간격 배열 최대값 (JS). `calcLongestGap(dates)` 순수 함수. 스트릭 카드에 추가.
+  - 계산: `sortedDates[i+1] - sortedDates[i]` → max gap (dayjs diff)
+
+### P3 — 데이터 충분히 필요 (인물 10명↑ / 동반 기록 10건↑)
+
+- [ ] **MBTI 분포** — `persons GROUP BY mbti WHERE mbti IS NOT NULL`. `useMbtiDistribution()` 훅. 인물 탭과 연계 고려. 인물 10명 미만이면 섹션 숨김.
+- [ ] **함께 등장 빈도** — `logPersons AS a JOIN logPersons AS b ON a.logId = b.logId AND a.personId < b.personId GROUP BY (a.personId, b.personId) ORDER BY COUNT DESC LIMIT 5`. `useCoAppearance()` 훅. 동반 기록 10건 미만이면 섹션 숨김.
+
 ## 설계 결정 메모
 
 - 차트 라이브러리 없음 — 단순 프로그레스 바 + 텍스트 (의존성 미추가)

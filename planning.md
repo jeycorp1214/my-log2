@@ -640,17 +640,23 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 
 ### Phase 11 — 통계 (Stats) 🔄 진행 중
 
-- [ ] `hooks/stats/use-stats.ts` — 집계 쿼리 훅 (useLiveQuery)
-- [ ] `app/settings/stats.tsx` — 통계 페이지
-  - 요약 카드 (총 기록수 / 총 인물수 / 이번 달 기록수)
-  - 인물 랭킹 (기간 필터: 이번 달 / 올해 / 전체)
-  - 마지막 연결 TOP 5 (오래된 순, fromNow 표시)
-  - 카테고리 비율 (그룹 색상 프로그레스 바)
-  - 기록 스트릭 (현재 / 최장)
-  - 완료율
-- [ ] `settings.tsx` 통계 링크 + `_layout.tsx` Stack.Screen 등록
+**v1 완료 (2026-05-16)**
+- [x] `hooks/stats/use-stats.ts` — 6개 훅 + `calcStreak()`
+- [x] `app/settings/stats.tsx` — 요약 / 인물 랭킹 / 마지막 연결 / 카테고리 비율 / 스트릭 / 완료율
+- [x] `settings.tsx` 통계 링크 + `_layout.tsx` Stack.Screen 등록
 
-> 설계 상세: context-notes.md 2026-05-16 섹션 참조
+**v2 추가 아이디어 — 우선순위별 구현**
+
+| 우선순위 | 항목 | 훅 | 조건 |
+|---------|------|-----|------|
+| P1 | 반복 기록 비율 | `useRepeatRatio(period)` | 즉시 |
+| P1 | 평균 기록 간격 | `useAvgInterval()` | 즉시 |
+| P1 | 할일 사분면별 완료율 | `useQuadrantStats()` | 즉시 |
+| P2 | 기록 없는 최장 공백 | `calcLongestGap()` | 기록 30개↑ |
+| P3 | MBTI 분포 | `useMbtiDistribution()` | 인물 10명↑ |
+| P3 | 함께 등장 빈도 | `useCoAppearance()` | 동반 기록 10건↑ |
+
+> 구현 상세: checklist.md Phase 11 추가 아이디어 섹션 참조
 
 ### Phase Next — 미착수
 
