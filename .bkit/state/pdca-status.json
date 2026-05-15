@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-15T23:28:28.169Z",
+  "lastUpdated": "2026-05-15T23:38:43.864Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -90,9 +90,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T14:11:18.589Z",
-        "lastUpdated": "2026-05-15T17:00:36.856Z"
+        "lastUpdated": "2026-05-15T23:38:34.129Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/search.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/utils/date.ts"
     },
     "providers": {
       "phase": "do",
@@ -155,9 +155,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T17:00:40.821Z",
-        "lastUpdated": "2026-05-15T23:28:28.169Z"
+        "lastUpdated": "2026-05-15T23:38:43.864Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/persons/PersonCard.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/persons/[id].tsx"
     }
   },
   "pipeline": {
@@ -168,7 +168,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-15T23:28:28.169Z"
+    "lastActivity": "2026-05-15T23:38:43.864Z"
   },
   "history": [
     {
@@ -1169,6 +1169,24 @@
     },
     {
       "timestamp": "2026-05-15T23:28:28.169Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:38:34.129Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:38:39.208Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:38:43.864Z",
       "feature": "persons",
       "phase": "do",
       "action": "updated"

@@ -10,7 +10,7 @@ import {
   personAnniversaries,
   persons,
 } from "@/db/schema";
-import { calcAge, dDayLabel, formatLogDate, fromNow } from "@/utils/date";
+import { calcAge, dDayLabel, formatDuration, formatLogDate, fromNow } from "@/utils/date";
 import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -241,7 +241,7 @@ export default function PersonDetailScreen() {
               )}
               {person.metAt && (
                 <Text className="text-[#888] text-[14px]">
-                  함께한 지 {dayjs().diff(dayjs(person.metAt), "day")}일
+                  함께한 지 {formatDuration(person.metAt)}
                 </Text>
               )}
             </View>

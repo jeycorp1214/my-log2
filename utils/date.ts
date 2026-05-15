@@ -91,6 +91,20 @@ export function parseBirthInput(input: string): Date | null {
   return null;
 }
 
+// 시작일 ~ 오늘까지 경과 기간을 "N년 M개월" 또는 "M개월" 또는 "D일" 형태로 반환
+export function formatDuration(startDateStr: string): string {
+  const start = dayjs(startDateStr);
+  const today = dayjs();
+  const years = today.diff(start, "year");
+  const months = today.diff(start.add(years, "year"), "month");
+  const days = today.diff(start, "day");
+
+  if (years > 0 && months > 0) return `${years}년 ${months}개월`;
+  if (years > 0) return `${years}년`;
+  if (months > 0) return `${months}개월`;
+  return `${days}일`;
+}
+
 // isRepeat=true → 올해(지났으면 내년) 기준 D-day, false → 절대 날짜 기준
 export function dDayLabel(dateStr: string, isRepeat: boolean): string {
   const today = dayjs().startOf("day");
