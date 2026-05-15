@@ -9,10 +9,11 @@ type Person = InferSelectModel<typeof persons>;
 interface Props {
   person: Person;
   groupColor: string;
+  logCount?: number;
   onPress: () => void;
 }
 
-export function PersonCard({ person, groupColor, onPress }: Props) {
+export function PersonCard({ person, groupColor, logCount, onPress }: Props) {
   const age = person.birthDate ? calcAge(person.birthDate) : null;
 
   return (
@@ -31,6 +32,9 @@ export function PersonCard({ person, groupColor, onPress }: Props) {
         {person.memo ? (
           <Text className="text-app-muted text-[13px]" numberOfLines={1}>{person.memo}</Text>
         ) : null}
+        {logCount !== undefined && logCount > 0 && (
+          <Text className="text-app-teal text-[12px] mt-0.5">관련 기록 {logCount}개 →</Text>
+        )}
       </View>
     </Pressable>
   );
