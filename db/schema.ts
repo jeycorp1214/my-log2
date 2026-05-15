@@ -31,6 +31,7 @@ export const persons = sqliteTable("persons", {
     .notNull()
     .references(() => groups.id),
   isPinned: int("is_pinned", { mode: "boolean" }).notNull().default(false),
+  contactInterval: int("contact_interval"),
   createdAt: int("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),

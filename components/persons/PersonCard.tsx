@@ -1,6 +1,7 @@
-// 인물 카드 컴포넌트 — 이름, 나이, 그룹 색상, 고정 표시
+// 인물 카드 컴포넌트 — 이름, 나이, 그룹 색상, 고정/연락 주기 표시
 import { calcAge } from "@/utils/date";
 import type { InferSelectModel } from "drizzle-orm";
+import dayjs from "dayjs";
 import type { persons } from "@/db/schema";
 import { Pressable, Text, View } from "react-native";
 
@@ -10,12 +11,29 @@ interface Props {
   person: Person;
   groupColor: string;
   logCount?: number;
+  lastLogDate?: Date;
   onPress: () => void;
   onLongPress?: () => void;
 }
 
-export function PersonCard({ person, groupColor, logCount, onPress, onLongPress }: Props) {
+export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress, onLongPress }: Props) {
   const age = person.birthDate ? calcAge(person.birthDate) : null;
+
+  const daysSinceLastLog = lastLogDate
+    ? dayjs().startOf("day").diff(dayjs(lastLogDate).startOf("day"), "day")
+    : null;
+
+  const isOverdue =
+    person.contactInterval != null &&
+    daysSinceLastLog != null &&
+    daysSinceLastLog >= person.contactInterval;
+
+  const badgeColor =
+    isOverdue && person.contactInterval != null && daysSinceLastLog != null
+      ? daysSinceLastLog >= person.contactInterval * 1.5
+        ? "#FF6B6B"
+        : "#FFA94D"
+      : null;
 
   return (
     <Pressable
@@ -28,9 +46,20 @@ export function PersonCard({ person, groupColor, logCount, onPress, onLongPress 
       <View className="flex-1 p-[14px] gap-1">
         <View className="flex-row items-center justify-between">
           <Text className="text-white text-base font-semibold">{person.name}</Text>
-          {person.isPinned && (
-            <Text className="text-app-teal text-[12px]">📌</Text>
-          )}
+          <View className="flex-row items-center gap-2">
+            {badgeColor && daysSinceLastLog != null && (
+              <View
+                style={{ backgroundColor: badgeColor + "22", borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}
+              >
+                <Text style={{ color: badgeColor, fontSize: 11 }}>
+                  {daysSinceLastLog}일 경과
+                </Text>
+              </View>
+            )}
+            {person.isPinned && (
+              <Text className="text-app-teal text-[12px]">📌</Text>
+            )}
+          </View>
         </View>
         <View className="flex-row gap-2">
           {age !== null && <Text className="text-[#888] text-[13px]">{age}세</Text>}

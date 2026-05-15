@@ -59,6 +59,7 @@ export default function PersonDetailScreen() {
   const [draftAnniversaries, setDraftAnniversaries] = useState<
     DraftAnniversary[]
   >([]);
+  const [contactInterval, setContactInterval] = useState<number | null>(null);
 
   useEffect(() => {
     if (person) {
@@ -67,6 +68,7 @@ export default function PersonDetailScreen() {
       setMbti(person.mbti ?? "");
       setMemo(person.memo ?? "");
       setGroupId(person.groupId);
+      setContactInterval(person.contactInterval ?? null);
     }
   }, [person]);
 
@@ -85,6 +87,7 @@ export default function PersonDetailScreen() {
         isRepeat: a.isRepeat,
       })),
     );
+    setContactInterval(person.contactInterval ?? null);
     setEditing(true);
   }
 
@@ -101,6 +104,7 @@ export default function PersonDetailScreen() {
         mbti: mbti || null,
         memo: memo.trim() || null,
         groupId,
+        contactInterval: contactInterval ?? null,
         updatedAt: new Date(),
       })
       .where(eq(persons.id, id));
@@ -192,6 +196,8 @@ export default function PersonDetailScreen() {
               allGroups={allGroups}
               draftAnniversaries={draftAnniversaries}
               onAnniversariesChange={setDraftAnniversaries}
+              contactInterval={contactInterval}
+              onContactIntervalChange={setContactInterval}
             />
             <Pressable
               onPress={save}

@@ -68,7 +68,7 @@ function sortPersons<T extends Person>(list: T[], order: SortOrder): T[] {
 
 export default function PersonsScreen() {
   const router = useRouter();
-  const { allPersons, groupedPersons, ungrouped } = usePersonsWithGroups();
+  const { allPersons, groupedPersons, ungrouped, lastLogDateMap } = usePersonsWithGroups();
 
   const [tabMode, setTabMode] = useState<TabMode>("persons");
   const [quickName, setQuickName] = useState("");
@@ -275,6 +275,7 @@ export default function PersonsScreen() {
                           key={person.id}
                           person={person}
                           groupColor={grp?.color ?? "#555"}
+                          lastLogDate={lastLogDateMap.get(person.id)}
                           onPress={() =>
                             router.push({
                               pathname: "/persons/[id]",
@@ -317,6 +318,7 @@ export default function PersonsScreen() {
                             key={person.id}
                             person={person}
                             groupColor={group.color}
+                            lastLogDate={lastLogDateMap.get(person.id)}
                             onPress={() =>
                               router.push({
                                 pathname: "/persons/[id]",
@@ -356,6 +358,7 @@ export default function PersonsScreen() {
                           key={person.id}
                           person={person}
                           groupColor="#555"
+                          lastLogDate={lastLogDateMap.get(person.id)}
                           onPress={() =>
                             router.push({
                               pathname: "/persons/[id]",

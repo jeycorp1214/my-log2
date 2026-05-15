@@ -30,6 +30,7 @@ export default function PersonNewScreen() {
   const [draftAnniversaries, setDraftAnniversaries] = useState<
     DraftAnniversary[]
   >([]);
+  const [contactInterval, setContactInterval] = useState<number | null>(null);
 
   useEffect(() => {
     if (!groupId && allGroups.length > 0) {
@@ -53,6 +54,7 @@ export default function PersonNewScreen() {
         mbti: mbti || undefined,
         memo: memo.trim() || undefined,
         groupId,
+        contactInterval: contactInterval ?? undefined,
       })
       .returning({ id: persons.id });
 
@@ -95,6 +97,8 @@ export default function PersonNewScreen() {
           allGroups={allGroups}
           draftAnniversaries={draftAnniversaries}
           onAnniversariesChange={setDraftAnniversaries}
+          contactInterval={contactInterval}
+          onContactIntervalChange={setContactInterval}
         />
 
         <Pressable

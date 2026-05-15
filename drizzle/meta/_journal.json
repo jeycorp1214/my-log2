@@ -43,6 +43,13 @@
       "when": 1778889600000,
       "tag": "0005_add_is_pinned",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1778976000000,
+      "tag": "0006_add_contact_interval",
+      "breakpoints": true
     }
   ]
 }
