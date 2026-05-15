@@ -50,6 +50,13 @@
       "when": 1778976000000,
       "tag": "0006_add_contact_interval",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1779062400000,
+      "tag": "0007_add_tags_and_met_at",
+      "breakpoints": true
     }
   ]
 }

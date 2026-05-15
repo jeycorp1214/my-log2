@@ -68,6 +68,18 @@ export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress,
         {person.memo ? (
           <Text className="text-app-muted text-[13px]" numberOfLines={1}>{person.memo}</Text>
         ) : null}
+        {(() => {
+          const parsedTags: string[] = person.tags ? JSON.parse(person.tags) : [];
+          return parsedTags.length > 0 ? (
+            <View className="flex-row flex-wrap gap-1 mt-0.5">
+              {parsedTags.map((tag) => (
+                <View key={tag} className="bg-[#1a2e2c] rounded-[6px] px-2 py-0.5">
+                  <Text className="text-app-teal text-[11px]">{tag}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null;
+        })()}
         {logCount !== undefined && logCount > 0 && (
           <Text className="text-app-teal text-[12px] mt-0.5">관련 기록 {logCount}개 →</Text>
         )}

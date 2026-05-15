@@ -43,6 +43,8 @@ type Person = {
   mbti?: string | null;
   groupId: string;
   isPinned: boolean;
+  tags?: string | null;
+  metAt?: string | null;
   createdAt: Date;
 };
 
@@ -91,6 +93,7 @@ export default function PersonsScreen() {
   const setMbtiFilter = (v: MbtiFilter) => setPersonsPrefs({ mbtiFilter: v });
   const mbtiDetail = prefs.persons.mbtiDetail;
   const setMbtiDetail = (v: string) => setPersonsPrefs({ mbtiDetail: v });
+  const [tagFilter, setTagFilter] = useState<string>("all");
 
   // ── 기념일 모드 상태 ───────────────────────────────────
   const [annPreset, setAnnPreset] = useState<AnnPreset>("this-month");
@@ -167,6 +170,14 @@ export default function PersonsScreen() {
     return list;
   }
 
+  function applyTagFilter<T extends Person>(list: T[]): T[] {
+    if (tagFilter === "all") return list;
+    return list.filter((p) => {
+      const parsedTags: string[] = p.tags ? JSON.parse(p.tags) : [];
+      return parsedTags.includes(tagFilter);
+    });
+  }
+
   const sortedGroupedPersons = useMemo(
     () =>
       groupedPersons
@@ -175,20 +186,24 @@ export default function PersonsScreen() {
         )
         .map(({ group, members }) => ({
           group,
-          members: applyMbtiFilter(
-            sortPersons(members as Person[], sortOrder),
+          members: applyTagFilter(
+            applyMbtiFilter(
+              sortPersons(members as Person[], sortOrder),
+            ),
           ) as typeof members,
         }))
         .filter(({ members }) => members.length > 0),
-    [groupedPersons, sortOrder, groupFilter, mbtiFilter, mbtiDetail],
+    [groupedPersons, sortOrder, groupFilter, mbtiFilter, mbtiDetail, tagFilter],
   );
 
   const sortedUngrouped = useMemo(() => {
     if (groupFilter !== "all") return [];
-    return applyMbtiFilter(
-      sortPersons(ungrouped as Person[], sortOrder),
+    return applyTagFilter(
+      applyMbtiFilter(
+        sortPersons(ungrouped as Person[], sortOrder),
+      ),
     ) as typeof ungrouped;
-  }, [ungrouped, sortOrder, groupFilter, mbtiFilter, mbtiDetail]);
+  }, [ungrouped, sortOrder, groupFilter, mbtiFilter, mbtiDetail, tagFilter]);
 
   const pinnedPersons = useMemo(
     () => allPersons.filter((p) => p.isPinned),
@@ -229,6 +244,7 @@ export default function PersonsScreen() {
           sortOrder !== "name-asc",
           groupFilter !== "all",
           mbtiFilter !== "all",
+          tagFilter !== "all",
         ].filter(Boolean).length
       : annGroupFilter !== "all"
         ? 1
@@ -607,6 +623,39 @@ export default function PersonsScreen() {
                     </View>
                   )}
                   {mbtiFilter !== "yes" && <View className="mb-5" />}
+
+                  <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                    관계 태그
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    className="mb-5"
+                    contentContainerStyle={{ gap: 8 }}
+                  >
+                    {["all", "연인", "가족", "직장동료", "오랜친구", "멘토", "온라인친구"].map(
+                      (tag) => (
+                        <Pressable
+                          key={tag}
+                          onPress={() => setTagFilter(tag)}
+                          className="rounded-[10px] px-4 py-2.5"
+                          style={{
+                            backgroundColor:
+                              tagFilter === tag ? "#4ecdc4" : "#2a2a2a",
+                          }}
+                        >
+                          <Text
+                            className="text-[13px] font-semibold"
+                            style={{
+                              color: tagFilter === tag ? "#111" : "#888",
+                            }}
+                          >
+                            {tag === "all" ? "전체" : tag}
+                          </Text>
+                        </Pressable>
+                      ),
+                    )}
+                  </ScrollView>
 
                   <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
                     정렬

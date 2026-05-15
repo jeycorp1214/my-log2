@@ -8,6 +8,7 @@ import m0003 from './0003_add_memos.sql';
 import m0004 from './0004_add_todos.sql';
 import m0005 from './0005_add_is_pinned.sql';
 import m0006 from './0006_add_contact_interval.sql';
+import m0007 from './0007_add_tags_and_met_at.sql';
 
   export default {
     journal,
@@ -18,6 +19,7 @@ m0002,
 m0003,
 m0004,
 m0005,
-m0006
+m0006,
+m0007
     }
   }

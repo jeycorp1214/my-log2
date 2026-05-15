@@ -60,6 +60,8 @@ export default function PersonDetailScreen() {
     DraftAnniversary[]
   >([]);
   const [contactInterval, setContactInterval] = useState<number | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
+  const [metAt, setMetAt] = useState<Date | null>(null);
 
   useEffect(() => {
     if (person) {
@@ -69,6 +71,8 @@ export default function PersonDetailScreen() {
       setMemo(person.memo ?? "");
       setGroupId(person.groupId);
       setContactInterval(person.contactInterval ?? null);
+      setTags(person.tags ? JSON.parse(person.tags) : []);
+      setMetAt(person.metAt ? new Date(person.metAt) : null);
     }
   }, [person]);
 
@@ -88,6 +92,8 @@ export default function PersonDetailScreen() {
       })),
     );
     setContactInterval(person.contactInterval ?? null);
+    setTags(person.tags ? JSON.parse(person.tags) : []);
+    setMetAt(person.metAt ? new Date(person.metAt) : null);
     setEditing(true);
   }
 
@@ -105,6 +111,8 @@ export default function PersonDetailScreen() {
         memo: memo.trim() || null,
         groupId,
         contactInterval: contactInterval ?? null,
+        tags: tags.length > 0 ? JSON.stringify(tags) : null,
+        metAt: metAt ? dayjs(metAt).format("YYYY-MM-DD") : null,
         updatedAt: new Date(),
       })
       .where(eq(persons.id, id));
@@ -198,6 +206,10 @@ export default function PersonDetailScreen() {
               onAnniversariesChange={setDraftAnniversaries}
               contactInterval={contactInterval}
               onContactIntervalChange={setContactInterval}
+              tags={tags}
+              onTagsChange={setTags}
+              metAt={metAt}
+              onMetAtChange={setMetAt}
             />
             <Pressable
               onPress={save}
@@ -220,14 +232,37 @@ export default function PersonDetailScreen() {
               </Pressable>
             </View>
 
-            <View className="flex-row gap-2 mb-2">
+            <View className="flex-row gap-2 mb-2 flex-wrap">
               {age !== null && (
                 <Text className="text-[#888] text-[14px]">{age}세</Text>
               )}
               {person.mbti && (
                 <Text className="text-[#888] text-[14px]">{person.mbti}</Text>
               )}
+              {person.metAt && (
+                <Text className="text-[#888] text-[14px]">
+                  함께한 지 {dayjs().diff(dayjs(person.metAt), "day")}일
+                </Text>
+              )}
             </View>
+
+            {(() => {
+              const parsedTags: string[] = person.tags
+                ? JSON.parse(person.tags)
+                : [];
+              return parsedTags.length > 0 ? (
+                <View className="flex-row flex-wrap gap-1.5 mb-2">
+                  {parsedTags.map((tag) => (
+                    <View
+                      key={tag}
+                      className="bg-[#1a2e2c] rounded-[8px] px-2.5 py-1"
+                    >
+                      <Text className="text-app-teal text-[12px]">{tag}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null;
+            })()}
 
             {person.memo ? (
               <Text className="text-app-label text-sm leading-[22px]">
