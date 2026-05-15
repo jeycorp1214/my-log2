@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-15T16:06:46.016Z",
+  "lastUpdated": "2026-05-15T16:28:40.836Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -36,9 +36,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:31.682Z",
-        "lastUpdated": "2026-05-12T12:06:27.890Z"
+        "lastUpdated": "2026-05-15T16:28:11.031Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/calendar/CalendarView.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/calendar/AnniversaryCard.tsx"
     },
     "(tabs)": {
       "phase": "do",
@@ -49,9 +49,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-15T15:51:34.079Z"
+        "lastUpdated": "2026-05-15T16:28:40.835Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/settings.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/_layout.tsx"
     },
     "db": {
       "phase": "do",
@@ -88,9 +88,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T14:11:18.589Z",
-        "lastUpdated": "2026-05-15T15:51:37.443Z"
+        "lastUpdated": "2026-05-15T16:28:02.977Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/_layout.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/hooks/useCalendarData.ts"
     },
     "providers": {
       "phase": "do",
@@ -140,7 +140,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-15T16:06:46.016Z"
+    "lastActivity": "2026-05-15T16:28:40.836Z"
   },
   "history": [
     {
@@ -674,6 +674,36 @@
     {
       "timestamp": "2026-05-15T16:06:46.016Z",
       "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T16:28:02.977Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T16:28:11.032Z",
+      "feature": "calendar",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T16:28:29.923Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T16:28:35.842Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T16:28:40.836Z",
+      "feature": "(tabs)",
       "phase": "do",
       "action": "updated"
     }

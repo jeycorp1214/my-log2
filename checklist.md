@@ -443,42 +443,41 @@
 
 ## 신규 파일
 
-- [ ] `app/(tabs)/calendar.tsx` — 캘린더 탭 메인 화면
-- [ ] `hooks/useCalendarData.ts` — markedDates + dayItems 계산 훅
-- [ ] `components/calendar/AnniversaryCard.tsx` — 기념일 D-Day 카드
+- [x] `app/(tabs)/calendar.tsx` — 캘린더 탭 메인 화면
+- [x] `hooks/useCalendarData.ts` — markedDates + dayItems 계산 훅
+- [x] `components/calendar/AnniversaryCard.tsx` — 기념일 D-Day 카드
 
 ## 탭 등록
 
-- [ ] `app/(tabs)/_layout.tsx` — 캘린더 탭 추가 (아이콘: CalendarDays)
+- [x] `app/(tabs)/_layout.tsx` — 캘린더 탭 추가 (아이콘: CalendarDays)
 
 ## 캘린더 뷰 (react-native-calendars 기반)
 
-- [ ] `Calendar` 컴포넌트 + `enableSwipeMonths` 적용
-- [ ] `DARK_THEME` — `calendar-test.tsx`에서 추출하여 공유 상수로 분리
-- [ ] 월 변경 시 `currentMonth` state 업데이트 → 훅 재계산
-- [ ] 선택 날짜 하이라이트 (`selected: true`)
-- [ ] multi-dot marking: 종류별 1개 dot (log/repeat/anniversary)
+- [x] `Calendar` 컴포넌트 + `enableSwipeMonths` 적용
+- [x] `CALENDAR_THEME` — calendar.tsx 내 상수로 정의 (transparent 배경)
+- [x] 월 변경 시 `currentMonth` state 업데이트 → 훅 재계산
+- [x] 선택 날짜 하이라이트 (`selected: true`)
+- [x] multi-dot marking: 종류별 1개 dot (log/repeat/anniversary)
 
 ## markedDates 계산 (`useCalendarData`)
 
-- [ ] 로그 dot — `logs.logDate` 기준, key: `'log'`, color: `#4ECDC4`
-- [ ] 반복 로그 dot — `expandRepeatInMonth()` 재활용, key: `'repeat'`, color: `#f59e0b`
-- [ ] 기념일 dot — `personAnniversaries` + `persons.birthDate`, key: `'anniversary'`, color: `#f97316`
-- [ ] `isRepeat=true` 기념일: 올해 날짜로 정규화 (매년 반복)
-- [ ] `birthDate`: 항상 매년 반복으로 처리
+- [x] 로그 dot — `logs.logDate` 기준, key: `'log'`, color: `#4ECDC4`
+- [x] 반복 로그 dot — `expandRepeatInMonth()` 재활용, key: `'repeat'`, color: `#f59e0b`
+- [x] 기념일 dot — `personAnniversaries` + `persons.birthDate`, key: `'anniversary'`, color: `#f97316`
+- [x] `isRepeat=true` 기념일: 올해 날짜로 정규화 (매년 반복)
+- [x] `birthDate`: 항상 매년 반복으로 처리
 
 ## 하단 패널 (고정 절반 레이아웃)
 
-- [ ] 화면 5:5 분할 — 상단 Calendar, 하단 FlatList
-- [ ] 선택 날짜 섹션 헤더 (날짜 + 요일 표시)
-- [ ] 로그 아이템 — 기존 `LogCard` 재활용, 탭 시 `/logs/[id]` 이동
-- [ ] 반복 로그 아이템 — 기존 `LogCard` + `occurrenceDate` param, 투명도 구분
-- [ ] 기념일 아이템 — `AnniversaryCard` (인물명 + 기념일 제목 + D-Day)
-- [ ] 빈 날짜 — "기록이 없습니다" 안내 + FAB으로 추가 유도
+- [x] 선택 날짜 섹션 헤더 (날짜 + 요일 표시)
+- [x] 로그 아이템 — 기존 `LogCard` 재활용, 탭 시 `/logs/[id]` 이동
+- [x] 반복 로그 아이템 — 기존 `LogCard` + `occurrenceDate` param, opacity 0.65 구분
+- [x] 기념일 아이템 — `AnniversaryCard` (인물명 + 기념일 제목 + D-Day)
+- [x] 빈 날짜 — "기록이 없습니다" 안내 + FAB으로 추가 유도
 
 ## FAB
 
-- [ ] 우측 하단 FAB — `/logs/new?logDate=YYYY-MM-DD` (선택 날짜 프리필)
+- [x] 우측 하단 FAB — `/logs/new?date=YYYY-MM-DD` (선택 날짜 프리필)
 
 ## 설계 결정 메모
 
