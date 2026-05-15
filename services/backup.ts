@@ -77,7 +77,8 @@ export async function exportData(): Promise<void> {
   });
 }
 
-export async function pickAndImport(): Promise<{ count: Record<string, number> }> {
+// 파일 선택 + 파싱만. import는 하지 않음 — 미리보기용
+export async function pickBackupFile(): Promise<BackupData> {
   const result = await DocumentPicker.getDocumentAsync({
     type: "application/json",
     copyToCacheDirectory: true,
@@ -106,19 +107,12 @@ export async function pickAndImport(): Promise<{ count: Record<string, number> }
     throw new Error("백업 파일 구조가 올바르지 않습니다.");
   }
 
-  await importData(backup);
+  return backup;
+}
 
-  return {
-    count: {
-      groups: d.groups.length,
-      persons: d.persons.length,
-      logs: d.logs.length,
-      logPersons: d.logPersons?.length ?? 0,
-      personAnniversaries: d.personAnniversaries?.length ?? 0,
-      todos: d.todos?.length ?? 0,
-      memos: d.memos?.length ?? 0,
-    },
-  };
+// 미리보기 확인 후 실제 import
+export async function applyImport(backup: BackupData): Promise<void> {
+  await importData(backup);
 }
 
 async function importData(backup: BackupData): Promise<void> {
@@ -140,7 +134,15 @@ async function importData(backup: BackupData): Promise<void> {
     return new Date(v as string | number);
   }
 
-  if (d.groups.length > 0) await db.insert(groups).values(d.groups);
+  if (d.groups.length > 0) {
+    await db.insert(groups).values(
+      d.groups.map((g) => ({
+        ...g,
+        createdAt: toDate(g.createdAt)!,
+        updatedAt: toDate(g.updatedAt)!,
+      })),
+    );
+  }
 
   if (d.persons.length > 0) {
     await db.insert(persons).values(
