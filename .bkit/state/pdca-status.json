@@ -1,12 +1,15 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-12T12:19:33.725Z",
+  "lastUpdated": "2026-05-15T14:58:27.603Z",
   "activeFeatures": [
     "settings",
     "calendar",
     "(tabs)",
     "db",
-    "drizzle"
+    "drizzle",
+    "kwak-app",
+    "providers",
+    "backup.ts"
   ],
   "primaryFeature": "settings",
   "features": {
@@ -19,9 +22,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T11:21:29.856Z",
-        "lastUpdated": "2026-05-12T12:19:26.067Z"
+        "lastUpdated": "2026-05-15T14:57:30.531Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/settings/heatmap.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/settings/backup.tsx"
     },
     "calendar": {
       "phase": "do",
@@ -45,7 +48,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-12T12:19:33.725Z"
+        "lastUpdated": "2026-05-15T14:57:42.344Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/settings.tsx"
     },
@@ -58,9 +61,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:11:49.193Z",
-        "lastUpdated": "2026-05-12T12:12:12.792Z"
+        "lastUpdated": "2026-05-15T13:55:26.074Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/db/client.ts"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/db/seed.ts"
     },
     "drizzle": {
       "phase": "do",
@@ -71,9 +74,48 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:12:08.748Z",
-        "lastUpdated": "2026-05-12T12:12:08.748Z"
+        "lastUpdated": "2026-05-15T13:45:28.211Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/drizzle/migrations.js"
+    },
+    "kwak-app": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-15T14:11:18.589Z",
+        "lastUpdated": "2026-05-15T14:57:34.468Z"
+      },
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/_layout.tsx"
+    },
+    "providers": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-15T14:11:33.941Z",
+        "lastUpdated": "2026-05-15T14:11:33.941Z"
+      },
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/providers/PinLockProvider.tsx"
+    },
+    "backup.ts": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-15T14:57:13.979Z",
+        "lastUpdated": "2026-05-15T14:58:27.602Z"
+      },
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/services/backup.ts"
     }
   },
   "pipeline": {
@@ -84,7 +126,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-12T12:19:33.725Z"
+    "lastActivity": "2026-05-15T14:58:27.603Z"
   },
   "history": [
     {
@@ -300,6 +342,216 @@
     {
       "timestamp": "2026-05-12T12:19:33.725Z",
       "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:44:19.051Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:44:24.062Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:45:28.211Z",
+      "feature": "drizzle",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:49:56.502Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:49:59.772Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:50:06.104Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:50:08.980Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:54:38.539Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:54:58.203Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:55:01.077Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:55:05.081Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:55:13.316Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T13:55:26.075Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:11:18.589Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:11:27.374Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:11:33.941Z",
+      "feature": "providers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:11:42.841Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:12:02.071Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:12:07.060Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:12:18.569Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:12:22.144Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:12:27.772Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:12:43.387Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:12:47.062Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:12:50.414Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:24:45.818Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:26:17.761Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:27:39.593Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:31:34.652Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:32:27.155Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:57:13.979Z",
+      "feature": "backup.ts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:57:30.532Z",
+      "feature": "settings",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:57:34.469Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:57:42.344Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T14:58:27.602Z",
+      "feature": "backup.ts",
       "phase": "do",
       "action": "updated"
     }

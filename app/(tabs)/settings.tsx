@@ -11,7 +11,7 @@ import {
   personAnniversaries,
   persons,
 } from "@/db/schema";
-import { seedDefaultGroups } from "@/db/seed";
+import { seedDefaultGroups, seedSampleData } from "@/db/seed";
 import { useDebugMode } from "@/providers/DebugProvider";
 
 export default function SettingsScreen() {
@@ -41,6 +41,28 @@ export default function SettingsScreen() {
               Alert.alert("알림", "데이터가 초기화되었습니다.");
             } catch (error) {
               console.error("초기화 중 오류 발생:", error);
+            }
+          },
+        },
+      ],
+    );
+  }
+
+  async function insertSampleData() {
+    Alert.alert(
+      "샘플 데이터 삽입",
+      "인물 5명, 기록 10개, 할 일 4개, 메모 2개를 추가합니다. 계속하시겠습니까?",
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "삽입",
+          onPress: async () => {
+            try {
+              await seedSampleData();
+              Alert.alert("완료", "샘플 데이터가 삽입되었습니다.");
+            } catch (e) {
+              console.error("[insertSampleData]", e);
+              Alert.alert("오류", String(e));
             }
           },
         },
@@ -119,6 +141,23 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* 백업 */}
+        <View className="mb-8">
+          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+            백업
+          </Text>
+          <View className="bg-app-surface rounded-[12px] overflow-hidden">
+            <Pressable
+              onPress={() => router.push("/settings/backup")}
+              className="flex-row items-center px-[14px] py-[16px]"
+              style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+            >
+              <Text className="flex-1 text-white text-sm">백업 / 복원</Text>
+              <ChevronRight size={16} color="#666" />
+            </Pressable>
+          </View>
+        </View>
+
         {/* 통계 */}
         <View className="mb-8">
           <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
@@ -131,6 +170,23 @@ export default function SettingsScreen() {
               style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
             >
               <Text className="flex-1 text-white text-sm">기록 히트맵</Text>
+              <ChevronRight size={16} color="#666" />
+            </Pressable>
+          </View>
+        </View>
+
+        {/* 보안 */}
+        <View className="mb-8">
+          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+            보안
+          </Text>
+          <View className="bg-app-surface rounded-[12px] overflow-hidden">
+            <Pressable
+              onPress={() => router.push("/settings/password")}
+              className="flex-row items-center px-[14px] py-[16px]"
+              style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+            >
+              <Text className="flex-1 text-white text-sm">비밀번호</Text>
               <ChevronRight size={16} color="#666" />
             </Pressable>
           </View>
@@ -210,6 +266,19 @@ export default function SettingsScreen() {
             <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
               개발 도구
             </Text>
+
+            <Pressable
+              onPress={insertSampleData}
+              className="bg-app-surface rounded-[12px] p-[14px] items-center mb-2"
+            >
+              <Text className="text-app-teal text-sm font-semibold">
+                샘플 데이터 삽입
+              </Text>
+              <Text className="text-app-muted text-[11px] mt-0.5">
+                인물 5명 · 기록 10개 · 할 일 4개 · 메모 2개
+              </Text>
+            </Pressable>
+
             <Pressable
               onPress={resetAllData}
               className="bg-app-danger-bg rounded-[12px] p-[14px] items-center"
