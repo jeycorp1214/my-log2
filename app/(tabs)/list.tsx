@@ -168,6 +168,7 @@ export default function ListScreen() {
     sortOrder !== "oldest",
     groupFilter !== "all",
     personFilter !== "all",
+    showAnniversaries,
   ].filter(Boolean).length;
 
   async function toggleCheck(id: string, current: Date | null) {
@@ -181,10 +182,6 @@ export default function ListScreen() {
     <View className="flex-1 bg-app-bg">
       <TabsHeader
         title="리스트"
-        cakeOnPress={() =>
-          setListPrefs({ showAnniversaries: !showAnniversaries })
-        }
-        cakeActive={showAnniversaries}
         slidersOnPress={() => setShowFilterSheet(true)}
         slidersActive={filterBadge > 0}
       />
@@ -277,6 +274,7 @@ export default function ListScreen() {
               <View className="px-4">
                 <AnniversaryItem
                   title={item.displayTitle}
+                  date={item.date}
                   onPress={() =>
                     router.push({
                       pathname: "/persons/[id]",
@@ -461,7 +459,7 @@ export default function ListScreen() {
             <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
               정렬
             </Text>
-            <View className="flex-row gap-2">
+            <View className="flex-row gap-2 mb-5">
               {(["oldest", "newest"] as const).map((v) => {
                 const label = v === "oldest" ? "오래된순" : "최신순";
                 return (
@@ -483,6 +481,29 @@ export default function ListScreen() {
                 );
               })}
             </View>
+
+            {/* 기념일 표시 */}
+            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+              기념일
+            </Text>
+            <Pressable
+              onPress={() => setShowAnniversaries(!showAnniversaries)}
+              className="flex-row items-center justify-between rounded-[10px] px-4 py-3"
+              style={{ backgroundColor: "#2a2a2a" }}
+            >
+              <Text className="text-[13px]" style={{ color: "#ccc" }}>
+                기념일 함께 표시
+              </Text>
+              <View
+                className="w-12 h-6 rounded-full justify-center"
+                style={{ backgroundColor: showAnniversaries ? "#7c3aed" : "#444" }}
+              >
+                <View
+                  className="w-5 h-5 rounded-full bg-white"
+                  style={showAnniversaries ? { marginLeft: "auto", marginRight: 2 } : { marginLeft: 2 }}
+                />
+              </View>
+            </Pressable>
           </Pressable>
         </Pressable>
       </Modal>

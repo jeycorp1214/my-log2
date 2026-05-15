@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-15T23:38:43.864Z",
+  "lastUpdated": "2026-05-15T23:57:47.831Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -51,9 +51,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-15T23:14:25.781Z"
+        "lastUpdated": "2026-05-15T23:57:47.830Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/settings.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/list.tsx"
     },
     "db": {
       "phase": "do",
@@ -155,9 +155,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T17:00:40.821Z",
-        "lastUpdated": "2026-05-15T23:38:43.864Z"
+        "lastUpdated": "2026-05-15T23:57:13.547Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/persons/[id].tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/persons/AnniversaryItem.tsx"
     }
   },
   "pipeline": {
@@ -168,7 +168,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-15T23:38:43.864Z"
+    "lastActivity": "2026-05-15T23:57:47.831Z"
   },
   "history": [
     {
@@ -1188,6 +1188,42 @@
     {
       "timestamp": "2026-05-15T23:38:43.864Z",
       "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:57:13.547Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:57:18.611Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:57:23.170Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:57:28.470Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:57:41.200Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-15T23:57:47.831Z",
+      "feature": "(tabs)",
       "phase": "do",
       "action": "updated"
     }
