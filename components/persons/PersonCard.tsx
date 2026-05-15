@@ -5,6 +5,17 @@ import dayjs from "dayjs";
 import type { persons } from "@/db/schema";
 import { Pressable, Text, View } from "react-native";
 
+const AVATAR_COLORS = [
+  "#4ECDC4", "#FF6B6B", "#FFA94D", "#74C0FC",
+  "#A9E34B", "#DA77F2", "#F06595", "#63E6BE",
+];
+
+function avatarColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
 type Person = InferSelectModel<typeof persons>;
 
 interface Props {
@@ -35,6 +46,9 @@ export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress,
         : "#FFA94D"
       : null;
 
+  const initial = person.name.charAt(0);
+  const bgColor = avatarColor(person.name);
+
   return (
     <Pressable
       onPress={onPress}
@@ -43,6 +57,13 @@ export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress,
       style={({ pressed }) => pressed ? { opacity: 0.7 } : undefined}
     >
       <View className="w-1" style={{ backgroundColor: groupColor }} />
+      <View className="justify-center pl-[12px] pr-[4px] py-[14px]">
+        <View
+          style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: bgColor + "33", alignItems: "center", justifyContent: "center" }}
+        >
+          <Text style={{ color: bgColor, fontSize: 16, fontWeight: "700" }}>{initial}</Text>
+        </View>
+      </View>
       <View className="flex-1 p-[14px] gap-1">
         <View className="flex-row items-center justify-between">
           <Text className="text-white text-base font-semibold">{person.name}</Text>
