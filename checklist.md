@@ -389,28 +389,28 @@
 
 ## 훅
 
-- [ ] `hooks/stats/use-stats.ts` — 통계 집계 쿼리 모음 (useLiveQuery 기반)
-  - [ ] `useSummaryStats()` — 총 기록수 / 총 인물수 / 이번 달 기록수
-  - [ ] `usePersonRanking(period)` — 인물별 등장 횟수 + 마지막 날짜 (period: 'month' | 'year' | 'all')
-  - [ ] `useLastContact()` — 인물별 마지막 연결 날짜, 오래된 순 정렬
-  - [ ] `useCategoryRatio(period)` — 그룹별 기록 수 + 비율 (period: 'month' | 'year' | 'all')
-  - [ ] `useRecordStreak()` — 현재 연속 기록 일수 + 최장 연속 기록 일수 (JS 계산)
-  - [ ] `useCompletionRate(period)` — 일반 로그 완료율 (checkedAt IS NOT NULL / total)
+- [x] `hooks/stats/use-stats.ts` — 통계 집계 쿼리 모음 (useLiveQuery 기반)
+  - [x] `useSummaryStats()` — 총 기록수 / 총 인물수 / 이번 달 기록수
+  - [x] `usePersonRanking(period)` — 인물별 등장 횟수 + 마지막 날짜 (period: 'month' | 'year' | 'all')
+  - [x] `useLastContact()` — 인물별 마지막 연결 날짜, 오래된 순 정렬
+  - [x] `useCategoryRatio(period)` — 그룹별 기록 수 + 비율 (period: 'month' | 'year' | 'all')
+  - [x] `useAllLogDates()` + `calcStreak()` — 연속 기록 일수 (JS 계산)
+  - [x] `useCompletionRate(period)` — 로그 완료율 (checkedAt IS NOT NULL / total)
 
 ## 화면
 
-- [ ] `app/settings/stats.tsx` — 통계 메인 페이지
-  - [ ] 요약 카드 3개 (총 기록수 / 총 인물수 / 이번 달 기록수)
-  - [ ] 인물 랭킹 섹션 (기간 칩: 이번 달 / 올해 / 전체)
-  - [ ] 마지막 연결 리스트 (오래된 순 TOP 5, fromNow() 표시)
-  - [ ] 카테고리 비율 섹션 (그룹 색상 프로그레스 바, 기간 칩 연동)
-  - [ ] 기록 스트릭 카드 (현재 / 최장)
-  - [ ] 완료율 카드 (기간 칩 연동)
+- [x] `app/settings/stats.tsx` — 통계 메인 페이지
+  - [x] 요약 카드 3개 (총 기록수 / 총 인물수 / 이번 달 기록수)
+  - [x] 인물 랭킹 섹션 (기간 칩: 이번 달 / 올해 / 전체)
+  - [x] 마지막 연결 리스트 (오래된 순 TOP 5, fromNow() 표시)
+  - [x] 카테고리 비율 섹션 (그룹 색상 프로그레스 바, 기간 칩 연동)
+  - [x] 기록 스트릭 카드 (현재 / 최장)
+  - [x] 완료율 카드 (기간 칩 연동)
 
 ## 라우팅
 
-- [ ] `app/_layout.tsx` — `settings/stats` Stack.Screen 등록
-- [ ] `app/(tabs)/settings.tsx` — 통계 섹션에 `/settings/stats` 링크 추가
+- [x] `app/_layout.tsx` — `settings/stats` Stack.Screen 등록
+- [x] `app/(tabs)/settings.tsx` — 통계 섹션에 `/settings/stats` 링크 추가
 
 ## 설계 결정 메모
 

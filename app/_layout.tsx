@@ -113,6 +113,10 @@ export default function RootLayout() {
                         options={{ headerShown: false }}
                       />
                       <Stack.Screen
+                        name="settings/stats"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
                         name="search"
                         options={{ presentation: "modal", headerShown: false }}
                       />
