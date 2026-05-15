@@ -1,12 +1,15 @@
-// 설정 통계 화면 — 인물 랭킹, 마지막 연결, 카테고리 비율, 스트릭, 완료율, 반복 비율, 평균 간격, 할일 사분면
+// 설정 통계 화면 — 인물 랭킹, 마지막 연결, 카테고리 비율, 스트릭, 완료율, 반복 비율, 평균 간격, 할일 사분면, 동반 등장, MBTI
 import {
   calcAvgInterval,
+  calcLongestGap,
   calcStreak,
   type Period,
   useAllLogDates,
   useCategoryRatio,
+  useCoAppearance,
   useCompletionRate,
   useLastContact,
+  useMbtiDistribution,
   usePersonRanking,
   useQuadrantStats,
   useRepeatRatio,
@@ -89,9 +92,12 @@ export default function StatsScreen() {
     [allDates],
   );
   const avgInterval = useMemo(() => calcAvgInterval(allDates), [allDates]);
+  const longestGap = useMemo(() => calcLongestGap(allDates), [allDates]);
   const completion = useCompletionRate(period);
   const repeatRatio = useRepeatRatio(period);
   const quadrantStats = useQuadrantStats();
+  const coAppearance = useCoAppearance();
+  const { data: mbtiData, total: mbtiTotal } = useMbtiDistribution();
 
   const rankingWithLogs = ranking.filter((r) => r.logCount > 0).slice(0, 10);
   const catWithLogs = catData.filter((g) => g.logCount > 0);
@@ -235,29 +241,52 @@ export default function StatsScreen() {
           </View>
         </View>
 
-        {/* 기록 스트릭 + 완료율 */}
-        <View className="flex-row gap-3 mb-8">
-          <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
+        {/* 기록 스트릭 (현재/최장/최장공백) + 평균 간격 */}
+        <View className="flex-row gap-3 mb-3">
+          <View
+            style={{ flex: 2 }}
+            className="bg-app-surface rounded-[12px] p-[14px]"
+          >
             <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
               기록 스트릭
             </Text>
-            <View className="flex-row gap-3">
+            <View className="flex-row gap-2">
               <View className="flex-1 items-center">
                 <Text className="text-white text-[22px] font-bold">
                   {currentStreak}
                 </Text>
-                <Text className="text-app-muted text-[10px] mt-0.5">현재 연속</Text>
+                <Text className="text-app-muted text-[10px] mt-0.5">현재</Text>
               </View>
               <View className="w-[1px] bg-[#2a2a2a]" />
               <View className="flex-1 items-center">
                 <Text className="text-white text-[22px] font-bold">
                   {bestStreak}
                 </Text>
-                <Text className="text-app-muted text-[10px] mt-0.5">최장 연속</Text>
+                <Text className="text-app-muted text-[10px] mt-0.5">최장</Text>
+              </View>
+              <View className="w-[1px] bg-[#2a2a2a]" />
+              <View className="flex-1 items-center">
+                <Text className="text-white text-[22px] font-bold">
+                  {longestGap}
+                </Text>
+                <Text className="text-app-muted text-[10px] mt-0.5">공백</Text>
               </View>
             </View>
           </View>
 
+          <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
+            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+              평균 간격
+            </Text>
+            <Text className="text-white text-[22px] font-bold">
+              {avgInterval}
+            </Text>
+            <Text className="text-app-muted text-[10px] mt-0.5">일마다 1회</Text>
+          </View>
+        </View>
+
+        {/* 완료율 + 반복 기록 비율 */}
+        <View className="flex-row gap-3 mb-8">
           <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
             <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
               완료율
@@ -279,10 +308,7 @@ export default function StatsScreen() {
               {completion.completed}/{completion.total}개
             </Text>
           </View>
-        </View>
 
-        {/* 반복 기록 비율 + 평균 기록 간격 */}
-        <View className="flex-row gap-3 mb-8">
           <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
             <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
               반복 기록 비율
@@ -302,18 +328,6 @@ export default function StatsScreen() {
             </View>
             <Text className="text-app-muted text-[10px]">
               {repeatRatio.repeated}/{repeatRatio.total}개
-            </Text>
-          </View>
-
-          <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
-              평균 기록 간격
-            </Text>
-            <Text className="text-white text-[22px] font-bold">
-              {avgInterval}
-            </Text>
-            <Text className="text-app-muted text-[10px] mt-0.5">
-              일마다 1회
             </Text>
           </View>
         </View>
@@ -345,6 +359,67 @@ export default function StatsScreen() {
                   </View>
                 </View>
               ))}
+            </View>
+          </View>
+        )}
+
+        {/* 함께 등장 빈도 */}
+        {coAppearance.length > 0 && (
+          <View className="mb-8">
+            <SectionTitle>함께 등장 빈도</SectionTitle>
+            <View className="bg-app-surface rounded-[12px] overflow-hidden">
+              {coAppearance.map((item, i) => (
+                <View key={`${item.nameA}-${item.nameB}`}>
+                  {i > 0 && (
+                    <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
+                  )}
+                  <View className="flex-row items-center px-[14px] py-[13px]">
+                    <Text className="flex-1 text-white text-sm">
+                      {item.nameA} · {item.nameB}
+                    </Text>
+                    <Text className="text-app-teal text-sm font-semibold">
+                      {item.count}회
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* MBTI 분포 */}
+        {mbtiData.length > 0 && (
+          <View className="mb-8">
+            <SectionTitle>MBTI 분포</SectionTitle>
+            <View className="bg-app-surface rounded-[12px] p-[14px] gap-3">
+              {mbtiData.map((item) => {
+                const pct =
+                  mbtiTotal > 0
+                    ? Math.round((item.count / mbtiTotal) * 100)
+                    : 0;
+                return (
+                  <View key={item.mbti}>
+                    <View className="flex-row items-center mb-1.5">
+                      <Text className="text-white text-[13px] font-medium w-14">
+                        {item.mbti}
+                      </Text>
+                      <View className="flex-1 h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden mx-3">
+                        <View
+                          style={{
+                            width: `${pct}%`,
+                            height: "100%",
+                            backgroundColor: "#4ecdc4",
+                            borderRadius: 4,
+                          }}
+                        />
+                      </View>
+                      <Text className="text-app-muted text-[12px] w-12 text-right">
+                        {item.count}명 ({pct}%)
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
             </View>
           </View>
         )}

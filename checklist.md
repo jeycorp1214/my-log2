@@ -422,13 +422,12 @@
 
 ### P2 — 데이터 어느 정도 필요 (기록 30개↑)
 
-- [ ] **기록 없는 최장 공백** — `logs.logDate` 정렬 후 날짜 간격 배열 최대값 (JS). `calcLongestGap(dates)` 순수 함수. 스트릭 카드에 추가.
-  - 계산: `sortedDates[i+1] - sortedDates[i]` → max gap (dayjs diff)
+- [x] **기록 없는 최장 공백** — `calcLongestGap(dates)` 순수 함수. 스트릭 카드 3열(현재/최장/공백)로 확장. 스트릭 카드에 flex:2 비율 적용.
 
-### P3 — 데이터 충분히 필요 (인물 10명↑ / 동반 기록 10건↑)
+### P3 — 항상 표시 (데이터 없으면 섹션 숨김)
 
-- [ ] **MBTI 분포** — `persons GROUP BY mbti WHERE mbti IS NOT NULL`. `useMbtiDistribution()` 훅. 인물 탭과 연계 고려. 인물 10명 미만이면 섹션 숨김.
-- [ ] **함께 등장 빈도** — `logPersons AS a JOIN logPersons AS b ON a.logId = b.logId AND a.personId < b.personId GROUP BY (a.personId, b.personId) ORDER BY COUNT DESC LIMIT 5`. `useCoAppearance()` 훅. 동반 기록 10건 미만이면 섹션 숨김.
+- [x] **MBTI 분포** — `useMbtiDistribution()`. persons GROUP BY mbti WHERE mbti IS NOT NULL. 데이터 없으면 섹션 자체 미표시.
+- [x] **함께 등장 빈도** — `useCoAppearance()`. logPersons self alias JOIN. TOP 5. 데이터 없으면 섹션 자체 미표시.
 
 ## 설계 결정 메모
 

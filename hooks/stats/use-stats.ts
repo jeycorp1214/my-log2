@@ -2,8 +2,9 @@
 import { db } from "@/db/client";
 import { groups, logPersons, logs, persons, todos } from "@/db/schema";
 import dayjs from "dayjs";
-import { and, count, desc, eq, gte, max, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, isNotNull, max, sql } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { alias } from "drizzle-orm/sqlite-core";
 import { useMemo } from "react";
 
 const QUADRANT_LABELS: Record<string, string> = {
@@ -218,6 +219,58 @@ export function useQuadrantStats() {
         ? Math.round(((row.completed ?? 0) / row.total) * 100)
         : 0,
   }));
+}
+
+export function calcLongestGap(dates: Date[]): number {
+  const daySet = [
+    ...new Set(dates.map((d) => dayjs(d).format("YYYY-MM-DD"))),
+  ].sort();
+  if (daySet.length < 2) return 0;
+  let maxGap = 0;
+  for (let i = 1; i < daySet.length; i++) {
+    const gap = dayjs(daySet[i]).diff(dayjs(daySet[i - 1]), "day");
+    if (gap > maxGap) maxGap = gap;
+  }
+  return maxGap;
+}
+
+export function useMbtiDistribution() {
+  const { data = [] } = useLiveQuery(
+    db
+      .select({ mbti: persons.mbti, count: count() })
+      .from(persons)
+      .where(isNotNull(persons.mbti))
+      .groupBy(persons.mbti)
+      .orderBy(desc(count())),
+  );
+  const total = useMemo(
+    () => data.reduce((sum, r) => sum + r.count, 0),
+    [data],
+  );
+  return { data, total };
+}
+
+export function useCoAppearance() {
+  const lpA = alias(logPersons, "lpA");
+  const lpB = alias(logPersons, "lpB");
+  const pA = alias(persons, "pA");
+  const pB = alias(persons, "pB");
+
+  const { data = [] } = useLiveQuery(
+    db
+      .select({ nameA: pA.name, nameB: pB.name, count: count() })
+      .from(lpA)
+      .innerJoin(
+        lpB,
+        and(eq(lpA.logId, lpB.logId), sql`${lpA.personId} < ${lpB.personId}`),
+      )
+      .innerJoin(pA, eq(lpA.personId, pA.id))
+      .innerJoin(pB, eq(lpB.personId, pB.id))
+      .groupBy(lpA.personId, lpB.personId)
+      .orderBy(desc(count()))
+      .limit(5),
+  );
+  return data;
 }
 
 export function useCompletionRate(period: Period) {
