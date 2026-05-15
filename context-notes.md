@@ -189,3 +189,46 @@
 
 - 개발/데모용. debugMode=true 시에만 설정 탭에 노출.
 - 인물 5명(각 그룹), 기록 10개(날짜 분산), 할 일 4개(각 사분면), 메모 2개.
+
+---
+
+## 2026-05-16 — Phase 11 통계 기능 설계
+
+### 통계 항목 선정 근거
+
+- **인물 랭킹**: logPersons COUNT. "요즘 자주 만나는 사람" 파악 목적. 기간 필터(이번 달/올해/전체)로 맥락 분리.
+- **마지막 연결**: MAX(logDate) per person, 오래된 순 정렬. 관계 유지 점검 용도. fromNow() 표시로 "3개월째 연락 없음" 직관적 전달.
+- **카테고리 비율**: logs GROUP BY groupId + 그룹 색상 프로그레스 바. 기간 비교로 관심사 변화 추적 가능.
+- **기록 스트릭**: JS에서 날짜 배열 정렬 후 연속 카운트. 히트맵(settings/heatmap.tsx)과 보완 관계.
+- **완료율**: logs checkedAt IS NOT NULL / total. 체크 습관 지표.
+
+### 쿼리 전략
+
+```typescript
+// 인물 랭킹 — leftJoin으로 기록 없는 인물도 포함 (count 0)
+db.select({ personId: persons.id, name: persons.name, count: count(logPersons.id), lastDate: max(logs.logDate) })
+  .from(persons)
+  .leftJoin(logPersons, eq(persons.id, logPersons.personId))
+  .leftJoin(logs, and(eq(logPersons.logId, logs.id), gte(logs.logDate, periodStart)))
+  .groupBy(persons.id)
+  .orderBy(desc(count(logPersons.id)))
+
+// 카테고리 비율 — leftJoin으로 기록 없는 그룹도 포함
+db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: count(logs.id) })
+  .from(groups)
+  .leftJoin(logs, and(eq(groups.id, logs.groupId), gte(logs.logDate, periodStart)))
+  .groupBy(groups.id)
+  .orderBy(desc(count(logs.id)))
+```
+
+### UI 방침
+
+- **차트 라이브러리 미사용**: react-native-gifted-charts 등 추가 의존성 없이 View + 프로그레스 바로 구현. 개인앱 특성상 과도한 시각화 불필요.
+- **기간 칩 공유**: 인물 랭킹 / 카테고리 비율 / 완료율 섹션이 동일한 기간 칩 상태 공유 (페이지 단일 `period` state).
+- **스키마 변경 없음**: 기존 7개 테이블만으로 모든 통계 도출 가능. migration 불필요.
+
+### 향후 확장 고려 (현재 미구현)
+
+- 기간별 비교 (이번 달 vs 지난 달 delta): 현재 단일 기간만 표시, 추후 delta 뱃지 추가 가능.
+- 함께 등장 빈도 (logPersons self JOIN): A-B 조합 TOP 5. 데이터 충분히 쌓인 후 의미 있음.
+- MBTI 분포: persons GROUP BY mbti. 재미 요소, 인물 10명 이상일 때 유의미.

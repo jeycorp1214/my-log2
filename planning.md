@@ -638,6 +638,20 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 - [x] 히트맵, 타임라인 바텀시트
 - [x] StyleSheet → className 전환 완료
 
+### Phase 11 — 통계 (Stats) 🔄 진행 중
+
+- [ ] `hooks/stats/use-stats.ts` — 집계 쿼리 훅 (useLiveQuery)
+- [ ] `app/settings/stats.tsx` — 통계 페이지
+  - 요약 카드 (총 기록수 / 총 인물수 / 이번 달 기록수)
+  - 인물 랭킹 (기간 필터: 이번 달 / 올해 / 전체)
+  - 마지막 연결 TOP 5 (오래된 순, fromNow 표시)
+  - 카테고리 비율 (그룹 색상 프로그레스 바)
+  - 기록 스트릭 (현재 / 최장)
+  - 완료율
+- [ ] `settings.tsx` 통계 링크 + `_layout.tsx` Stack.Screen 등록
+
+> 설계 상세: context-notes.md 2026-05-16 섹션 참조
+
 ### Phase Next — 미착수
 
 - [ ] Freemium 제한 로직 (카운트 게이트)
