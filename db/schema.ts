@@ -1,11 +1,11 @@
 // 앱 전체 SQLite 스키마 정의 (groups, persons, logs, logPersons)
 import { index, int, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import * as Crypto from "expo-crypto"; // 1. 임포트 추가
+import { randomUUID } from "./generate-id";
 
 export const groups = sqliteTable("groups", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Crypto.randomUUID()),
+    .$defaultFn(() => randomUUID()),
   name: text("name").notNull(),
   color: text("color").notNull(),
   emoji: text("emoji"),
@@ -22,7 +22,7 @@ export const groups = sqliteTable("groups", {
 export const persons = sqliteTable("persons", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Crypto.randomUUID()),
+    .$defaultFn(() => randomUUID()),
   name: text("name").notNull(),
   birthDate: text("birth_date"),
   mbti: text("mbti"),
@@ -43,7 +43,7 @@ export const logs = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => Crypto.randomUUID()),
+      .$defaultFn(() => randomUUID()),
     title: text("title").notNull(),
     logDate: int("log_date", { mode: "timestamp_ms" }).notNull(),
     memo: text("memo"),
@@ -70,7 +70,7 @@ export const logs = sqliteTable(
 export const personAnniversaries = sqliteTable("person_anniversaries", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Crypto.randomUUID()),
+    .$defaultFn(() => randomUUID()),
   personId: text("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
@@ -85,7 +85,7 @@ export const personAnniversaries = sqliteTable("person_anniversaries", {
 export const logPersons = sqliteTable("log_persons", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Crypto.randomUUID()),
+    .$defaultFn(() => randomUUID()),
   logId: text("log_id")
     .notNull()
     .references(() => logs.id, { onDelete: "cascade" }),
@@ -99,7 +99,7 @@ export type Quadrant = "do" | "schedule" | "delegate" | "eliminate";
 export const todos = sqliteTable("todos", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Crypto.randomUUID()),
+    .$defaultFn(() => randomUUID()),
   title: text("title").notNull(),
   quadrant: text("quadrant").notNull().$type<Quadrant>(),
   checkedAt: int("checked_at", { mode: "timestamp_ms" }),
@@ -114,7 +114,7 @@ export const todos = sqliteTable("todos", {
 export const memos = sqliteTable("memos", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => Crypto.randomUUID()),
+    .$defaultFn(() => randomUUID()),
   content: text("content").notNull(),
   checkedAt: int("checked_at", { mode: "timestamp_ms" }),
   createdAt: int("created_at", { mode: "timestamp_ms" })

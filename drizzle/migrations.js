@@ -11,9 +11,9 @@ import m0004 from './0004_add_todos.sql';
     journal,
     migrations: {
       m0000,
-      m0001,
-      m0002,
-      m0003,
-      m0004
+m0001,
+m0002,
+m0003,
+m0004
     }
   }

@@ -15,13 +15,15 @@
 - explore.tsx 제거 → persons.tsx, settings.tsx로 교체
 - lucide-react-native 아이콘 사용 (이미 설치됨, IconSymbol은 iOS SF Symbols 전용)
 
-### drizzle-kit generate 이슈 — 영구 차단
+### drizzle-kit generate — 해결됨 (2026-05-15)
 
-- `ERROR: Unexpected "typeof"` — esbuild가 expo-crypto import를 파싱 불가 (react-native 환경 전용 코드)
-- **결정: 모든 마이그레이션은 수동으로 SQL 작성 + journal 업데이트 + migrations.js 업데이트**
-- 패턴: SQLite ALTER TABLE 미지원 → CREATE \_\_new → INSERT SELECT → DROP → RENAME
-- 마이그레이션 파일: drizzle/0000*\*.sql, 0001*\_.sql, 0002\_\_.sql
-- migrations.js와 meta/\_journal.json 항상 동기화 유지
+- 원인: `db/schema.ts`에서 `expo-crypto` import → esbuild가 react-native 코드 파싱 불가
+- **해결: Metro 플랫폼 분기 파일 사용**
+  - `db/generate-id.ts` → Node.js (drizzle-kit): `node:crypto`
+  - `db/generate-id.native.ts` → React Native (Hermes): `expo-crypto`
+  - `db/schema.ts`에서 `import { randomUUID } from './generate-id'`
+- `npx drizzle-kit generate` 정상 작동. 스키마 변경 후 실행하면 됨.
+- migrations.js는 drizzle-kit이 자동 업데이트하지 않으므로 generate 후 수동으로 import/export 추가 필요
 
 ### QueryClient 설정
 
