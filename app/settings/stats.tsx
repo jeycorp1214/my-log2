@@ -1,5 +1,6 @@
-// 설정 통계 화면 — 인물 랭킹, 마지막 연결, 카테고리 비율, 스트릭, 완료율
+// 설정 통계 화면 — 인물 랭킹, 마지막 연결, 카테고리 비율, 스트릭, 완료율, 반복 비율, 평균 간격, 할일 사분면
 import {
+  calcAvgInterval,
   calcStreak,
   type Period,
   useAllLogDates,
@@ -7,6 +8,8 @@ import {
   useCompletionRate,
   useLastContact,
   usePersonRanking,
+  useQuadrantStats,
+  useRepeatRatio,
   useSummaryStats,
 } from "@/hooks/stats/use-stats";
 import { fromNow } from "@/utils/date";
@@ -85,7 +88,10 @@ export default function StatsScreen() {
     () => calcStreak(allDates),
     [allDates],
   );
+  const avgInterval = useMemo(() => calcAvgInterval(allDates), [allDates]);
   const completion = useCompletionRate(period);
+  const repeatRatio = useRepeatRatio(period);
+  const quadrantStats = useQuadrantStats();
 
   const rankingWithLogs = ranking.filter((r) => r.logCount > 0).slice(0, 10);
   const catWithLogs = catData.filter((g) => g.logCount > 0);
@@ -274,6 +280,74 @@ export default function StatsScreen() {
             </Text>
           </View>
         </View>
+
+        {/* 반복 기록 비율 + 평균 기록 간격 */}
+        <View className="flex-row gap-3 mb-8">
+          <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
+            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+              반복 기록 비율
+            </Text>
+            <Text className="text-white text-[22px] font-bold mb-2">
+              {repeatRatio.rate}%
+            </Text>
+            <View className="h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden mb-1.5">
+              <View
+                style={{
+                  width: `${repeatRatio.rate}%`,
+                  height: "100%",
+                  backgroundColor: "#c9922a",
+                  borderRadius: 4,
+                }}
+              />
+            </View>
+            <Text className="text-app-muted text-[10px]">
+              {repeatRatio.repeated}/{repeatRatio.total}개
+            </Text>
+          </View>
+
+          <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
+            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+              평균 기록 간격
+            </Text>
+            <Text className="text-white text-[22px] font-bold">
+              {avgInterval}
+            </Text>
+            <Text className="text-app-muted text-[10px] mt-0.5">
+              일마다 1회
+            </Text>
+          </View>
+        </View>
+
+        {/* 할일 사분면별 완료율 */}
+        {quadrantStats.length > 0 && (
+          <View className="mb-8">
+            <SectionTitle>할일 완료율</SectionTitle>
+            <View className="bg-app-surface rounded-[12px] p-[14px] gap-3">
+              {quadrantStats.map((q) => (
+                <View key={q.quadrant}>
+                  <View className="flex-row items-center mb-1.5">
+                    <Text className="flex-1 text-white text-[13px]">
+                      {q.label}
+                    </Text>
+                    <Text className="text-app-muted text-[12px]">
+                      {q.completed}/{q.total}개 ({q.rate}%)
+                    </Text>
+                  </View>
+                  <View className="h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden">
+                    <View
+                      style={{
+                        width: `${q.rate}%`,
+                        height: "100%",
+                        backgroundColor: "#4ecdc4",
+                        borderRadius: 4,
+                      }}
+                    />
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

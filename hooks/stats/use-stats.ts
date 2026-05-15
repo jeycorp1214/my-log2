@@ -1,10 +1,17 @@
 // 설정 통계 화면에서 사용하는 집계 쿼리 훅 모음
 import { db } from "@/db/client";
-import { groups, logPersons, logs, persons } from "@/db/schema";
+import { groups, logPersons, logs, persons, todos } from "@/db/schema";
 import dayjs from "dayjs";
 import { and, count, desc, eq, gte, max, sql } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useMemo } from "react";
+
+const QUADRANT_LABELS: Record<string, string> = {
+  do: "중요·긴급",
+  schedule: "중요·비긴급",
+  delegate: "비중요·긴급",
+  eliminate: "비중요·비긴급",
+};
 
 export type Period = "month" | "year" | "all";
 
@@ -156,6 +163,61 @@ export function calcStreak(dates: Date[]): { current: number; best: number } {
   }
 
   return { current, best };
+}
+
+export function useRepeatRatio(period: Period) {
+  const start = useMemo(() => getPeriodStart(period), [period]);
+
+  const { data = [] } = useLiveQuery(
+    db
+      .select({
+        total: count(),
+        repeated: sql<number>`SUM(CASE WHEN ${logs.repeatType} IS NOT NULL AND ${logs.repeatType} != 'none' THEN 1 ELSE 0 END)`,
+      })
+      .from(logs)
+      .where(start ? gte(logs.logDate, start) : undefined),
+    [period],
+  );
+
+  const row = data[0];
+  const total = row?.total ?? 0;
+  const repeated = row?.repeated ?? 0;
+  return {
+    total,
+    repeated,
+    rate: total > 0 ? Math.round((repeated / total) * 100) : 0,
+  };
+}
+
+export function calcAvgInterval(dates: Date[]): number {
+  if (dates.length === 0) return 0;
+  const sorted = [...dates].sort((a, b) => a.getTime() - b.getTime());
+  const totalDays = dayjs().diff(dayjs(sorted[0]), "day");
+  return totalDays > 0 ? Math.round(totalDays / dates.length) : 0;
+}
+
+export function useQuadrantStats() {
+  const { data = [] } = useLiveQuery(
+    db
+      .select({
+        quadrant: todos.quadrant,
+        total: count(),
+        completed: sql<number>`SUM(CASE WHEN ${todos.checkedAt} IS NOT NULL THEN 1 ELSE 0 END)`,
+      })
+      .from(todos)
+      .groupBy(todos.quadrant),
+  );
+
+  return data.map((row) => ({
+    quadrant: row.quadrant,
+    label: QUADRANT_LABELS[row.quadrant] ?? row.quadrant,
+    total: row.total,
+    completed: row.completed ?? 0,
+    rate:
+      row.total > 0
+        ? Math.round(((row.completed ?? 0) / row.total) * 100)
+        : 0,
+  }));
 }
 
 export function useCompletionRate(period: Period) {
