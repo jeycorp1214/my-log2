@@ -86,85 +86,38 @@
 
 ## 3. 데이터 모델 (expo-sqlite + drizzle-orm)
 
+> **현재 실제 스키마 기준.** planning.md의 초기 설계 코드와 다를 수 있음.
+
+| 테이블 | 주요 컬럼 |
+|--------|-----------|
+| `groups` | id, name, color, emoji, isDefault, sortOrder |
+| `persons` | id, name, birthDate, mbti, memo, groupId(**nullable**) |
+| `logs` | id, title, logDate, memo, repeatType(none/daily/weekly/monthly/yearly), repeatInterval, repeatUntil, groupId(**nullable**), **checkedAt** |
+| `logPersons` | id, logId, personId (N:M, cascade delete) |
+| `personAnniversaries` | id, personId, title, date(YYYY-MM-DD), isRepeat (cascade delete) |
+| `todos` | id, title, quadrant(do/schedule/delegate/eliminate), checkedAt |
+| `memos` | id, content, checkedAt |
+
+**마이그레이션 현황:**
+- 0000: groups, persons, logs, logPersons 기본 생성
+- 0001: logs.checked_at 추가
+- 0002: person_anniversaries 테이블 생성
+- 0003: memos 테이블 생성
+- 0004: todos 테이블 생성
+
+**drizzle-kit generate 해결 방법 (2026-05-15):**
+- `db/generate-id.ts` → `node:crypto` (drizzle-kit/Node.js 환경)
+- `db/generate-id.native.ts` → `expo-crypto` (React Native/Metro 환경)
+- Metro가 `.native.ts` 우선 resolve → 앱/drizzle-kit 환경 분리됨
+- generate 후 `drizzle/migrations.js`에 수동으로 import/export 추가 필요
+
 ```typescript
-// db/schema.ts
-import { int, text, sqliteTable, index } from "drizzle-orm/sqlite-core";
+// db/schema.ts (실제 파일 참조, 아래는 요약)
+import { index, int, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { randomUUID } from "./generate-id";
 
-export const groups = sqliteTable("groups", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: text("name").notNull(),
-  color: text("color").notNull(),
-  emoji: text("emoji"),
-  isDefault: int("is_default", { mode: "boolean" }).notNull().default(false),
-  sortOrder: int("sort_order").notNull().default(0),
-  createdAt: int("created_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: int("updated_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
-
-export const persons = sqliteTable("persons", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: text("name").notNull(),
-  birthDate: text("birth_date"),
-  mbti: text("mbti"),
-  memo: text("memo"),
-  groupId: text("group_id")
-    .notNull()
-    .references(() => groups.id),
-  createdAt: int("created_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: int("updated_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
-
-export const logs = sqliteTable(
-  "logs",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    title: text("title").notNull(),
-    logDate: int("log_date", { mode: "timestamp_ms" }).notNull(),
-    memo: text("memo"),
-    repeatType: text("repeat_type"), // none|daily|weekly|monthly|yearly
-    repeatInterval: int("repeat_interval"),
-    repeatUntil: int("repeat_until", { mode: "timestamp_ms" }),
-    groupId: text("group_id")
-      .notNull()
-      .references(() => groups.id),
-    createdAt: int("created_at", { mode: "timestamp_ms" })
-      .notNull()
-      .$defaultFn(() => new Date()),
-    updatedAt: int("updated_at", { mode: "timestamp_ms" })
-      .notNull()
-      .$defaultFn(() => new Date()),
-  },
-  (table) => [
-    index("log_date_idx").on(table.logDate), // 캘린더 날짜 범위 조회 최적화
-    index("log_group_id_idx").on(table.groupId), // 그룹별 필터링 최적화
-  ],
-);
-
-export const logPersons = sqliteTable("log_persons", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  logId: text("log_id")
-    .notNull()
-    .references(() => logs.id, { onDelete: "cascade" }),
-  personId: text("person_id")
-    .notNull()
-    .references(() => persons.id, { onDelete: "cascade" }),
-});
+// groups, persons, logs, logPersons, personAnniversaries, todos, memos
+// → db/schema.ts 직접 참조
 ```
 
 ### 3.1 DB 클라이언트 설정
@@ -663,35 +616,37 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 - [x] `npx expo install expo-dev-client` + `eas build:configure`
 - [x] `tailwind.config.js`에 Gluestack preset 등록
 - [x] `expo-sqlite` + `drizzle-orm` + `drizzle-kit` + `dayjs` + `@tanstack/react-query` + `expo-secure-store` 설치
-- [x] **실기기(Android)** 에서 빌드 검증 — 에뮬레이터에서는 IAP·Google Drive 로그인 미동작
+- [x] **실기기(Android)** 에서 빌드 검증
 
 ### Phase 1 — Core ✅ DONE
 
-- [x] drizzle Schema 정의 + 마이그레이션 파일 생성 + Seed 데이터 (기본 그룹 3개)
-- [x] 그룹 CRUD (커스텀 그룹 추가/수정/삭제, 기본 그룹 삭제 방지)
-- [x] 일정 CRUD + 반복 규칙 UI 동적 생성
-- [x] 인물 CRUD + 목록 뷰 (나이 표시: `calcAge(birthDate)`)
-- [x] logPersons N:M 조회 시 drizzle **relational query** 사용 (`db.query.logs.findMany({ with: { logPersons: { with: { person: true } } } })`)
-- [x] 캘린더 뷰 + 아코디언 목록 (Gluestack + NativeWind)
+- [x] drizzle Schema 정의 + 마이그레이션 + Seed 데이터
+- [x] 그룹/인물/로그 CRUD
+- [x] logPersons N:M 연결
+- [x] 캘린더 뷰
 
-### Phase 2 — Premium (2주)
+### Phase 2 ~ 9 — ✅ DONE (checklist.md 상세 참조)
+
+- [x] 반복 기능 (Virtual Occurrences)
+- [x] 리스트 탭 (체크박스·기간 필터·바텀시트 필터)
+- [x] 인물 기념일 D-Day
+- [x] 검색
+- [x] 캘린더 board 모드
+- [x] 노트 탭 (메모 + 아이젠하워 할 일)
+- [x] 홈 탭 → 최근 기록 30개 피드
+- [x] PIN 비밀번호 잠금 (LockScreen + PinPad + PinLockProvider)
+- [x] 히트맵, 타임라인 바텀시트
+- [x] StyleSheet → className 전환 완료
+
+### Phase Next — 미착수
 
 - [ ] Freemium 제한 로직 (카운트 게이트)
 - [ ] RN-IAP 결제 + 복원 플로우
 - [ ] Google Drive 백업/복원
-
-### Phase 3 — Retention (2주)
-
 - [ ] 로컬 알림 (생일, 기념일)
 - [ ] "오늘의 회상" 기능
 - [ ] 관계 온도계 UI
-
-### Phase 4 — Polish + 출시 (1주)
-
-- [ ] 테마 + 다크모드
-- [ ] 암호화 내보내기/공유
 - [ ] **Google Play Store 제출** (Android 우선)
-- [ ] iOS App Store 제출 (후속)
 
 ---
 

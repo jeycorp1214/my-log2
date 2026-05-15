@@ -327,3 +327,58 @@
 - `components/logs/LogCard.tsx` — className 우수 사용 예
 - `components/ui/button/index.tsx` — tva() + className 기준 패턴
 - `app/(tabs)/index.tsx` — 화면 레벨 className 우수 사용 예
+
+---
+
+# Phase 9 체크리스트 — 노트 탭 재편 + 홈 탭 변경
+
+## 노트 탭 (app/(tabs)/memo.tsx)
+
+- [x] 메모 서브탭 — 체크리스트 스타일 (체크/삭제/상세 이동)
+- [x] 할 일 서브탭 — 아이젠하워 매트릭스 (do/schedule/delegate/eliminate 2×2 그리드)
+- [x] QuickInputBar — 하단 빠른 입력 바 (내용 있으면 추가, 없으면 /memos/new 이동)
+- [x] 메모 필터 바텀시트 — 완료 상태(전체/완료/미완료) + 정렬(최신/오래된순) + 완료 항목 일괄 삭제
+- [x] TabPreferencesProvider 연동 — 메모 필터/정렬 설정 persist
+- [x] todos: useLiveQuery + 사분면별 필터링, 미완료 먼저 정렬
+
+## 홈 탭 변경
+
+- [x] app/(tabs)/index.tsx: 캘린더 뷰 제거 → 최근 기록 30개 목록
+- [x] TabsHeader + LogCard 재활용, FAB → /logs/new
+- [x] 캘린더 관련 훅(useCalendarLogs, useRepeatLogs 등) 홈 탭에서 분리됨
+
+## 타임라인 + 히트맵
+
+- [x] 인물 상세 타임라인 — 바텀 시트 형태
+- [x] app/settings/heatmap.tsx — 연간 기록 히트맵
+
+---
+
+# Phase 10 체크리스트 — 보안 (PIN 비밀번호)
+
+## Provider
+
+- [x] providers/PinLockProvider.tsx — isLocked/isPinEnabled + unlock/enablePin/disablePin/changePin/verifyPin
+- [x] utils/pin.ts — getStoredPin/savePin/deleteStoredPin (expo-secure-store)
+
+## 컴포넌트
+
+- [x] components/PinPad.tsx — 6자리 숫자 키패드, 점 표시, isError 빨간 점 피드백, C(초기화)/⌫(백스페이스)
+- [x] components/LockScreen.tsx — 앱 잠금 화면 (PinPad 사용)
+
+## 화면
+
+- [x] app/settings/password.tsx — PIN 잠금 토글(Switch) + 단계별 PinPad 입력(enable/disable/change)
+  - [x] enable: 새 PIN 입력 → 확인 → enablePin()
+  - [x] disable: 현재 PIN 검증 → disablePin()
+  - [x] change: 현재 PIN 검증 → 새 PIN 입력 → 확인 → changePin()
+  - [x] isError + flashError 700ms 흔들림 피드백
+
+## 설정 탭 연동
+
+- [x] settings.tsx: 보안 섹션 → /settings/password 라우팅
+
+## 개발 도구 확장
+
+- [x] db/seed.ts: seedSampleData() — 인물 5명 + 기록 10개 + 할 일 4개 + 메모 2개
+- [x] settings.tsx (debugMode=true일 때): 샘플 데이터 삽입 버튼

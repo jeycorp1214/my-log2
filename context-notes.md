@@ -138,3 +138,54 @@
 - providers/DatabaseProvider.tsx: DB 초기화 비동기 처리 분리
 - hooks/logs/use-calendar-logs.ts: CalendarScreen useLiveQuery 추출
 - hooks/persons/use-persons-with-groups.ts: PersonsScreen useLiveQuery + 그룹핑 추출
+
+---
+
+## 2026-05-10 ~ 2026-05-14 — 노트 탭 재편 + 홈 탭 변경
+
+### 노트 탭 아키텍처
+
+- memo.tsx: 메모/할 일 서브탭 단일 파일. 상태가 많지만 분리하면 오히려 prop 전달이 복잡해짐 → 단일 파일 유지.
+- 아이젠하워 매트릭스: 2×2 그리드 셀을 Pressable로 사분면 선택, 하단 FlatList에 해당 사분면 항목 표시.
+- todos 정렬: 미완료 먼저(.sort), DB 레벨에서 createdAt asc 후 JS에서 checkedAt 기준 재정렬.
+- QuickInputBar: content 있으면 DB insert + 초기화, 없으면 /memos/new 이동 (긴 메모 작성 용도).
+- TabPreferencesProvider: 메모 completionFilter + sortOrder persist. AsyncStorage 기반.
+
+### 홈 탭 결정
+
+- 캘린더 제거 이유: 캘린더는 기록이 쌓인 후에 가치가 있음. 초기 사용 단계에서 빈 달력보다 최근 기록 피드가 더 직관적.
+- 검색 아이콘(TabsHeader searchOnPress=true) 유지 → /search 이동.
+- 캘린더 뷰는 삭제하지 않고 settings/calendar-test.tsx에 테스트 화면으로 유지.
+
+### 타임라인 + 히트맵
+
+- 인물 상세 타임라인: persons/[id].tsx에 바텀 시트 추가 (RN Modal).
+- settings/heatmap.tsx: 연간 기록 히트맵, 주 단위 그리드.
+
+---
+
+## 2026-05-15 — drizzle-kit generate 해결 + PIN 비밀번호 기능
+
+### drizzle-kit generate 영구 해결
+
+- 문제: db/schema.ts에서 expo-crypto import → drizzle-kit(esbuild) RN 코드 파싱 불가
+- 해결: Metro 플랫폼 분기 파일
+  - db/generate-id.ts: `import { randomUUID } from 'node:crypto'` (drizzle-kit용)
+  - db/generate-id.native.ts: `import * as Crypto from 'expo-crypto'` (React Native 앱용)
+  - Metro가 .native.ts 우선 resolve → 앱은 expo-crypto, drizzle-kit은 node:crypto
+- 이후 스키마 변경 시 `npx drizzle-kit generate` 실행 가능. generate 후 drizzle/migrations.js에 수동으로 import 추가 필요.
+
+### PIN 비밀번호 아키텍처 결정
+
+- 6자리 숫자 PIN (4자리보다 보안↑, 생체인증보다 구현 단순).
+- 저장소: expo-secure-store (iOS Keychain / Android Keystore). 평문 저장 (PIN은 비밀번호 관리자 용도 아님, 앱 잠금 목적).
+- PinLockProvider: 전역 isLocked/isPinEnabled 상태. 앱 시작 시 getStoredPin() → PIN 있으면 isLocked=true.
+- LockScreen: PinLockProvider.isLocked=true일 때 앱 전체를 덮는 오버레이. _layout.tsx에서 렌더.
+- PinPad: 재사용 컴포넌트. password.tsx(설정)와 LockScreen(잠금 해제) 모두 사용.
+- isError: flashError() → 700ms 후 에러 해제 + pin 초기화. 재입력 유도.
+- 단계 흐름: enable(새PIN→확인), disable(현재PIN 검증), change(현재→새→확인).
+
+### 샘플 데이터 (seedSampleData)
+
+- 개발/데모용. debugMode=true 시에만 설정 탭에 노출.
+- 인물 5명(각 그룹), 기록 10개(날짜 분산), 할 일 4개(각 사분면), 메모 2개.
