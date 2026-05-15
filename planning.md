@@ -638,6 +638,26 @@ export function PersonCard({ name, age, group, onPress }: Props) {
 - [x] 히트맵, 타임라인 바텀시트
 - [x] StyleSheet → className 전환 완료
 
+### Phase 11 — 통계 (Stats) 🔄 진행 중
+
+**v1 완료 (2026-05-16)**
+- [x] `hooks/stats/use-stats.ts` — 6개 훅 + `calcStreak()`
+- [x] `app/settings/stats.tsx` — 요약 / 인물 랭킹 / 마지막 연결 / 카테고리 비율 / 스트릭 / 완료율
+- [x] `settings.tsx` 통계 링크 + `_layout.tsx` Stack.Screen 등록
+
+**v2 추가 아이디어 — 우선순위별 구현**
+
+| 우선순위 | 항목 | 훅 | 조건 |
+|---------|------|-----|------|
+| P1 | 반복 기록 비율 | `useRepeatRatio(period)` | 즉시 |
+| P1 | 평균 기록 간격 | `useAvgInterval()` | 즉시 |
+| P1 | 할일 사분면별 완료율 | `useQuadrantStats()` | 즉시 |
+| P2 | 기록 없는 최장 공백 | `calcLongestGap()` | 기록 30개↑ |
+| P3 | MBTI 분포 | `useMbtiDistribution()` | 인물 10명↑ |
+| P3 | 함께 등장 빈도 | `useCoAppearance()` | 동반 기록 10건↑ |
+
+> 구현 상세: checklist.md Phase 11 추가 아이디어 섹션 참조
+
 ### Phase Next — 미착수
 
 - [ ] Freemium 제한 로직 (카운트 게이트)

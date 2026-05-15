@@ -382,3 +382,109 @@
 
 - [x] db/seed.ts: seedSampleData() — 인물 5명 + 기록 10개 + 할 일 4개 + 메모 2개
 - [x] settings.tsx (debugMode=true일 때): 샘플 데이터 삽입 버튼
+
+---
+
+# Phase 11 체크리스트 — 통계 (Stats)
+
+## 훅
+
+- [x] `hooks/stats/use-stats.ts` — 통계 집계 쿼리 모음 (useLiveQuery 기반)
+  - [x] `useSummaryStats()` — 총 기록수 / 총 인물수 / 이번 달 기록수
+  - [x] `usePersonRanking(period)` — 인물별 등장 횟수 + 마지막 날짜 (period: 'month' | 'year' | 'all')
+  - [x] `useLastContact()` — 인물별 마지막 연결 날짜, 오래된 순 정렬
+  - [x] `useCategoryRatio(period)` — 그룹별 기록 수 + 비율 (period: 'month' | 'year' | 'all')
+  - [x] `useAllLogDates()` + `calcStreak()` — 연속 기록 일수 (JS 계산)
+  - [x] `useCompletionRate(period)` — 로그 완료율 (checkedAt IS NOT NULL / total)
+
+## 화면
+
+- [x] `app/settings/stats.tsx` — 통계 메인 페이지
+  - [x] 요약 카드 3개 (총 기록수 / 총 인물수 / 이번 달 기록수)
+  - [x] 인물 랭킹 섹션 (기간 칩: 이번 달 / 올해 / 전체)
+  - [x] 마지막 연결 리스트 (오래된 순 TOP 5, fromNow() 표시)
+  - [x] 카테고리 비율 섹션 (그룹 색상 프로그레스 바, 기간 칩 연동)
+  - [x] 기록 스트릭 카드 (현재 / 최장)
+  - [x] 완료율 카드 (기간 칩 연동)
+
+## 라우팅
+
+- [x] `app/_layout.tsx` — `settings/stats` Stack.Screen 등록
+- [x] `app/(tabs)/settings.tsx` — 통계 섹션에 `/settings/stats` 링크 추가
+
+## 추가 아이디어 구현 계획
+
+### P1 — 즉시 구현 (데이터 없어도 의미 있음)
+
+- [x] **반복 기록 비율** — `useRepeatRatio(period)`. stats.tsx 완료율 카드 아래 2열 배치. 반복 기록 비율 프로그레스 바 (amber 색).
+- [x] **평균 기록 간격** — `calcAvgInterval(dates)` 순수 함수 (JS). 첫 기록일~오늘 / 총 기록수. 반복 비율 카드 옆 배치.
+- [x] **할일 사분면별 완료율** — `useQuadrantStats()`. todos GROUP BY quadrant. 사분면별 프로그레스 바 섹션. 할일 없으면 섹션 숨김.
+
+### P2 — 데이터 어느 정도 필요 (기록 30개↑)
+
+- [x] **기록 없는 최장 공백** — `calcLongestGap(dates)` 순수 함수. 스트릭 카드 3열(현재/최장/공백)로 확장. 스트릭 카드에 flex:2 비율 적용.
+
+### P3 — 항상 표시 (데이터 없으면 섹션 숨김)
+
+- [x] **MBTI 분포** — `useMbtiDistribution()`. persons GROUP BY mbti WHERE mbti IS NOT NULL. 데이터 없으면 섹션 자체 미표시.
+- [x] **함께 등장 빈도** — `useCoAppearance()`. logPersons self alias JOIN. TOP 5. 데이터 없으면 섹션 자체 미표시.
+
+## 설계 결정 메모
+
+- 차트 라이브러리 없음 — 단순 프로그레스 바 + 텍스트 (의존성 미추가)
+- 스키마 변경 없음 — 기존 테이블만으로 충분
+- 기간 필터 상태: 페이지 로컬 state (persist 불필요)
+- 스트릭 계산: DB에서 날짜 목록 로드 → JS에서 연속 날짜 카운트
+- useLiveQuery 사용: 기록 추가/삭제 시 통계 자동 갱신
+
+---
+
+# Phase 12 체크리스트 — 캘린더 탭
+
+## 신규 파일
+
+- [x] `app/(tabs)/calendar.tsx` — 캘린더 탭 메인 화면
+- [x] `hooks/useCalendarData.ts` — markedDates + dayItems 계산 훅
+- [x] `components/calendar/AnniversaryCard.tsx` — 기념일 D-Day 카드
+
+## 탭 등록
+
+- [x] `app/(tabs)/_layout.tsx` — 캘린더 탭 추가 (아이콘: CalendarDays)
+
+## 캘린더 뷰 (react-native-calendars 기반)
+
+- [x] `Calendar` 컴포넌트 + `enableSwipeMonths` 적용
+- [x] `CALENDAR_THEME` — calendar.tsx 내 상수로 정의 (transparent 배경)
+- [x] 월 변경 시 `currentMonth` state 업데이트 → 훅 재계산
+- [x] 선택 날짜 하이라이트 (`selected: true`)
+- [x] multi-dot marking: 종류별 1개 dot (log/repeat/anniversary)
+
+## markedDates 계산 (`useCalendarData`)
+
+- [x] 로그 dot — `logs.logDate` 기준, key: `'log'`, color: `#4ECDC4`
+- [x] 반복 로그 dot — `expandRepeatInMonth()` 재활용, key: `'repeat'`, color: `#f59e0b`
+- [x] 기념일 dot — `personAnniversaries` + `persons.birthDate`, key: `'anniversary'`, color: `#f97316`
+- [x] `isRepeat=true` 기념일: 올해 날짜로 정규화 (매년 반복)
+- [x] `birthDate`: 항상 매년 반복으로 처리
+
+## 하단 패널 (고정 절반 레이아웃)
+
+- [x] 선택 날짜 섹션 헤더 (날짜 + 요일 표시)
+- [x] 로그 아이템 — 기존 `LogCard` 재활용, 탭 시 `/logs/[id]` 이동
+- [x] 반복 로그 아이템 — 기존 `LogCard` + `occurrenceDate` param, opacity 0.65 구분
+- [x] 기념일 아이템 — `AnniversaryCard` (인물명 + 기념일 제목 + D-Day)
+- [x] 빈 날짜 — "기록이 없습니다" 안내 + FAB으로 추가 유도
+
+## FAB
+
+- [x] 우측 하단 FAB — `/logs/new?date=YYYY-MM-DD` (선택 날짜 프리필)
+
+## 설계 결정 메모
+
+- `calendar-test.tsx` 삭제 안 함 — 설정에 그대로 유지 (라이브러리 탐색용)
+- 하단 패널: BottomSheet 아님, 고정 절반 View (reanimated 의존성 증가 방지)
+- 빈 날짜 탭 시: 패널만 열림 (실수 이동 방지), FAB으로 로그 추가
+- 할일(todos): 날짜 컬럼 없어서 캘린더 연동 제외
+- 기념일 D-Day: `dDayLabel()` 기존 유틸 재활용
+- 반복 로그 스타일: `opacity-60` or 점선 처리로 가상 occurrence 구분
+- 성능: 월 단위 쿼리 (`logDate >= monthStart AND logDate < nextMonthStart`)
