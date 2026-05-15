@@ -232,3 +232,59 @@ db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: c
 - 기간별 비교 (이번 달 vs 지난 달 delta): 현재 단일 기간만 표시, 추후 delta 뱃지 추가 가능.
 - 함께 등장 빈도 (logPersons self JOIN): A-B 조합 TOP 5. 데이터 충분히 쌓인 후 의미 있음.
 - MBTI 분포: persons GROUP BY mbti. 재미 요소, 인물 10명 이상일 때 유의미.
+
+---
+
+## 2026-05-16 — Phase 12: 캘린더 탭
+
+### 배경
+
+홈 탭이 Phase 9에서 최근 기록 목록으로 변경되면서 캘린더 뷰가 앱에서 사라짐.
+날짜별 기록 조회 + 기념일 확인 UX 복원을 위해 별도 탭으로 신설.
+
+### 라이브러리
+
+`react-native-calendars` 이미 설치됨 (calendar-test.tsx에서 사용 중).
+직접 구현 불필요. `Calendar` 컴포넌트 + `markingType="multi-dot"` 채택.
+
+### 레이아웃 결정 — 고정 5:5 분할
+
+- 옵션 A (고정 절반): 상단 Calendar + 하단 FlatList, 비율 고정
+- 옵션 B (BottomSheet): reanimated 기반 드래그 확장
+- 옵션 C (ScrollView): 캘린더가 스크롤 아웃됨
+- **채택: A** — reanimated 의존성 증가 없이 단순 구현. 캘린더 항상 노출.
+
+### dot 마킹 전략 — 종류별 1개
+
+날짜 셀이 작아서 숫자 뱃지 가독성 나쁨. 카테고리별 색상 dot 1개씩.
+
+| key | color | 의미 |
+|-----|-------|------|
+| `log` | `#4ECDC4` | 일반 로그 |
+| `repeat` | `#f59e0b` | 반복 로그 (가상 occurrence) |
+| `anniversary` | `#f97316` | 기념일 / 생년월일 |
+
+### 기념일 날짜 정규화
+
+`personAnniversaries.isRepeat = true` → `dayjs(date).year(currentYear)` 로 올해 날짜 변환.
+`persons.birthDate` → 항상 올해 날짜로 변환 (생일은 무조건 매년).
+기준: 이미 지난 날짜면 내년으로 이월 (기존 `dDayLabel()` 로직과 동일).
+
+### 반복 로그 재활용
+
+`expandRepeatInMonth()` (utils/repeat.ts) 그대로 재활용.
+가상 occurrence는 실제 로그와 시각적으로 구분 — `opacity-60` 적용 예정.
+
+### 할일 제외
+
+`todos` 테이블에 날짜 컬럼 없음 (`id, title, quadrant, checkedAt`).
+스키마 변경 없이 캘린더 탭 범위에서 제외. 향후 `dueDate` 컬럼 추가 시 연동 가능.
+
+### FAB logDate 프리필
+
+날짜 선택 후 FAB 탭 → `/logs/new?logDate=YYYY-MM-DD` 로 이동.
+`logs/new.tsx`에서 `searchParams.logDate` 수신 → `logDate` 초기값 세팅 필요 (기존 없음, 추가).
+
+### calendar-test.tsx 보존
+
+삭제하지 않음. 설정 > 개발자 옵션에 그대로 유지. 라이브러리 탐색/디버그 용도.
