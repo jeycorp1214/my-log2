@@ -1,5 +1,6 @@
 // 인물 상세 / 수정 / 삭제 모달 화면
 import { DraftAnniversary, PersonForm } from "@/components/persons/PersonForm";
+import { PersonStatsCard } from "@/components/persons/PersonStatsCard";
 import { TimelineItem } from "@/components/persons/TimelineItem";
 import { db } from "@/db/client";
 import {
@@ -236,6 +237,10 @@ export default function PersonDetailScreen() {
                 </Text>
               </View>
             )}
+
+            <PersonStatsCard
+              logDates={personLogs.map((p) => p.log.logDate)}
+            />
 
             <Text className="text-app-label text-[13px] font-semibold mt-6 mb-3 uppercase tracking-[0.5px]">
               타임라인 ({timelineEntries.length})

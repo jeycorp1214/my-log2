@@ -6,6 +6,7 @@ import m0001 from './0001_add_checked_at.sql';
 import m0002 from './0002_person_anniversaries.sql';
 import m0003 from './0003_add_memos.sql';
 import m0004 from './0004_add_todos.sql';
+import m0005 from './0005_add_is_pinned.sql';
 
   export default {
     journal,
@@ -14,6 +15,7 @@ import m0004 from './0004_add_todos.sql';
 m0001,
 m0002,
 m0003,
-m0004
+m0004,
+m0005
     }
   }

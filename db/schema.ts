@@ -30,6 +30,7 @@ export const persons = sqliteTable("persons", {
   groupId: text("group_id")
     .notNull()
     .references(() => groups.id),
+  isPinned: int("is_pinned", { mode: "boolean" }).notNull().default(false),
   createdAt: int("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),

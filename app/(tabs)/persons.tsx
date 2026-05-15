@@ -5,6 +5,7 @@ import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { PersonCard } from "@/components/persons/PersonCard";
 import { db } from "@/db/client";
+import { eq } from "drizzle-orm";
 import { groups, persons } from "@/db/schema";
 import {
   type AnniversaryBoardItem,
@@ -41,6 +42,7 @@ type Person = {
   birthDate?: string | null;
   mbti?: string | null;
   groupId: string;
+  isPinned: boolean;
   createdAt: Date;
 };
 
@@ -188,6 +190,18 @@ export default function PersonsScreen() {
     ) as typeof ungrouped;
   }, [ungrouped, sortOrder, groupFilter, mbtiFilter, mbtiDetail]);
 
+  const pinnedPersons = useMemo(
+    () => allPersons.filter((p) => p.isPinned),
+    [allPersons],
+  );
+
+  async function togglePin(personId: string, current: boolean) {
+    await db
+      .update(persons)
+      .set({ isPinned: !current, updatedAt: new Date() })
+      .where(eq(persons.id, personId));
+  }
+
   function toggleCollapse(id: string) {
     setCollapsedGroups((prev) => {
       const next = new Set(prev);
@@ -246,6 +260,35 @@ export default function PersonsScreen() {
               </Text>
             ) : (
               <>
+                {pinnedPersons.length > 0 && (
+                  <View className="mb-6">
+                    <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px] mb-2">
+                      📌 고정{"  "}
+                      <Text className="text-[#555] font-normal">
+                        {pinnedPersons.length}
+                      </Text>
+                    </Text>
+                    {pinnedPersons.map((person) => {
+                      const grp = allGroups.find((g) => g.id === person.groupId);
+                      return (
+                        <PersonCard
+                          key={person.id}
+                          person={person}
+                          groupColor={grp?.color ?? "#555"}
+                          onPress={() =>
+                            router.push({
+                              pathname: "/persons/[id]",
+                              params: { id: person.id },
+                            })
+                          }
+                          onLongPress={() =>
+                            togglePin(person.id, person.isPinned)
+                          }
+                        />
+                      );
+                    })}
+                  </View>
+                )}
                 {sortedGroupedPersons.map(({ group, members }) => {
                   const collapsed = collapsedGroups.has(group.id);
                   return (
@@ -279,6 +322,9 @@ export default function PersonsScreen() {
                                 pathname: "/persons/[id]",
                                 params: { id: person.id },
                               })
+                            }
+                            onLongPress={() =>
+                              togglePin(person.id, person.isPinned)
                             }
                           />
                         ))}
@@ -315,6 +361,9 @@ export default function PersonsScreen() {
                               pathname: "/persons/[id]",
                               params: { id: person.id },
                             })
+                          }
+                          onLongPress={() =>
+                            togglePin(person.id, person.isPinned)
                           }
                         />
                       ))}
