@@ -141,6 +141,23 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* 백업 */}
+        <View className="mb-8">
+          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+            백업
+          </Text>
+          <View className="bg-app-surface rounded-[12px] overflow-hidden">
+            <Pressable
+              onPress={() => router.push("/settings/backup")}
+              className="flex-row items-center px-[14px] py-[16px]"
+              style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+            >
+              <Text className="flex-1 text-white text-sm">백업 / 복원</Text>
+              <ChevronRight size={16} color="#666" />
+            </Pressable>
+          </View>
+        </View>
+
         {/* 통계 */}
         <View className="mb-8">
           <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">

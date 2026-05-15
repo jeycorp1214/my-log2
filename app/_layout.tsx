@@ -97,6 +97,10 @@ export default function RootLayout() {
                         options={{ title: "데이터 확인" }}
                       />
                       <Stack.Screen
+                        name="settings/backup"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
                         name="settings/tab-prefs"
                         options={{ title: "탭 기본 설정" }}
                       />
