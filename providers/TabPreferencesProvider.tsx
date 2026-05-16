@@ -55,11 +55,23 @@ export type MemoPrefs = {
   showDate: boolean;
 };
 
+export type HomePrefs = {
+  showMonthSummary: boolean;
+  showStreak: boolean;
+  showUpcomingAnn: boolean;
+  showTodayRepeat: boolean;
+  showOverduePersons: boolean;
+  showPinnedMemos: boolean;
+  showTodoStatus: boolean;
+  showRecentLogs: boolean;
+};
+
 export type AllTabPrefs = {
   calendar: CalendarPrefs;
   list: ListPrefs;
   persons: PersonsPrefs;
   memo: MemoPrefs;
+  home: HomePrefs;
 };
 
 const DEFAULT_PREFS: AllTabPrefs = {
@@ -80,6 +92,16 @@ const DEFAULT_PREFS: AllTabPrefs = {
     mbtiDetail: "",
   },
   memo: { completionFilter: "all", sortOrder: "newest", showDate: false },
+  home: {
+    showMonthSummary: true,
+    showStreak: true,
+    showUpcomingAnn: true,
+    showTodayRepeat: false,
+    showOverduePersons: false,
+    showPinnedMemos: false,
+    showTodoStatus: false,
+    showRecentLogs: true,
+  },
 };
 
 type ContextValue = {
@@ -88,6 +110,7 @@ type ContextValue = {
   setListPrefs: (p: Partial<ListPrefs>) => void;
   setPersonsPrefs: (p: Partial<PersonsPrefs>) => void;
   setMemoPrefs: (p: Partial<MemoPrefs>) => void;
+  setHomePrefs: (p: Partial<HomePrefs>) => void;
 };
 
 const TabPreferencesContext = createContext<ContextValue>({
@@ -96,6 +119,7 @@ const TabPreferencesContext = createContext<ContextValue>({
   setListPrefs: () => {},
   setPersonsPrefs: () => {},
   setMemoPrefs: () => {},
+  setHomePrefs: () => {},
 });
 
 export function TabPreferencesProvider({ children }: { children: ReactNode }) {
@@ -111,6 +135,7 @@ export function TabPreferencesProvider({ children }: { children: ReactNode }) {
           list: { ...prev.list, ...parsed.list },
           persons: { ...prev.persons, ...parsed.persons },
           memo: { ...prev.memo, ...parsed.memo },
+          home: { ...prev.home, ...parsed.home },
         }));
       } catch {}
     });
@@ -148,6 +173,14 @@ export function TabPreferencesProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setHomePrefs = useCallback((p: Partial<HomePrefs>) => {
+    setPrefs((prev) => {
+      const next = { ...prev, home: { ...prev.home, ...p } };
+      writePrefs(JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   return (
     <TabPreferencesContext.Provider
       value={{
@@ -156,6 +189,7 @@ export function TabPreferencesProvider({ children }: { children: ReactNode }) {
         setListPrefs,
         setPersonsPrefs,
         setMemoPrefs,
+        setHomePrefs,
       }}
     >
       {children}

@@ -1,5 +1,9 @@
 // 홈 탭 — 대시보드형: 이번달 요약 + 스트릭 + 임박 기념일 + 최근 기록
 import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { OverduePersonsWidget } from "@/components/home/OverduePersonsWidget";
+import { PinnedMemosWidget } from "@/components/home/PinnedMemosWidget";
+import { TodayRepeatWidget } from "@/components/home/TodayRepeatWidget";
+import { TodoStatusWidget } from "@/components/home/TodoStatusWidget";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { HomeLogItem } from "@/components/logs/HomeLogItem";
 import { db } from "@/db/client";
@@ -10,20 +14,35 @@ import {
   useAllLogDates,
   useCompletionRate,
 } from "@/hooks/stats/use-stats";
+import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { desc, eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { useRouter } from "expo-router";
-import { useMemo } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Modal, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 dayjs.locale("ko");
 
 const DAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
+const WIDGET_LABELS: { key: keyof import("@/providers/TabPreferencesProvider").HomePrefs; label: string }[] = [
+  { key: "showMonthSummary",  label: "이번 달 요약" },
+  { key: "showStreak",        label: "스트릭" },
+  { key: "showUpcomingAnn",   label: "다가오는 기념일" },
+  { key: "showTodayRepeat",   label: "오늘의 반복" },
+  { key: "showOverduePersons",label: "연락 필요 인물" },
+  { key: "showPinnedMemos",   label: "고정 메모" },
+  { key: "showTodoStatus",    label: "할 일 현황" },
+  { key: "showRecentLogs",    label: "최근 기록" },
+];
+
 export default function HomeScreen() {
   const router = useRouter();
+  const { prefs, setHomePrefs } = useTabPreferences();
+  const home = prefs.home;
+  const [showWidgetSheet, setShowWidgetSheet] = useState(false);
 
   const today = useMemo(() => dayjs(), []);
   const todayStr = today.format(
@@ -78,7 +97,11 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <TabsHeader title="홈" searchOnPress={true} />
+      <TabsHeader
+        title="홈"
+        searchOnPress={true}
+        slidersOnPress={() => setShowWidgetSheet(true)}
+      />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 96 }}
@@ -90,6 +113,7 @@ export default function HomeScreen() {
         </View>
 
         {/* 이번달 요약 카드 */}
+        {home.showMonthSummary && (
         <View className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4">
           <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
             이번 달 요약
@@ -115,8 +139,10 @@ export default function HomeScreen() {
             />
           </View>
         </View>
+        )}
 
         {/* 스트릭 카드 */}
+        {home.showStreak && (
         <View className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4 flex-row gap-4">
           <View className="flex-1 items-center">
             <Text className="text-[28px] font-bold text-white">
@@ -132,9 +158,22 @@ export default function HomeScreen() {
             <Text className="text-app-muted text-[12px] mt-0.5">최장 스트릭</Text>
           </View>
         </View>
+        )}
+
+        {/* 새 위젯: 오늘의 반복 */}
+        {home.showTodayRepeat && <TodayRepeatWidget />}
+
+        {/* 새 위젯: 연락 필요 인물 */}
+        {home.showOverduePersons && <OverduePersonsWidget />}
+
+        {/* 새 위젯: 고정 메모 */}
+        {home.showPinnedMemos && <PinnedMemosWidget />}
+
+        {/* 새 위젯: 할 일 현황 */}
+        {home.showTodoStatus && <TodoStatusWidget />}
 
         {/* 임박 기념일 */}
-        {upcomingAnn.length > 0 && (
+        {home.showUpcomingAnn && upcomingAnn.length > 0 && (
           <View className="mx-4 mb-4">
             <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-2 px-1">
               다가오는 기념일
@@ -176,6 +215,7 @@ export default function HomeScreen() {
         )}
 
         {/* 최근 기록 */}
+        {home.showRecentLogs && (
         <View className="mx-4">
           <View className="flex-row items-center justify-between mb-2 px-1">
             <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
@@ -212,8 +252,44 @@ export default function HomeScreen() {
             </View>
           )}
         </View>
+        )}
       </ScrollView>
       <FloatingActionButton onPress={() => router.push("/logs/new")} />
+
+      {/* 위젯 표시 설정 바텀시트 */}
+      <Modal
+        visible={showWidgetSheet}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowWidgetSheet(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-end"
+          onPress={() => setShowWidgetSheet(false)}
+        >
+          <Pressable
+            className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10"
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
+            <Text className="text-white text-[16px] font-bold mb-4">홈 화면 구성</Text>
+            {WIDGET_LABELS.map(({ key, label }) => (
+              <View
+                key={key}
+                className="flex-row items-center justify-between py-3 border-b border-[#1e1e1e]"
+              >
+                <Text className="text-white text-[14px]">{label}</Text>
+                <Switch
+                  value={home[key]}
+                  onValueChange={(v) => setHomePrefs({ [key]: v })}
+                  trackColor={{ false: "#333", true: "#4ecdc4" }}
+                  thumbColor="#fff"
+                />
+              </View>
+            ))}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
