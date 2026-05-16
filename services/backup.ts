@@ -98,7 +98,8 @@ export async function pickBackupFile(): Promise<BackupData> {
     throw new Error("JSON 파싱 실패 — 올바른 백업 파일이 아닙니다.");
   }
 
-  if (backup.version !== BACKUP_VERSION) {
+  // 현재보다 낮은 버전은 허용 (컬럼 추가만 있었으면 복원 가능)
+  if (typeof backup.version !== "number" || backup.version > BACKUP_VERSION) {
     throw new Error(`지원하지 않는 버전입니다. (version: ${backup.version})`);
   }
 

@@ -27,52 +27,32 @@ async function ensureColumns(
   }
 }
 
-async function ensurePersonsColumns() {
+// 마이그레이션 누락 시 안전망 — 테이블별 컬럼 존재 여부 보장
+async function ensureAllLegacyColumns() {
+  await ensureColumns("groups", [
+    { column: "sort_order", sql: "ALTER TABLE groups ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0" },
+  ]);
   await ensureColumns("persons", [
-    {
-      column: "is_pinned",
-      sql: "ALTER TABLE persons ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0",
-    },
-    {
-      column: "contact_interval",
-      sql: "ALTER TABLE persons ADD COLUMN contact_interval INTEGER",
-    },
+    { column: "is_pinned", sql: "ALTER TABLE persons ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0" },
+    { column: "contact_interval", sql: "ALTER TABLE persons ADD COLUMN contact_interval INTEGER" },
     { column: "tags", sql: "ALTER TABLE persons ADD COLUMN tags TEXT" },
     { column: "met_at", sql: "ALTER TABLE persons ADD COLUMN met_at TEXT" },
   ]);
-}
-
-async function ensureTodosColumns() {
   await ensureColumns("todos", [
     { column: "note", sql: "ALTER TABLE todos ADD COLUMN note TEXT" },
     { column: "due_date", sql: "ALTER TABLE todos ADD COLUMN due_date TEXT" },
   ]);
-}
-
-async function ensureMemosColumns() {
   await ensureColumns("memos", [
-    {
-      column: "pinned_at",
-      sql: "ALTER TABLE memos ADD COLUMN pinned_at INTEGER",
-    },
-  ]);
-}
-
-async function ensureGroupsColumns() {
-  await ensureColumns("groups", [
-    { column: "sort_order", sql: "ALTER TABLE groups ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0" },
+    { column: "pinned_at", sql: "ALTER TABLE memos ADD COLUMN pinned_at INTEGER" },
   ]);
 }
 
 export async function runMigrations() {
   await migrate(db, migrations);
-  await ensureGroupsColumns();
-  await ensurePersonsColumns();
-  await ensureTodosColumns();
-  await ensureMemosColumns();
+  await ensureAllLegacyColumns();
 }
 
-// 테이블 전체 DROP 후 마이그레이션 재실행 — 스키마 구조까지 초기화
+// 전체 데이터 삭제 + 마이그레이션 재실행 — 복구 불가. 개발/QA 전용.
 export async function resetDatabase() {
   const drops = [
     "DROP TABLE IF EXISTS log_persons",

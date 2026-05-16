@@ -228,16 +228,23 @@ npm uninstall expo-notifications
 | 코드 | 항목 | 파일 | 작업량 |
 |------|------|------|--------|
 | ✅ C1 | importData 트랜잭션 | `services/backup.ts` | 소 |
-| C2 | 백업 버전 마이그레이션 경로 | `services/backup.ts` | 중 |
-| H1 | expandRepeatInMonth O(n) 스킵 | `utils/repeat.ts` | 소 |
-| H2 | useCalendarData 쿼리 최적화 | `hooks/useCalendarData.ts` | 소 |
-| H3 | useEventFilter 반복 expand 범위 | H1 해결 시 자동 개선 | — |
-| M1 | ensureColumns 병합 | `db/client.ts` | 소 |
-| M2 | tags JSON 파싱 중앙화 | `utils/person.ts` 신규 | 소 |
-| M3 | SecureStore → AsyncStorage | `providers/TabPreferencesProvider.tsx` | 소 |
-| M4 | repeatType DB 제약 | 신규 마이그레이션 | 소 |
-| M5 | resetDatabase 함수명 | `db/client.ts` | 극소 |
-| L1 | expo-notifications 제거 | `package.json` | 극소 |
-| L2 | 루트 문서 정리 | 루트 파일들 | 극소 |
-| L3 | 유틸 단위 테스트 | `__tests__/` 신규 | 중 |
+| ✅ C2 | 백업 버전 관대한 체크 (`>` 비교로 변경) | `services/backup.ts` | 소 |
+| ✅ H1 | expandRepeatInMonth O(1) 수학적 점프 | `utils/repeat.ts` | 소 |
+| ✅ H2 | useCalendarData 쿼리 최적화 | `hooks/useCalendarData.ts` | 소 |
+| ✅ H3 | useEventFilter — H1 적용으로 자동 개선 | — | — |
+| ✅ M1 | ensureAllLegacyColumns 단일 함수로 병합 | `db/client.ts` | 소 |
+| ✅ M2 | parseTags util 중앙화 — 6곳 교체 | `utils/person.ts` 신규 | 소 |
+| ✅ M3 | SecureStore → expo-file-system | `providers/TabPreferencesProvider.tsx` | 소 |
+| ✅ M4 | REPEAT_TYPES 상수 + RepeatType 타입 export | `utils/repeat.ts` | 소 |
+| ✅ M5 | resetDatabase 주석 경고 강화 | `db/client.ts` | 극소 |
+| ✅ L1 | expo-notifications 제거 | `package.json` | 극소 |
+| ✅ L2 | 루트 stale 문서 → `docs/archive/` 이동 | 루트 파일 7개 | 극소 |
+| ✅ L3 | 유틸 단위 테스트 작성 | `__tests__/utils/` 신규 | 중 |
 | L4 | drizzle meta 스냅샷 보완 | `drizzle/meta/` | 소 |
+
+### L3 테스트 실행 방법
+
+```bash
+npm install   # jest-expo, @types/jest 설치 필요
+npm test
+```

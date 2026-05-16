@@ -1,6 +1,6 @@
 // 캘린더 탭 — 월별 markedDates와 선택 날짜 항목 계산 훅
 import dayjs from "dayjs";
-import { and, gte, isNotNull, lt, ne } from "drizzle-orm";
+import { and, gte, isNotNull, isNull, lt, ne, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useMemo } from "react";
 
@@ -58,7 +58,14 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
     db
       .select()
       .from(logs)
-      .where(and(isNotNull(logs.repeatType), ne(logs.repeatType, "none"))),
+      .where(
+        and(
+          isNotNull(logs.repeatType),
+          ne(logs.repeatType, "none"),
+          lt(logs.logDate, monthEnd.add(1, "day").startOf("day").toDate()),
+          or(isNull(logs.repeatUntil), gte(logs.repeatUntil, monthStart.toDate())),
+        ),
+      ),
     [monthStartMs, monthEndMs],
   );
 
@@ -66,7 +73,9 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
     db.select().from(personAnniversaries),
   );
 
-  const { data: allPersons = [] } = useLiveQuery(db.select().from(persons));
+  const { data: allPersons = [] } = useLiveQuery(
+    db.select({ id: persons.id, name: persons.name, birthDate: persons.birthDate }).from(persons),
+  );
 
   // dots 계산 — 선택 날짜와 무관하게 월/데이터 변경 시에만 재계산
   const baseDots = useMemo((): MarkedDates => {

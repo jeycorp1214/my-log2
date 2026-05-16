@@ -1,5 +1,5 @@
-// 탭별 필터·뷰 설정을 전역 관리하고 SecureStore로 앱 재시작 간 유지하는 Provider
-import * as SecureStore from "expo-secure-store";
+// 탭별 필터·뷰 설정을 전역 관리하고 파일로 앱 재시작 간 유지하는 Provider
+import * as FileSystem from "expo-file-system/legacy";
 import {
   createContext,
   useCallback,
@@ -9,7 +9,23 @@ import {
   type ReactNode,
 } from "react";
 
-const PREFS_KEY = "app_tab_preferences";
+const PREFS_PATH = `${FileSystem.documentDirectory}tab_preferences.json`;
+
+async function readPrefs(): Promise<string | null> {
+  try {
+    return await FileSystem.readAsStringAsync(PREFS_PATH, {
+      encoding: FileSystem.EncodingType.UTF8,
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function writePrefs(data: string): Promise<void> {
+  await FileSystem.writeAsStringAsync(PREFS_PATH, data, {
+    encoding: FileSystem.EncodingType.UTF8,
+  });
+}
 
 export type CalendarPrefs = {
   viewMode: "compact" | "board";
@@ -86,7 +102,7 @@ export function TabPreferencesProvider({ children }: { children: ReactNode }) {
   const [prefs, setPrefs] = useState<AllTabPrefs>(DEFAULT_PREFS);
 
   useEffect(() => {
-    SecureStore.getItemAsync(PREFS_KEY).then((v) => {
+    readPrefs().then((v) => {
       if (!v) return;
       try {
         const parsed = JSON.parse(v) as Partial<AllTabPrefs>;
@@ -103,7 +119,7 @@ export function TabPreferencesProvider({ children }: { children: ReactNode }) {
   const setCalendarPrefs = useCallback((p: Partial<CalendarPrefs>) => {
     setPrefs((prev) => {
       const next = { ...prev, calendar: { ...prev.calendar, ...p } };
-      SecureStore.setItemAsync(PREFS_KEY, JSON.stringify(next));
+      writePrefs(JSON.stringify(next));
       return next;
     });
   }, []);
@@ -111,7 +127,7 @@ export function TabPreferencesProvider({ children }: { children: ReactNode }) {
   const setListPrefs = useCallback((p: Partial<ListPrefs>) => {
     setPrefs((prev) => {
       const next = { ...prev, list: { ...prev.list, ...p } };
-      SecureStore.setItemAsync(PREFS_KEY, JSON.stringify(next));
+      writePrefs(JSON.stringify(next));
       return next;
     });
   }, []);
@@ -119,7 +135,7 @@ export function TabPreferencesProvider({ children }: { children: ReactNode }) {
   const setPersonsPrefs = useCallback((p: Partial<PersonsPrefs>) => {
     setPrefs((prev) => {
       const next = { ...prev, persons: { ...prev.persons, ...p } };
-      SecureStore.setItemAsync(PREFS_KEY, JSON.stringify(next));
+      writePrefs(JSON.stringify(next));
       return next;
     });
   }, []);
@@ -127,7 +143,7 @@ export function TabPreferencesProvider({ children }: { children: ReactNode }) {
   const setMemoPrefs = useCallback((p: Partial<MemoPrefs>) => {
     setPrefs((prev) => {
       const next = { ...prev, memo: { ...prev.memo, ...p } };
-      SecureStore.setItemAsync(PREFS_KEY, JSON.stringify(next));
+      writePrefs(JSON.stringify(next));
       return next;
     });
   }, []);

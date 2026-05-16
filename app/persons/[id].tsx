@@ -11,6 +11,7 @@ import {
   persons,
 } from "@/db/schema";
 import { calcAge, dDayLabel, formatDuration, formatLogDate, fromNow } from "@/utils/date";
+import { parseTags } from "@/utils/person";
 import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -71,7 +72,7 @@ export default function PersonDetailScreen() {
       setMemo(person.memo ?? "");
       setGroupId(person.groupId);
       setContactInterval(person.contactInterval ?? null);
-      setTags(person.tags ? JSON.parse(person.tags) : []);
+      setTags(parseTags(person.tags));
       setMetAt(person.metAt ? new Date(person.metAt) : null);
     }
   }, [person]);
@@ -92,7 +93,7 @@ export default function PersonDetailScreen() {
       })),
     );
     setContactInterval(person.contactInterval ?? null);
-    setTags(person.tags ? JSON.parse(person.tags) : []);
+    setTags(parseTags(person.tags));
     setMetAt(person.metAt ? new Date(person.metAt) : null);
     setEditing(true);
   }
@@ -247,9 +248,7 @@ export default function PersonDetailScreen() {
             </View>
 
             {(() => {
-              const parsedTags: string[] = person.tags
-                ? JSON.parse(person.tags)
-                : [];
+              const parsedTags = parseTags(person.tags);
               return parsedTags.length > 0 ? (
                 <View className="flex-row flex-wrap gap-1.5 mb-2">
                   {parsedTags.map((tag) => (

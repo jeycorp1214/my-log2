@@ -15,6 +15,7 @@ import {
 import { usePersonsWithGroups } from "@/hooks/persons/use-persons-with-groups";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { formatLogDate } from "@/utils/date";
+import { parseTags } from "@/utils/person";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -116,7 +117,7 @@ export default function PersonsScreen() {
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     for (const p of allPersons) {
-      const tags: string[] = p.tags ? (() => { try { return JSON.parse(p.tags!); } catch { return []; } })() : [];
+      const tags = parseTags(p.tags);
       for (const t of tags) tagSet.add(t);
     }
     return Array.from(tagSet).sort((a, b) => a.localeCompare(b, "ko"));
@@ -200,8 +201,7 @@ export default function PersonsScreen() {
   function applyTagFilter<T extends Person>(list: T[]): T[] {
     if (tagFilter === "all") return list;
     return list.filter((p) => {
-      const parsedTags: string[] = p.tags ? (() => { try { return JSON.parse(p.tags!); } catch { return []; } })() : [];
-      return parsedTags.includes(tagFilter);
+      return parseTags(p.tags).includes(tagFilter);
     });
   }
 

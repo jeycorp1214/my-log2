@@ -1,5 +1,6 @@
 // 인물 카드 컴포넌트 — 이름, 나이, 그룹 색상, 고정/연락 주기 표시
 import { calcAge, fromNow } from "@/utils/date";
+import { parseTags } from "@/utils/person";
 import type { InferSelectModel } from "drizzle-orm";
 import dayjs from "dayjs";
 import { Pin } from "lucide-react-native";
@@ -59,7 +60,7 @@ export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress,
 
   const initial = person.name.charAt(0);
   const bgColor = avatarColor(person.name);
-  const parsedTags: string[] = person.tags ? JSON.parse(person.tags) : [];
+  const parsedTags = parseTags(person.tags);
 
   return (
     <Pressable

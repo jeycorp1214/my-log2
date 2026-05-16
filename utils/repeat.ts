@@ -5,6 +5,9 @@ import type { logs } from "@/db/schema";
 
 type Log = InferSelectModel<typeof logs>;
 
+export const REPEAT_TYPES = ["none", "daily", "weekly", "monthly", "yearly"] as const;
+export type RepeatType = (typeof REPEAT_TYPES)[number];
+
 export function expandRepeatInMonth(log: Log, monthStart: Date, monthEnd: Date): Date[] {
   const { repeatType, repeatInterval, repeatUntil } = log;
 
@@ -28,11 +31,26 @@ export function expandRepeatInMonth(log: Log, monthStart: Date, monthEnd: Date):
   if (!fn) return [];
 
   let cur = dayjs(origin);
-  let guard = 0;
 
-  // monthStart 이전 건너뛰기
-  while (cur.toDate() < monthStart && guard++ < 10000) {
-    cur = fn(cur);
+  // 수학적 점프: monthStart 이전 occurrence를 O(1)로 건너뜀
+  if (cur.toDate() < monthStart) {
+    const ms = dayjs(monthStart);
+    if (repeatType === "daily") {
+      const n = Math.ceil(ms.diff(cur, "day") / step);
+      cur = cur.add(n * step, "day");
+    } else if (repeatType === "weekly") {
+      const n = Math.ceil(ms.diff(cur, "day") / (step * 7));
+      cur = cur.add(n * step * 7, "day");
+    } else if (repeatType === "monthly") {
+      const n = Math.floor(ms.diff(cur, "month") / step);
+      if (n > 0) cur = cur.add(n * step, "month");
+      // monthly는 월 길이 편차로 1회 보정 가능
+      if (cur.toDate() < monthStart) cur = fn(cur);
+    } else if (repeatType === "yearly") {
+      const n = Math.floor(ms.diff(cur, "year") / step);
+      if (n > 0) cur = cur.add(n * step, "year");
+      if (cur.toDate() < monthStart) cur = fn(cur);
+    }
   }
 
   const results: Date[] = [];
