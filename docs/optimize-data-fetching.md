@@ -62,9 +62,11 @@
 
 ### Phase 3: HIGH — List 무한스크롤
 
-- [ ] **H2** `app/(tabs)/list.tsx` + `hooks/use-event-filter.ts` — `pageSize=50` cursor-based offset pagination 구현
-  - `onEndReached` 핸들러로 다음 페이지 로드
-  - 필터 변경 시 offset 리셋
+- [x] **H2** `app/(tabs)/list.tsx` — 섹션 기반 페이지네이션 구현
+  - `visibleSections` state (기본값 4), `onEndReached`로 +4씩 증가
+  - 필터/프리셋/검색 변경 시 리셋
+  - `ListFooterComponent`: 더 있으면 ActivityIndicator 표시
+  - `pagedSections = sections.slice(0, visibleSections)` — 전체 합계는 `filtered` 기준 유지
 
 ### Phase 4: MED — useFocusEffect 가드
 
@@ -90,7 +92,7 @@
 |-------|------|--------|
 | Phase 1: HIGH SQL 집계 | ✅ 완료 | 2026-05-17 |
 | Phase 2: MED 메모이제이션 | ✅ 완료 | 2026-05-17 |
-| Phase 3: HIGH List 무한스크롤 | 🔲 대기 | - |
+| Phase 3: HIGH List 무한스크롤 | ✅ 완료 | 2026-05-17 |
 | Phase 4: MED useFocusEffect | 🔲 대기 | - |
 | Phase 5: MED ScrollView→FlatList | 🔲 대기 | - |
 | Phase 6: LOW 기타 | 🔲 대기 | - |

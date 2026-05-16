@@ -21,8 +21,9 @@ import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Pressable,
   ScrollView,
@@ -60,28 +61,29 @@ export default function ListScreen() {
 
   const { prefs, setListPrefs } = useTabPreferences();
   const preset = prefs.list.preset as Preset;
-  const setPreset = (v: Preset) => setListPrefs({ preset: v });
+  const setPreset = (v: Preset) => { setListPrefs({ preset: v }); setVisibleSections(PAGE_SIZE); };
   const [customStart] = useState(() => dayjs().startOf("month").toDate());
   const [customEnd] = useState(() => dayjs().endOf("month").toDate());
 
   const completionFilter = prefs.list.completionFilter as CompletionFilter;
-  const setCompletionFilter = (v: CompletionFilter) =>
-    setListPrefs({ completionFilter: v });
+  const setCompletionFilter = (v: CompletionFilter) => { setListPrefs({ completionFilter: v }); setVisibleSections(PAGE_SIZE); };
   const typeFilter = prefs.list.typeFilter as TypeFilter;
-  const setTypeFilter = (v: TypeFilter) => setListPrefs({ typeFilter: v });
+  const setTypeFilter = (v: TypeFilter) => { setListPrefs({ typeFilter: v }); setVisibleSections(PAGE_SIZE); };
   const sortOrder = prefs.list.sortOrder as SortOrder;
-  const setSortOrder = (v: SortOrder) => setListPrefs({ sortOrder: v });
+  const setSortOrder = (v: SortOrder) => { setListPrefs({ sortOrder: v }); setVisibleSections(PAGE_SIZE); };
   const groupFilter = prefs.list.groupFilter;
-  const setGroupFilter = (v: string) => setListPrefs({ groupFilter: v });
+  const setGroupFilter = (v: string) => { setListPrefs({ groupFilter: v }); setVisibleSections(PAGE_SIZE); };
   const personFilter = prefs.list.personFilter as PersonFilter;
-  const setPersonFilter = (v: PersonFilter) =>
-    setListPrefs({ personFilter: v });
+  const setPersonFilter = (v: PersonFilter) => { setListPrefs({ personFilter: v }); setVisibleSections(PAGE_SIZE); };
   const showAnniversaries = prefs.list.showAnniversaries;
   const setShowAnniversaries = (v: boolean) =>
     setListPrefs({ showAnniversaries: v });
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const PAGE_SIZE = 4;
+  const [visibleSections, setVisibleSections] = useState(PAGE_SIZE);
+  const sectionListRef = useRef<SectionList>(null);
 
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
@@ -215,6 +217,16 @@ export default function ListScreen() {
       });
   }, [filtered, showAnniversaries, anniversaryBoardItems, sortOrder]);
 
+  const pagedSections = useMemo(
+    () => sections.slice(0, visibleSections),
+    [sections, visibleSections],
+  );
+  const hasMore = visibleSections < sections.length;
+
+  const loadMore = useCallback(() => {
+    if (hasMore) setVisibleSections((prev) => prev + PAGE_SIZE);
+  }, [hasMore]);
+
   const regularItems = filtered.filter((i) => !i.isRepeat);
   const totalCount = regularItems.length;
   const doneCount = regularItems.filter((i) => !!i.log.checkedAt).length;
@@ -232,6 +244,7 @@ export default function ListScreen() {
     if (showSearch) {
       setShowSearch(false);
       setSearchQuery("");
+      setVisibleSections(PAGE_SIZE);
     } else {
       setShowSearch(true);
     }
@@ -341,12 +354,15 @@ export default function ListScreen() {
 
       {/* 월별 섹션 리스트 */}
       <SectionList
-        sections={sections}
+        ref={sectionListRef}
+        sections={pagedSections}
         keyExtractor={(item, idx) =>
           "type" in item && item.type === "anniversary"
             ? `ann-${item.personId}-${item.date.getTime()}`
             : ((item as EventItem).key ?? String(idx))
         }
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.3}
         renderSectionHeader={({ section }) => (
           <View className="bg-[#111] px-5 py-2 flex-row items-center justify-between">
             <Text className="text-app-dim text-[13px] font-semibold">
@@ -416,6 +432,13 @@ export default function ListScreen() {
               </Pressable>
             )}
           </View>
+        }
+        ListFooterComponent={
+          hasMore ? (
+            <View className="items-center py-6">
+              <ActivityIndicator size="small" color="#4ecdc4" />
+            </View>
+          ) : null
         }
         contentContainerStyle={{ paddingBottom: 96 }}
         stickySectionHeadersEnabled
