@@ -4,10 +4,11 @@ import TabsHeader from "@/components/layout/TabsHeader";
 import { db } from "@/db/client";
 import { memos, todos, type Quadrant } from "@/db/schema";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
+import { dDayLabel, fromNow } from "@/utils/date";
 import { asc, desc, eq, isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
-import { Trash2 } from "lucide-react-native";
+import { Pin, Trash2 } from "lucide-react-native";
 import { useState } from "react";
 import {
   Alert,
@@ -50,10 +51,13 @@ export default function NoteScreen() {
   const setCompletionFilter = (v: CompletionFilter) => setMemoPrefs({ completionFilter: v });
   const sortOrder = prefs.memo.sortOrder as SortOrder;
   const setSortOrder = (v: SortOrder) => setMemoPrefs({ sortOrder: v });
+  const showDate = prefs.memo.showDate ?? false;
+  const setShowDate = (v: boolean) => setMemoPrefs({ showDate: v });
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   const { data: allMemos = [] } = useLiveQuery(
     db.select().from(memos).orderBy(
+      desc(memos.pinnedAt),
       sortOrder === "newest" ? desc(memos.createdAt) : asc(memos.createdAt),
     ),
     [sortOrder],
@@ -68,6 +72,7 @@ export default function NoteScreen() {
   // ── 할 일 상태 ──
   const [selectedQuadrant, setSelectedQuadrant] = useState<Quadrant>("do");
   const [todoInput, setTodoInput] = useState("");
+  const [showTodoFilterSheet, setShowTodoFilterSheet] = useState(false);
 
   const { data: allTodos = [] } = useLiveQuery(
     db.select().from(todos).orderBy(asc(todos.createdAt)),
@@ -75,14 +80,17 @@ export default function NoteScreen() {
   const quadrantTodos = allTodos
     .filter((t) => t.quadrant === selectedQuadrant)
     .sort((a, b) => {
-      // 미완료 먼저
       if (!a.checkedAt && b.checkedAt) return -1;
       if (a.checkedAt && !b.checkedAt) return 1;
       return 0;
     });
   const todoCounts = Object.fromEntries(
-    QUADRANTS.map((q) => [q.key, allTodos.filter((t) => t.quadrant === q.key && !t.checkedAt).length]),
-  ) as Record<Quadrant, number>;
+    QUADRANTS.map((q) => {
+      const qTodos = allTodos.filter((t) => t.quadrant === q.key);
+      return [q.key, { done: qTodos.filter((t) => !!t.checkedAt).length, total: qTodos.length }];
+    }),
+  ) as Record<Quadrant, { done: number; total: number }>;
+  const todoDoneCount = allTodos.filter((t) => !!t.checkedAt).length;
 
   // ── 메모 핸들러 ──
   async function handleMemoQuickAdd() {
@@ -98,6 +106,10 @@ export default function NoteScreen() {
 
   async function toggleMemoCheck(id: string, current: Date | null) {
     await db.update(memos).set({ checkedAt: current ? null : new Date(), updatedAt: new Date() }).where(eq(memos.id, id));
+  }
+
+  async function toggleMemoPin(id: string, current: Date | null) {
+    await db.update(memos).set({ pinnedAt: current ? null : new Date(), updatedAt: new Date() }).where(eq(memos.id, id));
   }
 
   async function deleteMemo(id: string, isChecked: boolean) {
@@ -142,15 +154,33 @@ export default function NoteScreen() {
     await db.delete(todos).where(eq(todos.id, id));
   }
 
-  const memoFilterBadge = [completionFilter !== "all", sortOrder !== "newest"].filter(Boolean).length;
+  async function deleteCheckedTodos() {
+    Alert.alert("완료 항목 삭제", `완료된 할 일 ${todoDoneCount}개를 삭제합니다.`, [
+      { text: "취소", style: "cancel" },
+      {
+        text: "삭제",
+        style: "destructive",
+        onPress: async () => {
+          await db.delete(todos).where(isNotNull(todos.checkedAt));
+          setShowTodoFilterSheet(false);
+        },
+      },
+    ]);
+  }
+
+  const memoFilterBadge = [completionFilter !== "all", sortOrder !== "newest", showDate].filter(Boolean).length;
 
   // ── 렌더 ──
   return (
     <View className="flex-1 bg-app-bg">
       <TabsHeader
         title="노트"
-        slidersOnPress={activeTab === "memo" ? () => setShowFilterSheet(true) : undefined}
-        slidersActive={activeTab === "memo" && memoFilterBadge > 0}
+        slidersOnPress={
+          activeTab === "memo"
+            ? () => setShowFilterSheet(true)
+            : () => setShowTodoFilterSheet(true)
+        }
+        slidersActive={activeTab === "memo" ? memoFilterBadge > 0 : todoDoneCount > 0}
       />
 
       {/* 서브탭 */}
@@ -209,6 +239,14 @@ export default function NoteScreen() {
                     >
                       {item.content}
                     </Text>
+                    {showDate && (
+                      <Text className="text-app-muted text-[11px] mt-1">
+                        {fromNow(item.createdAt)}
+                      </Text>
+                    )}
+                  </Pressable>
+                  <Pressable onPress={() => toggleMemoPin(item.id, item.pinnedAt ?? null)} hitSlop={8} className="p-1">
+                    <Pin size={14} color={item.pinnedAt ? "#4ecdc4" : "#444"} fill={item.pinnedAt ? "#4ecdc4" : "none"} />
                   </Pressable>
                   <Pressable onPress={() => deleteMemo(item.id, isChecked)} hitSlop={8} className="p-1">
                     <Trash2 size={15} color="#444" />
@@ -255,13 +293,13 @@ export default function NoteScreen() {
                       <Text style={{ color: "#555", fontSize: 10, marginTop: 1 }}>
                         {q.sub}
                       </Text>
-                      {todoCounts[q.key] > 0 && (
+                      {todoCounts[q.key].total > 0 && (
                         <View
                           className="mt-1.5 self-start rounded-full px-2 py-0.5"
                           style={{ backgroundColor: `${q.color}22` }}
                         >
                           <Text style={{ color: q.color, fontSize: 11, fontWeight: "600" }}>
-                            {todoCounts[q.key]}개
+                            {todoCounts[q.key].done}/{todoCounts[q.key].total}
                           </Text>
                         </View>
                       )}
@@ -290,12 +328,34 @@ export default function NoteScreen() {
                   >
                     {isChecked && <View className="w-3 h-3 rounded-full bg-app-teal" />}
                   </Pressable>
-                  <Text
-                    className="flex-1 text-white text-sm"
-                    style={{ textDecorationLine: isChecked ? "line-through" : "none", opacity: isChecked ? 0.45 : 1 }}
+                  <Pressable
+                    className="flex-1"
+                    onPress={() => router.push({ pathname: "/todos/[id]", params: { id: item.id } })}
                   >
-                    {item.title}
-                  </Text>
+                    <Text
+                      className="text-white text-sm"
+                      style={{ textDecorationLine: isChecked ? "line-through" : "none", opacity: isChecked ? 0.45 : 1 }}
+                    >
+                      {item.title}
+                    </Text>
+                    {item.dueDate && !isChecked && (
+                      <Text
+                        className="text-[11px] mt-0.5"
+                        style={{
+                          color: dDayLabel(item.dueDate, false).includes("전") ? "#ff6b6b"
+                            : dDayLabel(item.dueDate, false) === "D-Day" ? "#f59e0b"
+                            : "#666",
+                        }}
+                      >
+                        {dDayLabel(item.dueDate, false)}
+                      </Text>
+                    )}
+                    {item.note && (
+                      <Text className="text-app-muted text-[11px] mt-0.5" numberOfLines={1}>
+                        {item.note}
+                      </Text>
+                    )}
+                  </Pressable>
                   <Pressable onPress={() => deleteTodo(item.id)} hitSlop={8} className="p-1">
                     <Trash2 size={15} color="#444" />
                   </Pressable>
@@ -374,6 +434,24 @@ export default function NoteScreen() {
               })}
             </View>
 
+            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+              날짜 표시
+            </Text>
+            <View className="flex-row gap-2 mb-6">
+              {([false, true] as const).map((v) => (
+                <Pressable
+                  key={String(v)}
+                  onPress={() => setShowDate(v)}
+                  className="flex-1 rounded-[10px] py-2.5 items-center"
+                  style={{ backgroundColor: showDate === v ? "#4ecdc4" : "#2a2a2a" }}
+                >
+                  <Text className="text-[13px] font-semibold" style={{ color: showDate === v ? "#111" : "#888" }}>
+                    {v ? "표시" : "숨김"}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
             {memoDoneCount > 0 && (
               <Pressable
                 onPress={deleteCheckedMemos}
@@ -383,6 +461,54 @@ export default function NoteScreen() {
                 <Trash2 size={15} color="#ff6b6b" />
                 <Text style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}>
                   완료 항목 {memoDoneCount}개 삭제
+                </Text>
+              </Pressable>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* 할 일 필터 바텀 시트 */}
+      <Modal
+        visible={showTodoFilterSheet}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowTodoFilterSheet(false)}
+      >
+        <Pressable className="flex-1 bg-black/50 justify-end" onPress={() => setShowTodoFilterSheet(false)}>
+          <Pressable
+            className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10"
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
+
+            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-3">
+              전체 현황
+            </Text>
+            <View className="flex-row flex-wrap gap-2 mb-5">
+              {QUADRANTS.map((q) => (
+                <View
+                  key={q.key}
+                  className="flex-row items-center gap-1.5 rounded-[8px] px-3 py-2"
+                  style={{ backgroundColor: `${q.color}18` }}
+                >
+                  <Text style={{ color: q.color, fontSize: 12, fontWeight: "700" }}>{q.label}</Text>
+                  <Text style={{ color: "#666", fontSize: 12 }}>
+                    {todoCounts[q.key].done}/{todoCounts[q.key].total}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {todoDoneCount > 0 && (
+              <Pressable
+                onPress={deleteCheckedTodos}
+                className="flex-row items-center justify-center gap-2 rounded-[10px] py-3"
+                style={{ backgroundColor: "#2a1a1a" }}
+              >
+                <Trash2 size={15} color="#ff6b6b" />
+                <Text style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}>
+                  완료 항목 {todoDoneCount}개 삭제
                 </Text>
               </Pressable>
             )}

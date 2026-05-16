@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-16T01:06:09.395Z",
+  "lastUpdated": "2026-05-16T02:38:14.455Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -13,7 +13,8 @@
     "stats",
     "search",
     "persons",
-    "logs"
+    "logs",
+    "todos"
   ],
   "primaryFeature": "settings",
   "features": {
@@ -52,9 +53,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-16T01:06:09.395Z"
+        "lastUpdated": "2026-05-16T02:33:14.720Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/persons.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/memo.tsx"
     },
     "db": {
       "phase": "do",
@@ -65,7 +66,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:11:49.193Z",
-        "lastUpdated": "2026-05-15T23:19:20.210Z"
+        "lastUpdated": "2026-05-16T02:38:14.455Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/db/client.ts"
     },
@@ -78,7 +79,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:12:08.748Z",
-        "lastUpdated": "2026-05-15T22:59:03.451Z"
+        "lastUpdated": "2026-05-16T01:55:13.008Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/drizzle/migrations.js"
     },
@@ -91,9 +92,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T14:11:18.589Z",
-        "lastUpdated": "2026-05-16T00:33:36.435Z"
+        "lastUpdated": "2026-05-16T01:56:45.183Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/MonthPickerModal.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/_layout.tsx"
     },
     "providers": {
       "phase": "do",
@@ -104,7 +105,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T14:11:33.941Z",
-        "lastUpdated": "2026-05-16T00:53:25.013Z"
+        "lastUpdated": "2026-05-16T01:33:05.329Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/providers/TabPreferencesProvider.tsx"
     },
@@ -172,6 +173,19 @@
         "lastUpdated": "2026-05-16T00:39:09.119Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/logs/ListEventItem.tsx"
+    },
+    "todos": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-05-16T01:56:38.429Z",
+        "lastUpdated": "2026-05-16T01:56:38.429Z"
+      },
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/todos/[id].tsx"
     }
   },
   "pipeline": {
@@ -182,7 +196,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-16T01:06:09.395Z"
+    "lastActivity": "2026-05-16T02:38:14.455Z"
   },
   "history": [
     {
@@ -1490,6 +1504,228 @@
     {
       "timestamp": "2026-05-16T01:06:09.395Z",
       "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:31:10.372Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:31:15.918Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:31:20.710Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:31:26.692Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:31:44.020Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:32:18.185Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:32:34.886Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:32:59.305Z",
+      "feature": "providers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:33:05.329Z",
+      "feature": "providers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:33:10.308Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:33:19.038Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:33:26.061Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:33:30.072Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:33:38.935Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:35:31.715Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:35:58.757Z",
+      "feature": "drizzle",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:36:02.828Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:36:10.128Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:36:15.294Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:36:20.805Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:54:59.611Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:55:13.008Z",
+      "feature": "drizzle",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:55:24.277Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:55:36.415Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:55:54.401Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:56:38.429Z",
+      "feature": "todos",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:56:45.183Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:56:55.533Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:29:14.358Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:29:17.366Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:29:22.029Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:30:03.308Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:32:57.839Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:33:00.440Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:33:14.721Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:38:09.874Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T02:38:14.455Z",
+      "feature": "db",
       "phase": "do",
       "action": "updated"
     }

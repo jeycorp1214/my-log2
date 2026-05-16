@@ -547,3 +547,27 @@
 - `onPinPress`: `onLongPress` 대체. PersonCard에서 별도 Pressable로 노출.
 - 진행률 바: `daysSinceLastLog / contactInterval`. 100% 초과 시 클램프. 기록 없으면 100%.
 - 기념일 인디케이터: `personGroupMap`(이미 있음) + `allGroups` → `groupColor` → `AnniversaryItem` prop.
+
+---
+
+# Phase 15 체크리스트 — 노트 탭 개선
+
+## A. 코드만 (스키마 변경 없음)
+
+- [x] **A2** `memo.tsx`: 할 일 탭에 완료 항목 일괄 삭제 추가 (메모 탭과 동일 패턴, 필터 시트 추가)
+- [x] **A3** `memo.tsx`: 사분면 그리드 카운트 `완료/전체` 형태로 변경 (현재 미완료만 표시)
+- [ ] **A1** `memo.tsx`: 메모 스와이프 액션 — reanimated v4 호환 문제로 제거. 버튼 UI 유지.
+- [x] **A5** `memo.tsx`: 메모 생성일 표시 옵션 — 필터 시트에 토글 추가 + TabPreferences persist
+
+## B. 스키마 소규모 확장
+
+- [x] **B6** `db/schema.ts` + migration 0008: memos에 `pinnedAt` 컬럼 추가 → 핀고정 기능 (목록 상단 고정)
+- [x] **B7** `db/schema.ts` + migration 0009: todos에 `dueDate` 컬럼 추가 → 기한 설정 + 그리드에 D-day 뱃지
+- [x] **B8** `app/todos/[id].tsx` 신규: 할 일 상세 화면 + `note` 컬럼 추가 (부가 설명 필드)
+
+## 설계 결정 메모
+
+- 스와이프: `react-native-gesture-handler`의 `Swipeable` 사용 (이미 GestureHandlerRootView 설치됨)
+- 핀고정 정렬: `pinnedAt DESC NULLS LAST, createdAt DESC` — 핀 먼저, 그 안에서 최신순
+- dueDate: `text("due_date")` YYYY-MM-DD (birthDate 동일 패턴)
+- 할 일 상세: todos에 `title`만 있어서 현재 탭 시 아무것도 없음 → 상세 화면 추가 필요

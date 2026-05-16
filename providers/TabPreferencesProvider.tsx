@@ -36,6 +36,7 @@ export type PersonsPrefs = {
 export type MemoPrefs = {
   completionFilter: "all" | "done" | "undone";
   sortOrder: "newest" | "oldest";
+  showDate: boolean;
 };
 
 export type AllTabPrefs = {
@@ -62,7 +63,7 @@ const DEFAULT_PREFS: AllTabPrefs = {
     mbtiFilter: "all",
     mbtiDetail: "",
   },
-  memo: { completionFilter: "all", sortOrder: "newest" },
+  memo: { completionFilter: "all", sortOrder: "newest", showDate: false },
 };
 
 type ContextValue = {

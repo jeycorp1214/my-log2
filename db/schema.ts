@@ -105,7 +105,9 @@ export const todos = sqliteTable("todos", {
     .primaryKey()
     .$defaultFn(() => randomUUID()),
   title: text("title").notNull(),
+  note: text("note"),
   quadrant: text("quadrant").notNull().$type<Quadrant>(),
+  dueDate: text("due_date"),
   checkedAt: int("checked_at", { mode: "timestamp_ms" }),
   createdAt: int("created_at", { mode: "timestamp_ms" })
     .notNull()
@@ -121,6 +123,7 @@ export const memos = sqliteTable("memos", {
     .$defaultFn(() => randomUUID()),
   content: text("content").notNull(),
   checkedAt: int("checked_at", { mode: "timestamp_ms" }),
+  pinnedAt: int("pinned_at", { mode: "timestamp_ms" }),
   createdAt: int("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
