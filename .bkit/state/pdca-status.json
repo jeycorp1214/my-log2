@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-16T00:39:53.648Z",
+  "lastUpdated": "2026-05-16T00:46:48.587Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -52,9 +52,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-16T00:39:53.647Z"
+        "lastUpdated": "2026-05-16T00:46:48.586Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/list.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/persons.tsx"
     },
     "db": {
       "phase": "do",
@@ -182,7 +182,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-16T00:39:53.648Z"
+    "lastActivity": "2026-05-16T00:46:48.587Z"
   },
   "history": [
     {
@@ -1351,6 +1351,24 @@
     },
     {
       "timestamp": "2026-05-16T00:39:53.648Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:46:36.603Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:46:41.721Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:46:48.587Z",
       "feature": "(tabs)",
       "phase": "do",
       "action": "updated"

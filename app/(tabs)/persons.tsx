@@ -1,6 +1,7 @@
 // 인물 목록 탭 — 인물 리스트 / 기념일 리스트 모드 전환 + 필터/정렬
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
+import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { PersonCard } from "@/components/persons/PersonCard";
@@ -488,6 +489,7 @@ export default function PersonsScreen() {
               <View className="px-4">
                 <AnniversaryItem
                   title={item.displayTitle}
+                  date={item.date}
                   onPress={() =>
                     router.push({
                       pathname: "/persons/[id]",
@@ -507,6 +509,26 @@ export default function PersonsScreen() {
           />
         </View>
       )}
+
+      {/* 기념일 커스텀 기간 월 선택 피커 */}
+      <MonthPickerModal
+        visible={showAnnStartPicker}
+        value={annCustomStart}
+        onChange={(date) => {
+          setAnnCustomStart(date);
+          if (date > annCustomEnd) setAnnCustomEnd(date);
+        }}
+        onClose={() => setShowAnnStartPicker(false)}
+      />
+      <MonthPickerModal
+        visible={showAnnEndPicker}
+        value={annCustomEnd}
+        onChange={(date) => {
+          setAnnCustomEnd(date);
+          if (date < annCustomStart) setAnnCustomStart(date);
+        }}
+        onClose={() => setShowAnnEndPicker(false)}
+      />
 
       {/* ── 필터 바텀 시트 (모드 공통) ── */}
       <Modal
