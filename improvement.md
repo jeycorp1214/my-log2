@@ -36,7 +36,7 @@ await db.transaction(async (tx) => {
 });
 ```
 
-**수정 파일:** `services/backup.ts`
+**편집 파일:** `services/backup.ts`
 
 ---
 
@@ -49,7 +49,7 @@ await db.transaction(async (tx) => {
 - 스키마 변경 시 버전 올리고 이전 버전 복원 로직(`migrateBackupV1toV2`) 추가.
 - 또는 컬럼 누락은 기본값으로 채우는 관대한 복원 로직 도입.
 
-**수정 파일:** `services/backup.ts`
+**편집 파일:** `services/backup.ts`
 
 ---
 
@@ -73,7 +73,7 @@ if (repeatType === "daily") {
 }
 ```
 
-**수정 파일:** `utils/repeat.ts`
+**편집 파일:** `utils/repeat.ts`
 
 ---
 
@@ -100,7 +100,7 @@ db.select({ id: persons.id, birthDate: persons.birthDate }).from(persons)
   .where(isNotNull(persons.birthDate))
 ```
 
-**수정 파일:** `hooks/useCalendarData.ts`
+**편집 파일:** `hooks/useCalendarData.ts`
 
 ---
 
@@ -123,7 +123,7 @@ db.select({ id: persons.id, birthDate: persons.birthDate }).from(persons)
 - `drizzle-kit` 마이그레이션이 안정화된 Phase에 대해서는 `ensureColumns` 제거.
 - 이미 배포된 앱 대응이 목적이라면 `ensure*` 함수들을 하나의 `ensureAllLegacyColumns()` 로 병합해 PRAGMA를 1회로 줄임.
 
-**수정 파일:** `db/client.ts`
+**편집 파일:** `db/client.ts`
 
 ---
 
@@ -159,7 +159,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 await AsyncStorage.setItem(PREFS_KEY, JSON.stringify(next));
 ```
 
-**수정 파일:** `providers/TabPreferencesProvider.tsx`
+**편집 파일:** `providers/TabPreferencesProvider.tsx`
 
 ---
 

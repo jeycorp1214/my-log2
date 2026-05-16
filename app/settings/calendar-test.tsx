@@ -171,7 +171,8 @@ export default function CalendarTestScreen() {
   const [lastEvent, setLastEvent] = useState<string>("");
 
   // ─── Infinite 뷰 — Bug 1 패치 (스와이프 재스크롤 방지) ────────────
-  const [infiniteCurrentMonth, setInfiniteCurrentMonth] = useState<string>(TODAY);
+  const [infiniteCurrentMonth, setInfiniteCurrentMonth] =
+    useState<string>(TODAY);
   const isSwipingRef = useRef(false);
   const swipeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -350,7 +351,8 @@ export default function CalendarTestScreen() {
                 ...e,
                 title: inputTitle.trim(),
                 category: inputCategory,
-                repeatType: inputRepeatType !== "none" ? inputRepeatType : undefined,
+                repeatType:
+                  inputRepeatType !== "none" ? inputRepeatType : undefined,
               }
             : e,
         ),
@@ -645,7 +647,8 @@ export default function CalendarTestScreen() {
                           style={{ color: CATEGORY_COLORS[event.category] }}
                         >
                           {CATEGORY_LABELS[event.category]}
-                          {event.repeatType && ` · ${REPEAT_LABELS[event.repeatType]}`}
+                          {event.repeatType &&
+                            ` · ${REPEAT_LABELS[event.repeatType]}`}
                         </Text>
                       </View>
                       {event.category === "todo" && (
@@ -723,7 +726,8 @@ export default function CalendarTestScreen() {
                   isSwipingRef.current = true;
                   setInfiniteCurrentMonth(months[0].dateString);
                   setLastEvent(`표시 월: ${months[0].dateString}`);
-                  if (swipeTimerRef.current) clearTimeout(swipeTimerRef.current);
+                  if (swipeTimerRef.current)
+                    clearTimeout(swipeTimerRef.current);
                   swipeTimerRef.current = setTimeout(() => {
                     isSwipingRef.current = false;
                   }, 500);
@@ -825,7 +829,8 @@ export default function CalendarTestScreen() {
                         style={{ color: CATEGORY_COLORS[event.category] }}
                       >
                         {CATEGORY_LABELS[event.category]}
-                        {event.repeatType && ` · ${REPEAT_LABELS[event.repeatType]}`}
+                        {event.repeatType &&
+                          ` · ${REPEAT_LABELS[event.repeatType]}`}
                         {event.category === "todo" &&
                           (event.isDone ? " · 완료" : " · 미완")}
                       </Text>
@@ -861,7 +866,7 @@ export default function CalendarTestScreen() {
         </View>
       )}
 
-      {/* ── 일정 추가/수정 모달 ──────────────────────────────────────── */}
+      {/* ── 일정 추가/편집 모달 ──────────────────────────────────────── */}
       <Modal
         visible={showModal}
         transparent
@@ -882,7 +887,7 @@ export default function CalendarTestScreen() {
 
             <View className="flex-row items-center mb-4">
               <Text className="flex-1 text-white text-base font-bold">
-                {editingId ? "일정 수정" : `일정 추가 — ${selectedDate}`}
+                {editingId ? "일정 편집" : `일정 추가 — ${selectedDate}`}
               </Text>
               <Pressable
                 onPress={() => setShowModal(false)}
@@ -945,33 +950,33 @@ export default function CalendarTestScreen() {
               반복
             </Text>
             <View className="flex-row gap-1.5 mb-5">
-              {(["none", "daily", "weekly", "monthly", "yearly"] as RepeatType[]).map(
-                (type) => (
-                  <Pressable
-                    key={type}
-                    onPress={() => setInputRepeatType(type)}
-                    className="flex-1 py-2 rounded-[8px] items-center"
-                    style={
-                      inputRepeatType === type
-                        ? {
-                            backgroundColor: "#4ECDC420",
-                            borderWidth: 1,
-                            borderColor: "#4ECDC4",
-                          }
-                        : { backgroundColor: "#2a2a2a" }
-                    }
+              {(
+                ["none", "daily", "weekly", "monthly", "yearly"] as RepeatType[]
+              ).map((type) => (
+                <Pressable
+                  key={type}
+                  onPress={() => setInputRepeatType(type)}
+                  className="flex-1 py-2 rounded-[8px] items-center"
+                  style={
+                    inputRepeatType === type
+                      ? {
+                          backgroundColor: "#4ECDC420",
+                          borderWidth: 1,
+                          borderColor: "#4ECDC4",
+                        }
+                      : { backgroundColor: "#2a2a2a" }
+                  }
+                >
+                  <Text
+                    className="text-[10px] font-medium"
+                    style={{
+                      color: inputRepeatType === type ? "#4ECDC4" : "#777",
+                    }}
                   >
-                    <Text
-                      className="text-[10px] font-medium"
-                      style={{
-                        color: inputRepeatType === type ? "#4ECDC4" : "#777",
-                      }}
-                    >
-                      {REPEAT_LABELS[type]}
-                    </Text>
-                  </Pressable>
-                ),
-              )}
+                    {REPEAT_LABELS[type]}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
 
             <Pressable
@@ -987,7 +992,7 @@ export default function CalendarTestScreen() {
               }
             >
               <Text className="text-[#111] font-bold text-sm">
-                {editingId ? "수정 완료" : "저장"}
+                {editingId ? "편집 완료" : "저장"}
               </Text>
             </Pressable>
           </Pressable>

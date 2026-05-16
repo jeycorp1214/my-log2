@@ -42,7 +42,7 @@
 ### 실기기 테스트에서 발견된 버그
 
 1. **월 전환 시 selectedDate 불일치**: currentMonth 바뀌어도 selectedDate 유지됨
-   - 수정: nextMonth/prevMonth 호출 시 setSelectedDate(null) → 월간 전체 뷰
+   - 편집: nextMonth/prevMonth 호출 시 setSelectedDate(null) → 월간 전체 뷰
 2. **반복 기능 미작동**: DB에 repeatType 저장은 되나, 캘린더 렌더링 시 occurrence 생성 로직 없음
    - 원인: `between(logs.logDate, ...)` 쿼리가 원본 날짜만 히트
 
@@ -84,7 +84,7 @@
 - 전환 범위: 모든 app/ 화면 + components/ (StyleSheet.create 완전 제거)
 - app-specific 색상을 tailwind.config.js에 추가: app.bg, surface, teal, muted, label, dim, danger, danger-bg
 - 유지된 inline style: elevation(FAB Android), textAlignVertical:'top'(textarea), dynamic backgroundColor
-- CalendarGrid: selectedDate 타입 Date → Date | null 수정 (null 시 isSelected=false)
+- CalendarGrid: selectedDate 타입 Date → Date | null 편집 (null 시 isSelected=false)
 
 ---
 
@@ -253,7 +253,7 @@ db.select({
 
 ## 2026-05-16 — Phase 14: 프로필 탭 고도화
 
-### 버그 수정
+### 버그 편집
 
 - 기념일 모드 커스텀 피커: `MonthPickerModal` import + `showAnnStartPicker`/`showAnnEndPicker` 연결. 리스트 탭과 동일 패턴.
 - D-DAY 미표시: `<AnniversaryItem date={item.date} />` — `date` prop 누락이 원인. `AnniversaryItem`은 date 있어야 D-DAY 계산.
@@ -269,7 +269,7 @@ db.select({
 
 ## 2026-05-16 — Phase 13: 리스트 탭 고도화 v2
 
-### 커스텀 날짜 피커 버그 수정
+### 커스텀 날짜 피커 버그 편집
 
 - `list.tsx`에 `setShowStartPicker(true)` 호출이 있었지만 Modal/Picker 없어서 아무 일도 안 일어남.
 - `components/MonthPickerModal.tsx` 신규 생성: `@react-native-picker/picker` 드럼롤 (연도 ±10년 / 월 1~12).
@@ -365,9 +365,9 @@ db.select({
 - `dueDate`: `text("due_date")` YYYY-MM-DD (birthDate 동일 패턴).
 - `todos/[id].tsx`: 할 일 상세 화면 + `note` 컬럼 (부가 설명).
 
-### Phase 16 버그 수정
+### Phase 16 버그 편집
 
 - `persons.tags` JSON.parse → `parseTags()` util 중앙화 필요 (크래시 방지).
-- `use-event-filter.ts`: `or(isNull, eq('none'))` + `ne('none')` 패턴으로 로그 누락 수정.
+- `use-event-filter.ts`: `or(isNull, eq('none'))` + `ne('none')` 패턴으로 로그 누락 편집.
 - `ensureGroupsColumns()`: `sort_order` 누락 시 화이트스크린 방지용 안전망.
 - `FilterBottomSheet` + `FilterChipGroup` 공통화: `memo.tsx`/`list.tsx` 교체 완료.

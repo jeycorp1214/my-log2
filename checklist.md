@@ -26,14 +26,14 @@
 ## 프로필 CRUD
 
 - [x] app/persons/new.tsx — 프로필 추가
-- [x] app/persons/[id].tsx — 프로필 상세/수정/삭제
+- [x] app/persons/[id].tsx — 프로필 상세/편집/삭제
 - [x] components/persons/PersonCard.tsx — 카드 컴포넌트
 - [x] 나이 표시: calcAge(birthDate)
 
 ## 일정(로그) CRUD
 
 - [x] app/logs/new.tsx — 로그 추가
-- [x] app/logs/[id].tsx — 로그 상세/수정/삭제
+- [x] app/logs/[id].tsx — 로그 상세/편집/삭제
 - [x] components/logs/LogCard.tsx — 카드 컴포넌트 (반복 배지 포함)
 - [x] 반복 규칙 UI (없음/매일/매주/매월/매년)
 - [x] logPersons N:M 연결 UI
@@ -47,7 +47,7 @@
 
 # Phase 2 체크리스트 — 모바일 UX 최적화 + 반복 기능 완성
 
-## P0 — 버그 수정 (즉시)
+## P0 — 버그 편집 (즉시)
 
 - [x] 월 전환 시 selectedDate null로 리셋 → 월간 전체 뷰로 복귀
 - [x] 반복 기능: Virtual Occurrences 렌더링 로직 구현 (캘린더에 반복 dot 표시)
@@ -78,11 +78,11 @@
 
 ## P2 — UX 고도화
 
-- [x] 년/월 타이틀 클릭 시 MonthPicker 모달 (Gluestack Modal → RN Modal로 교체, 즉시 닫힘 버그 수정)
+- [x] 년/월 타이틀 클릭 시 MonthPicker 모달 (Gluestack Modal → RN Modal로 교체, 즉시 닫힘 버그 편집)
 - [x] 반복 기록 관리 — 설정 탭 내 "반복 관리" 섹션 (Gluestack Card/VStack/HStack)
 - [x] Gluestack 우선 적용 방침 확립: VStack/HStack/Card/Modal → NativeWind className 보완
 
-## 실기기 버그 수정 2차 (2026-05-09)
+## 실기기 버그 편집 2차 (2026-05-09)
 
 - [x] MonthPicker 모달 열렸다가 즉시 닫히는 버그 → RN Modal + 중첩 Pressable backdrop으로 교체
 - [x] FAB 날짜 버그 — 다른 달 조회 시 항상 오늘 날짜로 기록 생성됨 → currentMonth 기준 첫날 사용
@@ -92,7 +92,7 @@
 ## P3 — UX 개선 (2026-05-09)
 
 - [x] 기록 추가/상세 상단 날짜 입력 영역 — DatePickerModal 컴포넌트 + CalendarGrid 재활용
-- [x] 기록 상세 수정 모드에서도 날짜 변경 가능 (logDate DB 업데이트 포함)
+- [x] 기록 상세 편집 모드에서도 날짜 변경 가능 (logDate DB 업데이트 포함)
 - [x] 설정 탭 리스트형 리팩토링 — 그룹 관리/반복 관리 각각 별도 페이지로 분리
 - [x] app/settings/groups.tsx — 그룹 목록 + FAB(→ /groups/new)
 - [x] app/settings/repeats.tsx — 반복 로그 목록 + FAB(→ /logs/new) + 해제 기능
@@ -106,14 +106,14 @@
 ## 반복 기능 완성
 
 - [x] logs/new.tsx: repeatUntil 날짜 선택 UI ("영구" / "종료일 지정" 토글 + DatePickerModal)
-- [x] logs/[id].tsx: repeatUntil 수정 UI (수정 모드 동일 패턴)
+- [x] logs/[id].tsx: repeatUntil 편집 UI (편집 모드 동일 패턴)
 - [ ] settings/repeats.tsx: 반복 로그에 종료일 표시 개선
 
-## 반복 단일/전체 수정
+## 반복 단일/전체 편집
 
 - [x] index.tsx: repeat occurrence 탭 시 occurrenceDate param 포함 push (LogItem 타입 도입)
 - [x] logs/[id].tsx: occurrenceDate param 수신 → isOccurrenceView 감지 + "🔄 반복 기록" 배너
-- [x] "수정" 탭 → Alert ("이 날만 별도 기록" / "반복 전체 수정") 분기
+- [x] "편집" 탭 → Alert ("이 날만 별도 기록" / "반복 전체 편집") 분기
 - [x] copy mode: occurrenceDate 기준 새 단일 로그 INSERT + router.back
 
 ---
@@ -192,7 +192,7 @@
 
 - [x] persons/[id].tsx: 기념일 뷰/편집 섹션 추가
   - [x] 뷰 모드: 기념일 목록 + D-Day 표시 (함께한 기록 위)
-  - [x] 수정 모드: 기존 기념일 편집/삭제 + 추가
+  - [x] 편집 모드: 기존 기념일 편집/삭제 + 추가
   - [x] 저장 시 delete-all + re-insert
   - [x] startEditing() 함수로 편집 초기화 통합
 
@@ -200,7 +200,7 @@
 
 - 캘린더 기념일 마커: 1차 제외
 - date 컬럼: text YYYY-MM-DD (birthDate 동일 패턴)
-- 기념일 수정: delete-all + re-insert (simple, 참조 테이블 없음)
+- 기념일 편집: delete-all + re-insert (simple, 참조 테이블 없음)
 - dDayLabel: isRepeat=true → 올해(지났으면 내년) 기준
 
 ---
@@ -267,7 +267,7 @@
 - [x] db/schema.ts: personAnniversaries 테이블
 - [x] migration 0002: person_anniversaries 생성
 - [x] persons/new.tsx: 기념일 섹션 (프리셋 + 추가/삭제 + 날짜 + 매년 반복)
-- [x] persons/[id].tsx: 기념일 뷰(D-Day) + 수정 모드
+- [x] persons/[id].tsx: 기념일 뷰(D-Day) + 편집 모드
 
 ## 설정 — 테이블 초기화
 
@@ -493,9 +493,9 @@
 
 # Phase 13 체크리스트 — 리스트 탭 고도화 v2
 
-## 버그 수정
+## 버그 편집
 
-- [x] `list.tsx`: 커스텀 날짜 피커 미구현 버그 수정 — `MonthPickerModal` 컴포넌트 신규 생성 + start/end 연결
+- [x] `list.tsx`: 커스텀 날짜 피커 미구현 버그 편집 — `MonthPickerModal` 컴포넌트 신규 생성 + start/end 연결
 
 ## UX 개선
 
@@ -515,10 +515,10 @@
 
 # Phase 14 체크리스트 — 프로필 탭 고도화
 
-## 버그 수정
+## 버그 편집
 
 - [x] `persons.tsx`: 기념일 모드 커스텀 날짜 피커 미구현 — `MonthPickerModal` 연결
-- [x] `persons.tsx`: 기념일 모드 `AnniversaryItem`에 `date` prop 누락 → D-DAY 미표시 수정
+- [x] `persons.tsx`: 기념일 모드 `AnniversaryItem`에 `date` prop 누락 → D-DAY 미표시 편집
 
 ## 기능 개선
 
@@ -574,7 +574,7 @@
 
 ---
 
-# Phase 16 체크리스트 — 버그 수정 및 코드 품질
+# Phase 16 체크리스트 — 버그 편집 및 코드 품질
 
 ## P0 — 크래시/데이터 누락 (높음)
 
@@ -594,6 +594,6 @@
 
 ## 설계 결정 메모
 
-- #2 수정 기준: `useCalendarData.ts`의 `ne(logs.repeatType, 'none')` 패턴 동일 적용
+- #2 편집 기준: `useCalendarData.ts`의 `ne(logs.repeatType, 'none')` 패턴 동일 적용
 - #3 groups 안전망: `sortOrder` 컬럼만 추가하면 됨 (seed에서 DEFAULT 처리)
 - #5 공통화 범위: 완료 상태 / 정렬 / 유형 필터 칩 + 삭제 버튼 → `FilterBottomSheet` 컴포넌트

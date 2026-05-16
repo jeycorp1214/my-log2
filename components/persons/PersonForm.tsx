@@ -1,4 +1,4 @@
-// 프로필 폼 공유 컴포넌트 — 생성/수정에서 공통 사용
+// 프로필 폼 공유 컴포넌트 — 생성/편집에서 공통 사용
 import { DateInput } from "@/components/DateInput";
 import { BirthDateInput } from "@/components/persons/BirthDateInput";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";

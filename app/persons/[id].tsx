@@ -1,4 +1,4 @@
-// 프로필 상세 / 수정 / 삭제 모달 화면
+// 프로필 상세 / 편집 / 삭제 모달 화면
 import { DraftAnniversary, PersonForm } from "@/components/persons/PersonForm";
 import { PersonStatsCard } from "@/components/persons/PersonStatsCard";
 import { TimelineItem } from "@/components/persons/TimelineItem";
@@ -235,7 +235,7 @@ export default function PersonDetailScreen() {
                 onPress={startEditing}
                 className="bg-app-surface rounded-lg px-3 py-1.5"
               >
-                <Text className="text-app-teal text-[14px]">수정</Text>
+                <Text className="text-app-teal text-[14px]">편집</Text>
               </Pressable>
             </View>
 

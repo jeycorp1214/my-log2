@@ -1,4 +1,4 @@
-# CalendarView 버그 분석 및 수정 계획
+# CalendarView 버그 분석 및 편집 계획
 
 소스 직접 분석 기반. `react-native-calendars@1.1314.0` 기준.
 
@@ -7,6 +7,7 @@
 ## Bug 1 — 스와이프 후 재스크롤 (current prop 루프)
 
 ### 현상
+
 사용자가 CalendarList를 스와이프해 다음 달로 이동하면 스크롤이 끊기거나 제자리로 튕긴다.
 
 ### 원인
@@ -15,13 +16,14 @@ CalendarList 소스 (`calendar-list/index.js`):
 
 ```js
 useEffect(() => {
-    if (current) {
-        scrollToMonth(new XDate(current));   // current 바뀔 때마다 스크롤 강제 실행
-    }
+  if (current) {
+    scrollToMonth(new XDate(current)); // current 바뀔 때마다 스크롤 강제 실행
+  }
 }, [current]);
 ```
 
 실행 체인:
+
 1. 사용자 스와이프 → FlatList `onViewableItemsChanged`
 2. CalendarList 내부 `setCurrentMonth(newMonth)`
 3. `useDidUpdate([currentMonth])` → `onVisibleMonthsChange([{dateString}])`
@@ -30,7 +32,7 @@ useEffect(() => {
 6. `useEffect([current])` 재발동 → `scrollToOffset` 호출
 7. 모멘텀 스크롤 진행 중에 강제 스크롤 → 끊김 or 튕김
 
-### 수정
+### 편집
 
 CalendarView.tsx에 `isSwipingRef` 추가:
 
@@ -61,6 +63,7 @@ onVisibleMonthsChange={(months) => {
 ## Bug 2 — mode 전환 시 calendarHeight 미반영
 
 ### 현상
+
 compact → board 전환 시 셀 높이가 바뀌지 않는다. board 셀이 여전히 compact 높이(290px)로 렌더링된다.
 
 ### 원인
@@ -86,15 +89,18 @@ CalendarList가 마운트될 때의 `calendarHeight`가 클로저에 고정된�
 
 ```js
 function areEqual(prevProps, nextProps) {
-    const didPropsChange = some(omit(prevProps, 'marking'), (value, key) => value !== omit(nextProps, 'marking')[key]);
-    const isMarkingEqual = isEqual(prevProps.marking, nextProps.marking);
-    return !didPropsChange && isMarkingEqual;
+  const didPropsChange = some(
+    omit(prevProps, "marking"),
+    (value, key) => value !== omit(nextProps, "marking")[key],
+  );
+  const isMarkingEqual = isEqual(prevProps.marking, nextProps.marking);
+  return !didPropsChange && isMarkingEqual;
 }
 ```
 
 mode 전환 시 `marking`이 바뀌지 않으면 Day 셀이 리렌더되지 않아 `modeRef.current`를 읽는 새 렌더도 발생하지 않는다.
 
-### 수정
+### 편집
 
 CalendarList에 `key` prop 추가 → mode 변경 시 완전 리마운트:
 
@@ -107,6 +113,7 @@ CalendarList에 `key` prop 추가 → mode 변경 시 완전 리마운트:
 ```
 
 리마운트 시 비용:
+
 - `initialDate.current` = `currentMonth`로 재설정 → 현재 월부터 새 items 배열 생성
 - 모든 CalendarListItem 재생성
 - mode 전환은 드문 이벤트이므로 허용 가능한 비용
@@ -116,6 +123,7 @@ CalendarList에 `key` prop 추가 → mode 변경 시 완전 리마운트:
 ## Bug 3 — pastScrollRange/futureScrollRange = 12 (±1년 제한)
 
 ### 현상
+
 앱 실행 시점 기준 ±12개월 밖으로 이동 불가. 화살표·MonthPickerModal로 범위 밖 날짜 선택 시 CalendarList가 경계에서 멈춘다.
 
 ### 원인
@@ -124,12 +132,14 @@ CalendarList 소스:
 
 ```js
 const items = useMemo(() => {
-    const months = [];
-    for (let i = 0; i <= pastScrollRange + futureScrollRange; i++) {
-        const rangeDate = initialDate.current?.clone().addMonths(i - pastScrollRange, true);
-        months.push(rangeDate);
-    }
-    return months;
+  const months = [];
+  for (let i = 0; i <= pastScrollRange + futureScrollRange; i++) {
+    const rangeDate = initialDate.current
+      ?.clone()
+      .addMonths(i - pastScrollRange, true);
+    months.push(rangeDate);
+  }
+  return months;
 }, [pastScrollRange, futureScrollRange]);
 ```
 
@@ -138,7 +148,7 @@ items 배열은 마운트 시 `initialDate.current`(앱 실행 당시 날짜) �
 
 라이브러리 기본값은 `pastScrollRange = 50`, `futureScrollRange = 50`.
 
-### 수정
+### 편집
 
 ```tsx
 <CalendarList
@@ -155,11 +165,13 @@ items 배열은 마운트 시 `initialDate.current`(앱 실행 당시 날짜) �
 ## 이슈 4 — Dot이 원(circle) 내부에 렌더링 → 시각적 열화
 
 ### 현상
+
 compact mode에서 기록 dot이 날짜 숫자 원 안에 그려진다. 원의 곡률로 인해 하단 모서리 근처에 위치하며 시각적으로 잘 보이지 않는다.
 
 ### 분석
 
 현재 구조:
+
 ```tsx
 <View style={{ width: 36, height: 36, borderRadius: 18, ... }}>
   <Text>15</Text>
@@ -174,7 +186,7 @@ compact mode에서 기록 dot이 날짜 숫자 원 안에 그려진다. 원의 �
 
 react-native-calendars 기본 렌더링은 dot을 원 **아래**에 표시한다.
 
-### 수정
+### 편집
 
 dot을 원 바깥 아래로 이동:
 
@@ -195,6 +207,7 @@ dot을 원 바깥 아래로 이동:
 ```
 
 dot이 원 아래 표시되어 명확하게 보인다. 이 경우 dayComponent 전체 높이가 36 + dot영역(~8px)이므로 `calendarHeight`도 재조정 필요:
+
 - compact: `290` → `310` 으로 증가
 
 ---
@@ -204,8 +217,10 @@ dot이 원 아래 표시되어 명확하게 보인다. 이 경우 dayComponent �
 ### 분석
 
 `calendar/day/index.js`:
+
 ```js
-const Component = dayComponent || (markingType === 'period' ? PeriodDay : BasicDay);
+const Component =
+  dayComponent || (markingType === "period" ? PeriodDay : BasicDay);
 ```
 
 `dayComponent`가 있으면 `markingType`은 **렌더링 컴포넌트 선택에 영향 없음**.  
@@ -217,11 +232,11 @@ marking={markedDates?.[dateString]}   // calendar/index.js renderDay
 
 `markingType="multi-dot"` 설정은 기능적으로 무의미하다. 제거 가능.
 
-### 수정
+### 편집
 
 ```tsx
 // 제거
-markingType="multi-dot"
+markingType = "multi-dot";
 ```
 
 ---
@@ -229,28 +244,29 @@ markingType="multi-dot"
 ## 이슈 6 — DatePickerModal markingType="dot" 불일치
 
 ### 현상
+
 DatePickerModal의 `markedDates` 형식은 `{ selected: true }` (simple marking)인데 `markingType="dot"`으로 지정되어 있다.
 
-### 수정
+### 편집
 
 ```tsx
 // 제거 또는 아래로 교체
-markingType="simple"
+markingType = "simple";
 ```
 
 custom `dayComponent`를 사용하므로 기능에 영향 없지만 의도를 명확히 한다.
 
 ---
 
-## 수정 우선순위 요약
+## 편집 우선순위 요약
 
-| 우선순위 | 이슈 | 수정 |
-|---------|------|------|
-| P0 | Bug 2: calendarHeight 미반영 | `key={mode}` 추가 |
-| P0 | Bug 3: ±1년 제한 | `pastScrollRange={50}` |
-| P1 | Bug 1: 스와이프 재스크롤 | `isSwipingRef` 패턴 |
-| P1 | 이슈 4: dot 위치 | 원 바깥 아래로 이동 + calendarHeight 조정 |
-| P2 | 이슈 5,6: markingType | 불필요 prop 제거 |
+| 우선순위 | 이슈                         | 편집                                      |
+| -------- | ---------------------------- | ----------------------------------------- |
+| P0       | Bug 2: calendarHeight 미반영 | `key={mode}` 추가                         |
+| P0       | Bug 3: ±1년 제한             | `pastScrollRange={50}`                    |
+| P1       | Bug 1: 스와이프 재스크롤     | `isSwipingRef` 패턴                       |
+| P1       | 이슈 4: dot 위치             | 원 바깥 아래로 이동 + calendarHeight 조정 |
+| P2       | 이슈 5,6: markingType        | 불필요 prop 제거                          |
 
 ---
 
@@ -261,13 +277,13 @@ custom `dayComponent`를 사용하므로 기능에 영향 없지만 의도를 �
 ```js
 // calendar/day/index.js
 return (
-    <Component {...props} {...dayComponentProps}>
-      {formatNumbers(_date?.getDate())}
-    </Component>
+  <Component {...props} {...dayComponentProps}>
+    {formatNumbers(_date?.getDate())}
+  </Component>
 );
 ```
 
 `{...props}`에 `marking`이 포함된다. **기능적으로 dot 데이터는 전달된다.**  
 현재 증상이 있다면 원인은 dot이 원 내부 하단에 위치해 시각적으로 잘 안 보이는 것이다(이슈 4).
 
-단, Bug 2로 인해 mode 전환 후 셀이 리렌더되지 않으면 `marking` 변경에도 dot 업데이트가 안 되는 경우가 발생한다. Bug 2 수정이 선행되어야 한다.
+단, Bug 2로 인해 mode 전환 후 셀이 리렌더되지 않으면 `marking` 변경에도 dot 업데이트가 안 되는 경우가 발생한다. Bug 2 편집이 선행되어야 한다.

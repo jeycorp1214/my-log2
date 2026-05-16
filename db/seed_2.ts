@@ -864,7 +864,7 @@ export async function seedSampleData() {
     { title: "프로젝트 기획안 제출", quadrant: "do" },
     { title: "연간 보고서 작성", quadrant: "do" },
     { title: "중요 거래처 미팅 준비", quadrant: "do" },
-    { title: "버그 수정 PR 제출", quadrant: "do" },
+    { title: "버그 편집 PR 제출", quadrant: "do" },
     { title: "이번 달 가계부 정리", quadrant: "do" },
     { title: "운전면허 갱신 신청", quadrant: "do" },
     { title: "건강검진 예약", quadrant: "do" },

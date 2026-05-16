@@ -1,11 +1,11 @@
-// 할 일 상세/수정 화면 — 제목, 노트, 기한, 사분면 편집
+// 할 일 상세/편집 화면 — 제목, 노트, 기한, 사분면 편집
 import { DateInput } from "@/components/DateInput";
 import { db } from "@/db/client";
 import { todos, type Quadrant } from "@/db/schema";
+import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -19,10 +19,10 @@ import {
 } from "react-native";
 
 const QUADRANTS: { key: Quadrant; label: string; color: string }[] = [
-  { key: "do",       label: "즉시 실행", color: "#ff6b6b" },
-  { key: "schedule", label: "계획",      color: "#4ecdc4" },
+  { key: "do", label: "즉시 실행", color: "#ff6b6b" },
+  { key: "schedule", label: "계획", color: "#4ecdc4" },
   { key: "delegate", label: "빠르게 처리", color: "#f59e0b" },
-  { key: "eliminate",label: "제거",       color: "#666666" },
+  { key: "eliminate", label: "제거", color: "#666666" },
 ];
 
 export default function TodoDetailScreen() {
@@ -54,7 +54,8 @@ export default function TodoDetailScreen() {
     title.trim() !== todo.title ||
     (note.trim() || null) !== (todo.note ?? null) ||
     quadrant !== todo.quadrant ||
-    (dueDate ? dayjs(dueDate).format("YYYY-MM-DD") : null) !== (todo.dueDate ?? null);
+    (dueDate ? dayjs(dueDate).format("YYYY-MM-DD") : null) !==
+      (todo.dueDate ?? null);
 
   async function save() {
     const trimmedTitle = title.trim();
@@ -123,12 +124,19 @@ export default function TodoDetailScreen() {
                 onPress={() => setQuadrant(q.key)}
                 className="rounded-[10px] px-4 py-2.5"
                 style={{
-                  backgroundColor: quadrant === q.key ? `${q.color}22` : "#1e1e1e",
+                  backgroundColor:
+                    quadrant === q.key ? `${q.color}22` : "#1e1e1e",
                   borderWidth: quadrant === q.key ? 1.5 : 0.5,
                   borderColor: quadrant === q.key ? q.color : "#2a2a2a",
                 }}
               >
-                <Text style={{ color: quadrant === q.key ? q.color : "#666", fontSize: 13, fontWeight: "600" }}>
+                <Text
+                  style={{
+                    color: quadrant === q.key ? q.color : "#666",
+                    fontSize: 13,
+                    fontWeight: "600",
+                  }}
+                >
                   {q.label}
                 </Text>
               </Pressable>

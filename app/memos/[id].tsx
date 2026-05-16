@@ -1,4 +1,4 @@
-// 메모 상세/수정 화면 — 내용 편집 후 저장
+// 메모 상세/편집 화면 — 내용 편집 후 저장
 import { MemoEditor } from "@/components/memos/MemoEditor";
 import { db } from "@/db/client";
 import { memos } from "@/db/schema";

@@ -1,4 +1,4 @@
-// 로그 상세 / 수정 / 삭제 모달 화면
+// 로그 상세 / 편집 / 삭제 모달 화면
 import { LogForm } from "@/components/logs/LogForm";
 import { db } from "@/db/client";
 import { groups, logPersons, logs, persons } from "@/db/schema";
@@ -78,7 +78,7 @@ export default function LogDetailScreen() {
 
   function handleEditPress() {
     if (isOccurrenceView && log?.repeatType && log.repeatType !== "none") {
-      Alert.alert("수정 방식", "", [
+      Alert.alert("편집 방식", "", [
         {
           text: "이 날만 별도 기록",
           onPress: () => {
@@ -88,7 +88,7 @@ export default function LogDetailScreen() {
             setEditingMode("copy");
           },
         },
-        { text: "반복 전체 수정", onPress: () => setEditingMode("edit") },
+        { text: "반복 전체 편집", onPress: () => setEditingMode("edit") },
         { text: "취소", style: "cancel" },
       ]);
     } else {
@@ -243,7 +243,7 @@ export default function LogDetailScreen() {
                 onPress={handleEditPress}
                 className="bg-app-surface rounded-lg px-3 py-1.5"
               >
-                <Text className="text-app-teal text-[14px]">수정</Text>
+                <Text className="text-app-teal text-[14px]">편집</Text>
               </Pressable>
             </View>
             <Text className="text-app-muted text-[13px]">

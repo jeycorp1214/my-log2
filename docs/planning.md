@@ -126,7 +126,7 @@ export async function runMigrations() {
 }
 ```
 
-> `updatedAt`이 있는 레코드 수정 시 항상 `updatedAt: new Date()`를 명시적으로 포함.
+> `updatedAt`이 있는 레코드 편집 시 항상 `updatedAt: new Date()`를 명시적으로 포함.
 
 > 로컬 DB 조회는 `useLiveQuery` 사용 → INSERT/UPDATE/DELETE 시 자동 리렌더링. `@tanstack/react-query`는 **Drive 백업·IAP에만** 사용.
 
@@ -227,7 +227,7 @@ FAB, 스와이프 월 이동, MonthPicker, 반복 기능 Virtual Occurrences
 
 ### Phase 3 — 반복 완성 ✅
 
-repeatUntil 날짜 선택, 단일/전체 수정 분기
+repeatUntil 날짜 선택, 단일/전체 편집 분기
 
 ### Phase 4 — 검색 ✅
 
@@ -277,9 +277,9 @@ MonthPickerModal 신규, 그룹 색상 인디케이터, 진행률 바, 섹션 �
 
 할일 필터 시트, 메모 생성일 표시, pinnedAt(memos), dueDate(todos), todos/[id].tsx
 
-### Phase 16 — 버그 수정 및 코드 품질 ✅
+### Phase 16 — 버그 편집 및 코드 품질 ✅
 
-tags JSON 크래시 수정, 리스트 탭 로그 누락, ensureGroupsColumns, FilterBottomSheet 공통화
+tags JSON 크래시 편집, 리스트 탭 로그 누락, ensureGroupsColumns, FilterBottomSheet 공통화
 
 ### Phase Next — 미착수
 
@@ -306,4 +306,4 @@ tags JSON 크래시 수정, 리스트 탭 로그 누락, ensureGroupsColumns, Fi
 | R3  | Google Drive App Data Folder 용량 제한 (10MB/app)                | Low          | 백업 파일 5개 FIFO 유지                                                 |
 | R4  | drizzle 스키마 변경 시 마이그레이션 파일 미커밋 → 유저 DB 오동작 | High         | 스키마 변경 후 `drizzle-kit generate` 실행 및 `drizzle/` 폴더 커밋 필수 |
 | R5  | react-native-worklets 의도적 제거 시 reanimated v4 오동작        | **Critical** | worklets는 reanimated v4 peer dep. **절대 제거 금지**                   |
-| R6  | `persons.tags` JSON 파싱 크래시                                  | High         | `utils/person.ts`의 `parseTags()` 사용 필수. Phase 16에서 수정됨.       |
+| R6  | `persons.tags` JSON 파싱 크래시                                  | High         | `utils/person.ts`의 `parseTags()` 사용 필수. Phase 16에서 편집됨.       |
