@@ -104,7 +104,6 @@ export default function PersonsScreen() {
   const [tabMode, setTabMode] = useState<TabMode>("persons");
   const [quickName, setQuickName] = useState("");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   const [nameQuery, setNameQuery] = useState("");
 
   const { data: allGroups = [] } = useLiveQuery(
@@ -390,15 +389,6 @@ export default function PersonsScreen() {
     }
   }
 
-  function toggleSearch() {
-    if (showSearch) {
-      setShowSearch(false);
-      setNameQuery("");
-    } else {
-      setShowSearch(true);
-    }
-  }
-
   const searchedPersons = useMemo(() => {
     const q = nameQuery.trim().toLowerCase();
     if (!q) return allPersons;
@@ -422,11 +412,8 @@ export default function PersonsScreen() {
     <View className="flex-1 bg-app-bg">
       <TabsHeader
         title="프로필"
-        searchOnPress={tabMode === "persons" ? toggleSearch : undefined}
-        searchActive={showSearch}
         cakeOnPress={() => {
           setTabMode((m) => (m === "persons" ? "anniversary" : "persons"));
-          setShowSearch(false);
           setNameQuery("");
         }}
         historyActive={tabMode === "anniversary"}
@@ -438,16 +425,14 @@ export default function PersonsScreen() {
       {tabMode === "persons" && (
         <>
           {/* 로컬 검색 바 */}
-          {showSearch && (
-            <SearchBar
-              value={nameQuery}
-              onChange={setNameQuery}
-              placeholder="이름 검색..."
-            />
-          )}
+          <SearchBar
+            value={nameQuery}
+            onChange={setNameQuery}
+            placeholder="이름 검색..."
+          />
 
-          {/* 검색 중: 플랫 결과 리스트 */}
-          {showSearch && (
+          {/* 검색어 있을 때: 플랫 결과 리스트 */}
+          {nameQuery.trim() !== "" && (
             <FlatList
               data={searchedPersons}
               keyExtractor={(item) => item.id}
@@ -481,8 +466,8 @@ export default function PersonsScreen() {
             />
           )}
 
-          {/* 검색 중이 아닐 때만 기존 그룹 뷰 표시 */}
-          {!showSearch && (
+          {/* 검색어 없을 때: 기존 그룹 뷰 표시 */}
+          {nameQuery.trim() === "" && (
             <>
               {/* 요약 바 */}
               <View className="flex-row items-center justify-between px-5 py-2.5 border-b border-[#1e1e1e]">
