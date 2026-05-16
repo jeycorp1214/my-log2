@@ -285,6 +285,18 @@ export default function PersonsScreen() {
     sortedGroupedPersons.reduce((sum, { members }) => sum + members.length, 0) +
     sortedUngrouped.length;
 
+  const allGroupIds = sortedGroupedPersons.map(({ group }) => group.id);
+  const isAllCollapsed =
+    allGroupIds.length > 0 && allGroupIds.every((id) => collapsedGroups.has(id));
+
+  function toggleAllCollapse() {
+    if (isAllCollapsed) {
+      setCollapsedGroups(new Set());
+    } else {
+      setCollapsedGroups(new Set(allGroupIds));
+    }
+  }
+
   const filterBadge =
     tabMode === "persons"
       ? [
@@ -315,12 +327,19 @@ export default function PersonsScreen() {
       {tabMode === "persons" && (
         <>
           {/* 요약 바 */}
-          <View className="flex-row items-center px-5 py-2.5 border-b border-[#1e1e1e]">
+          <View className="flex-row items-center justify-between px-5 py-2.5 border-b border-[#1e1e1e]">
             <Text className="text-app-muted text-[13px]">
               총 {allPersons.length}명
               {visiblePersonCount !== allPersons.length &&
                 ` · 표시 ${visiblePersonCount}명`}
             </Text>
+            {allGroupIds.length > 0 && (
+              <Pressable onPress={toggleAllCollapse} hitSlop={8}>
+                <Text className="text-[#555] text-[12px]">
+                  {isAllCollapsed ? "전체 펼치기" : "전체 접기"}
+                </Text>
+              </Pressable>
+            )}
           </View>
 
           <ScrollView
@@ -331,6 +350,27 @@ export default function PersonsScreen() {
               <Text className="text-app-muted text-center mt-12">
                 인물을 추가해 보세요.
               </Text>
+            ) : visiblePersonCount === 0 ? (
+              <View className="items-center mt-16 gap-3">
+                <Text className="text-app-muted text-[14px]">
+                  조건에 맞는 인물이 없습니다.
+                </Text>
+                {filterBadge > 0 && (
+                  <Pressable
+                    onPress={() => {
+                      setSortOrder("name-asc");
+                      setGroupFilter("all");
+                      setMbtiFilter("all");
+                      setMbtiDetail("");
+                      setTagFilter("all");
+                      setOverdueFilter("all");
+                    }}
+                    className="bg-[#222] rounded-full px-4 py-2"
+                  >
+                    <Text className="text-app-teal text-[13px]">필터 초기화</Text>
+                  </Pressable>
+                )}
+              </View>
             ) : (
               <>
                 {pinnedPersons.length > 0 && (
@@ -355,9 +395,7 @@ export default function PersonsScreen() {
                               params: { id: person.id },
                             })
                           }
-                          onLongPress={() =>
-                            togglePin(person.id, person.isPinned)
-                          }
+                          onPinPress={() => togglePin(person.id, person.isPinned)}
                         />
                       );
                     })}
@@ -372,13 +410,19 @@ export default function PersonsScreen() {
                         className="flex-row items-center justify-between mb-2"
                         hitSlop={4}
                       >
-                        <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
-                          {group.emoji} {group.name}
-                          {"  "}
-                          <Text className="text-[#555] font-normal">
-                            {members.length}
+                        <View className="flex-row items-center gap-2">
+                          <View
+                            className="w-[6px] h-[6px] rounded-full"
+                            style={{ backgroundColor: group.color }}
+                          />
+                          <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
+                            {group.emoji} {group.name}
+                            {"  "}
+                            <Text className="text-[#555] font-normal">
+                              {members.length}
+                            </Text>
                           </Text>
-                        </Text>
+                        </View>
                         {collapsed ? (
                           <ChevronRight size={14} color="#555" />
                         ) : (
@@ -398,7 +442,7 @@ export default function PersonsScreen() {
                                 params: { id: person.id },
                               })
                             }
-                            onLongPress={() =>
+                            onPinPress={() =>
                               togglePin(person.id, person.isPinned)
                             }
                           />
@@ -438,7 +482,7 @@ export default function PersonsScreen() {
                               params: { id: person.id },
                             })
                           }
-                          onLongPress={() =>
+                          onPinPress={() =>
                             togglePin(person.id, person.isPinned)
                           }
                         />
@@ -541,24 +585,39 @@ export default function PersonsScreen() {
                 </Text>
               </View>
             )}
-            renderItem={({ item }) => (
-              <View className="px-4">
-                <AnniversaryItem
-                  title={item.displayTitle}
-                  date={item.date}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/persons/[id]",
-                      params: { id: item.personId },
-                    })
-                  }
-                />
-              </View>
-            )}
+            renderItem={({ item }) => {
+              const gId = personGroupMap.get(item.personId);
+              const grp = gId ? allGroups.find((g) => g.id === gId) : undefined;
+              return (
+                <View className="px-4">
+                  <AnniversaryItem
+                    title={item.displayTitle}
+                    date={item.date}
+                    groupColor={grp?.color}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/persons/[id]",
+                        params: { id: item.personId },
+                      })
+                    }
+                  />
+                </View>
+              );
+            }}
             ListEmptyComponent={
-              <Text className="text-app-muted text-center mt-16 text-[14px]">
-                해당 기간에 기념일이 없습니다.
-              </Text>
+              <View className="items-center mt-16 gap-3">
+                <Text className="text-app-muted text-[14px]">
+                  해당 기간에 기념일이 없습니다.
+                </Text>
+                {annGroupFilter !== "all" && (
+                  <Pressable
+                    onPress={() => setAnnGroupFilter("all")}
+                    className="bg-[#222] rounded-full px-4 py-2"
+                  >
+                    <Text className="text-app-teal text-[13px]">필터 초기화</Text>
+                  </Pressable>
+                )}
+              </View>
             }
             contentContainerStyle={{ paddingBottom: 16 }} // 섹션 헤더가 아이템과 겹치는 문제 완화
             stickySectionHeadersEnabled

@@ -19,9 +19,9 @@ function getDateStr(date: Date): string {
   return `${d.format("M월 D일")} (${DAYS[d.day()]})`;
 }
 
-type Props = { title: string; date?: Date; onPress?: () => void };
+type Props = { title: string; date?: Date; groupColor?: string; onPress?: () => void };
 
-export function AnniversaryItem({ title, date, onPress }: Props) {
+export function AnniversaryItem({ title, date, groupColor, onPress }: Props) {
   const dday = date ? getDday(date) : null;
   const dateStr = date ? getDateStr(date) : null;
   const isDday = dday === "D-DAY";
@@ -29,9 +29,13 @@ export function AnniversaryItem({ title, date, onPress }: Props) {
 
   const Inner = (
     <View
-      className="flex-row items-center gap-2 py-2.5 px-3 mb-2 rounded-[10px]"
+      className="flex-row items-center mb-2 rounded-[10px] overflow-hidden"
       style={{ backgroundColor: "#1e1428" }}
     >
+      {groupColor && (
+        <View className="w-1 self-stretch" style={{ backgroundColor: groupColor }} />
+      )}
+      <View className="flex-1 flex-row items-center gap-2 py-2.5 px-3">
       <Cake size={14} color="#c084fc" />
       <View className="flex-1">
         <Text className="text-[14px]" style={{ color: "#c084fc" }}>
@@ -64,6 +68,7 @@ export function AnniversaryItem({ title, date, onPress }: Props) {
           </Text>
         </View>
       )}
+      </View>
     </View>
   );
 

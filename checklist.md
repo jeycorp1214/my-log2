@@ -528,9 +528,22 @@
 - [x] `persons.tsx`: 태그 필터 동적 추출 (`allPersons`에서 useMemo로 집계)
 - [x] `persons.tsx`: 인물 모드 요약 바 — "총 N명 · 표시 M명" 표시
 
+## UI/UX 개선
+
+- [x] `PersonCard.tsx`: 마지막 연락 `fromNow()` 표시 — `lastLogDate` 있으면 "3일 전", 없고 `contactInterval` 있으면 "기록 없음"
+- [x] `PersonCard.tsx`: 핀 버튼 명시적 노출 — `onPinPress` prop 추가, 카드 우측 핀 아이콘 Pressable (onLongPress 제거)
+- [x] `persons.tsx`: 빈 상태 CTA — 필터 후 결과 없을 때 "필터 초기화" 버튼 (인물/기념일 모드 모두)
+- [x] `PersonCard.tsx`: 연락 주기 진행률 바 — `contactInterval` 설정 시 카드 하단 얇은 바 (초과 빨강, 임박 주황, 여유 teal)
+- [x] `persons.tsx`: 전체 접기/펼치기 버튼 — 요약 바 우측
+- [x] `persons.tsx`: 그룹 헤더 색상 도트 — 그룹명 앞 6px 컬러 dot
+- [x] `persons.tsx` + `AnniversaryItem.tsx`: 기념일 그룹 색상 인디케이터
+
 ## 설계 결정 메모
 
 - `last-contact-asc` 정렬: 기록 없는 인물은 맨 앞(연락 가장 오래됨)으로.
 - `overdueFilter`: persist 불필요 → 로컬 state. 필터 바텀시트에서 토글.
 - 태그 동적 추출: `JSON.parse(p.tags)` 집계 → 실제 DB 태그만 표시. 태그 없으면 섹션 숨김.
 - 요약 바: 필터 적용 후 렌더 인물 수 vs 전체 인물 수 둘 다 표시.
+- `onPinPress`: `onLongPress` 대체. PersonCard에서 별도 Pressable로 노출.
+- 진행률 바: `daysSinceLastLog / contactInterval`. 100% 초과 시 클램프. 기록 없으면 100%.
+- 기념일 인디케이터: `personGroupMap`(이미 있음) + `allGroups` → `groupColor` → `AnniversaryItem` prop.

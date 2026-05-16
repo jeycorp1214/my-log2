@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-16T00:54:45.845Z",
+  "lastUpdated": "2026-05-16T01:06:09.395Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -52,7 +52,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-16T00:54:45.845Z"
+        "lastUpdated": "2026-05-16T01:06:09.395Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/persons.tsx"
     },
@@ -156,7 +156,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T17:00:40.821Z",
-        "lastUpdated": "2026-05-15T23:57:13.547Z"
+        "lastUpdated": "2026-05-16T01:05:54.327Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/persons/AnniversaryItem.tsx"
     },
@@ -182,7 +182,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-16T00:54:45.845Z"
+    "lastActivity": "2026-05-16T01:06:09.395Z"
   },
   "history": [
     {
@@ -1423,6 +1423,72 @@
     },
     {
       "timestamp": "2026-05-16T00:54:45.845Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:03:56.690Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:04:00.679Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:04:29.372Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:04:56.296Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:05:03.322Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:05:32.669Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:05:38.275Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:05:45.550Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:05:54.327Z",
+      "feature": "persons",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:06:00.907Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T01:06:09.395Z",
       "feature": "(tabs)",
       "phase": "do",
       "action": "updated"
