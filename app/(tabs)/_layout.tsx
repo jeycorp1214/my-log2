@@ -1,9 +1,8 @@
-// 탭 네비게이션 레이아웃 — 홈, 리스트, 프로필, 캘린더, 노트, 설정
+// 탭 네비게이션 레이아웃 — 홈, 프로필, 캘린더, 노트, 설정
 import { Tabs } from "expo-router";
 import {
   CalendarDays,
   Home,
-  List,
   NotebookPen,
   Settings,
   Users,
@@ -35,8 +34,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="list"
         options={{
-          title: "리스트",
-          tabBarIcon: ({ color }) => <List size={24} color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen

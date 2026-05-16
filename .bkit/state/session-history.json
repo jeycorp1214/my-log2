@@ -1,13 +1,5 @@
 [
   {
-    "sessionId": "dc242038-307b-4fce-a89a-275c5498e41b",
-    "reason": "clear",
-    "endedAt": "2026-05-15T15:41:41.815Z",
-    "feature": null,
-    "phase": null,
-    "progress": null
-  },
-  {
     "sessionId": "b587a668-3560-4e43-a04b-6e1f8be3fea8",
     "reason": "clear",
     "endedAt": "2026-05-15T16:11:03.155Z",
@@ -155,6 +147,14 @@
     "sessionId": "8df1a361-e726-4e1c-9a44-7b9bd4311034",
     "reason": "other",
     "endedAt": "2026-05-16T18:07:50.806Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "26c91a4e-b7d9-4ad7-8661-0d4823c4b417",
+    "reason": "clear",
+    "endedAt": "2026-05-16T20:03:43.848Z",
     "feature": null,
     "phase": null,
     "progress": null

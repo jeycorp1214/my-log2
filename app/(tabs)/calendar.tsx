@@ -121,7 +121,11 @@ export default function CalendarScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <TabsHeader title="캘린더" searchOnPress />
+      <TabsHeader
+        title="캘린더"
+        listOnPress={() => router.push("/(tabs)/list")}
+        searchOnPress
+      />
 
       <View className="mx-4 rounded-[12px] overflow-hidden">
         <Calendar

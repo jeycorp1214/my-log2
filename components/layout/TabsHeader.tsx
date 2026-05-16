@@ -2,13 +2,14 @@ import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
-import { History, Search, SlidersHorizontal } from "lucide-react-native";
+import { History, List, Search, SlidersHorizontal } from "lucide-react-native";
 import { View } from "react-native";
 
 interface TabsHeaderProps {
   title: string;
   CustomRight?: React.ReactNode;
   cakeOnPress?: () => void;
+  listOnPress?: () => void;
   searchOnPress?: boolean | (() => void);
   slidersOnPress?: () => void;
   historyActive?: boolean;
@@ -19,6 +20,7 @@ interface TabsHeaderProps {
 export default function TabsHeader({
   title,
   cakeOnPress,
+  listOnPress,
   searchOnPress,
   slidersOnPress,
   CustomRight,
@@ -34,6 +36,11 @@ export default function TabsHeader({
         {cakeOnPress && (
           <Pressable className="p-2" onPress={cakeOnPress}>
             <History size={22} color={historyActive ? "#c084fc" : "#888"} />
+          </Pressable>
+        )}
+        {listOnPress && (
+          <Pressable className="p-2" onPress={listOnPress}>
+            <List size={22} color="#888" />
           </Pressable>
         )}
         {searchOnPress && (
