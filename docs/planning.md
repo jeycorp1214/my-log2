@@ -82,17 +82,18 @@
 
 ## 3. 데이터 모델 (expo-sqlite + drizzle-orm)
 
-| 테이블 | 주요 컬럼 |
-|--------|-----------|
-| `groups` | id, name, color, emoji, isDefault, sortOrder |
-| `persons` | id, name, birthDate, mbti, memo, groupId(nullable), tags(JSON), metAt, contactInterval, isPinned |
-| `logs` | id, title, logDate, memo, repeatType(none/daily/weekly/monthly/yearly), repeatInterval, repeatUntil, groupId(nullable), checkedAt |
-| `logPersons` | id, logId, personId (N:M, cascade delete) |
-| `personAnniversaries` | id, personId, title, date(YYYY-MM-DD), isRepeat (cascade delete) |
-| `todos` | id, title, quadrant(do/schedule/delegate/eliminate), checkedAt, dueDate, note |
-| `memos` | id, content, checkedAt, pinnedAt |
+| 테이블                | 주요 컬럼                                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `groups`              | id, name, color, emoji, isDefault, sortOrder                                                                                      |
+| `persons`             | id, name, birthDate, mbti, memo, groupId(nullable), tags(JSON), metAt, contactInterval, isPinned                                  |
+| `logs`                | id, title, logDate, memo, repeatType(none/daily/weekly/monthly/yearly), repeatInterval, repeatUntil, groupId(nullable), checkedAt |
+| `logPersons`          | id, logId, personId (N:M, cascade delete)                                                                                         |
+| `personAnniversaries` | id, personId, title, date(YYYY-MM-DD), isRepeat (cascade delete)                                                                  |
+| `todos`               | id, title, quadrant(do/schedule/delegate/eliminate), checkedAt, dueDate, note                                                     |
+| `memos`               | id, content, checkedAt, pinnedAt                                                                                                  |
 
 **마이그레이션 현황:**
+
 - 0000: groups, persons, logs, logPersons 기본 생성
 - 0001: logs.checked_at 추가
 - 0002: person_anniversaries 테이블 생성
@@ -105,6 +106,7 @@
 - 0009: todos.due_date 추가
 
 **drizzle-kit generate 해결 방법 (2026-05-15):**
+
 - `db/generate-id.ts` → `node:crypto` (drizzle-kit/Node.js 환경)
 - `db/generate-id.native.ts` → `expo-crypto` (React Native/Metro 환경)
 - Metro가 `.native.ts` 우선 resolve → 앱/drizzle-kit 환경 분리됨
@@ -115,7 +117,7 @@
 ```typescript
 // db/client.ts
 const expo = SQLite.openDatabaseSync("mylog.db", {
-  enableChangeListener: true,  // useLiveQuery 지원
+  enableChangeListener: true, // useLiveQuery 지원
 });
 export const db = drizzle(expo, { schema });
 
@@ -130,18 +132,18 @@ export async function runMigrations() {
 
 ### 3.2 인물 기능 현황
 
-| 기능 | 상태 | DB 컬럼 |
-|------|------|---------|
-| 관계 태그 | ✅ | `persons.tags` (JSON 문자열) |
-| 연락 주기 | ✅ | `persons.contactInterval` (일 단위) |
-| 첫 만남 날짜 | ✅ | `persons.metAt` |
-| 즐겨찾기/고정 | ✅ | `persons.isPinned` |
-| 인물 상세 타임라인 | ✅ | logPersons 조인 |
-| 통계 카드 | ✅ | PersonStatsCard.tsx |
-| 이니셜 아바타 | ✅ | 이름 해시 기반 원형 |
-| 인물 간 연결 | ❌ 폐기 | 오버엔지니어링 |
-| 감정 온도 | ❌ 폐기 | UX 마찰 > 가치 |
-| 이미지 아바타 | ❌ 폐기 | URI 관리 복잡도 |
+| 기능               | 상태    | DB 컬럼                             |
+| ------------------ | ------- | ----------------------------------- |
+| 관계 태그          | ✅      | `persons.tags` (JSON 문자열)        |
+| 연락 주기          | ✅      | `persons.contactInterval` (일 단위) |
+| 첫 만남 날짜       | ✅      | `persons.metAt`                     |
+| 즐겨찾기/고정      | ✅      | `persons.isPinned`                  |
+| 인물 상세 타임라인 | ✅      | logPersons 조인                     |
+| 통계 카드          | ✅      | PersonStatsCard.tsx                 |
+| 이니셜 아바타      | ✅      | 이름 해시 기반 원형                 |
+| 인물 간 연결       | ❌ 폐기 | 오버엔지니어링                      |
+| 감정 온도          | ❌ 폐기 | UX 마찰 > 가치                      |
+| 이미지 아바타      | ❌ 폐기 | URI 관리 복잡도                     |
 
 > `tags`: `JSON.parse` 크래시 방지를 위해 `utils/person.ts`의 `parseTags()` 사용 필수.
 
@@ -200,14 +202,14 @@ export async function runMigrations() {
 
 ## 7. 리텐션 전략
 
-| 기능                          | 설명                                              | 상태      |
-| ----------------------------- | ------------------------------------------------- | --------- |
-| **잔디 히트맵**               | 연간 기록 밀도 시각화                             | ✅ 구현   |
-| **통계**                      | 인물 랭킹, 카테고리 비율, 스트릭, 완료율 등       | ✅ 구현   |
-| **PIN 잠금**                  | 앱 보안                                           | ✅ 구현   |
-| **오늘의 회상** (On This Day) | N년 전 오늘 기록된 일정/인물 노출                 | 미구현    |
-| **생일/기념일 알림**          | 로컬 알림                                         | 미구현    |
-| **홈 위젯**                   | 오늘 일정 또는 "N일만에 기록" 위젯                | 미구현    |
+| 기능                          | 설명                                        | 상태    |
+| ----------------------------- | ------------------------------------------- | ------- |
+| **잔디 히트맵**               | 연간 기록 밀도 시각화                       | ✅ 구현 |
+| **통계**                      | 인물 랭킹, 카테고리 비율, 스트릭, 완료율 등 | ✅ 구현 |
+| **PIN 잠금**                  | 앱 보안                                     | ✅ 구현 |
+| **오늘의 회상** (On This Day) | N년 전 오늘 기록된 일정/인물 노출           | 미구현  |
+| **생일/기념일 알림**          | 로컬 알림                                   | 미구현  |
+| **홈 위젯**                   | 오늘 일정 또는 "N일만에 기록" 위젯          | 미구현  |
 
 ---
 
@@ -216,51 +218,67 @@ export async function runMigrations() {
 ### Phase 0 — 환경 설정 ✅
 
 ### Phase 1 — Core ✅
+
 drizzle Schema + 마이그레이션 + Seed + 그룹/인물/로그 CRUD + 캘린더 뷰
 
 ### Phase 2 — 모바일 UX 최적화 ✅
+
 FAB, 스와이프 월 이동, MonthPicker, 반복 기능 Virtual Occurrences
 
 ### Phase 3 — 반복 완성 ✅
+
 repeatUntil 날짜 선택, 단일/전체 수정 분기
 
 ### Phase 4 — 검색 ✅
+
 logs + persons + memos + todos 통합 검색, 필터 칩, 인물-기록 연결
 
 ### Phase 5 — 리스트 탭 ✅
+
 체크박스, 기간 필터, 바텀시트 필터, 월별 섹션
 
 ### Phase 6 — 인물 기념일 ✅
+
 personAnniversaries 테이블, D-Day 계산, 프리셋 칩
 
 ### Phase 7 — UI/UX 고도화 ✅
+
 리스트 탭 기간 프리셋 재설계, 캘린더 board 모드, MBTI/생년월일 입력
 
 ### Phase 8 — 스타일 통일 ✅
+
 StyleSheet.create → className + cn() 전환 완료
 
 ### Phase 9 — 노트 탭 + 홈 탭 변경 ✅
+
 메모/할일 서브탭, 아이젠하워 매트릭스, QuickInputBar, 홈 탭 최근 기록 피드
 
 ### Phase 10 — PIN 비밀번호 ✅
+
 PinLockProvider, PinPad, LockScreen, settings/password.tsx
 
 ### Phase 11 — 통계 ✅
+
 use-stats.ts (6개 훅), stats.tsx (요약/랭킹/연락/비율/스트릭/완료율/MBTI/동반 빈도)
 
 ### Phase 12 — 캘린더 탭 ✅
+
 react-native-calendars 기반, multi-dot marking, 기념일 dot, 고정 5:5 분할 레이아웃
 
 ### Phase 13 — 리스트 탭 고도화 v2 ✅
+
 MonthPickerModal 신규, 그룹 색상 인디케이터, 진행률 바, 섹션 완료율
 
 ### Phase 14 — 인물 탭 고도화 ✅
+
 마지막 연락 정렬, 연락 주기 초과 필터, 태그 동적 추출, 진행률 바, 핀 버튼
 
 ### Phase 15 — 노트 탭 개선 ✅
+
 할일 필터 시트, 메모 생성일 표시, pinnedAt(memos), dueDate(todos), todos/[id].tsx
 
 ### Phase 16 — 버그 수정 및 코드 품질 ✅
+
 tags JSON 크래시 수정, 리스트 탭 로그 누락, ensureGroupsColumns, FilterBottomSheet 공통화
 
 ### Phase Next — 미착수
@@ -281,11 +299,11 @@ tags JSON 크래시 수정, 리스트 탭 로그 누락, ensureGroupsColumns, Fi
 
 ## 9. 리스크 레지스터
 
-| #   | 리스크                                                           | 심각도       | 완화 방안                                                              |
-| --- | ---------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------- |
-| R1  | RN-IAP 네이티브 모듈 + Expo managed workflow 충돌                | High         | EAS Build + custom dev client 전환                                     |
-| R2  | 서버 없는 IAP → 영수증 위조                                      | Medium       | 허용 리스크. 스토어 자체 검증으로 일반 사용자 방어                     |
-| R3  | Google Drive App Data Folder 용량 제한 (10MB/app)                | Low          | 백업 파일 5개 FIFO 유지                                                |
+| #   | 리스크                                                           | 심각도       | 완화 방안                                                               |
+| --- | ---------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------- |
+| R1  | RN-IAP 네이티브 모듈 + Expo managed workflow 충돌                | High         | EAS Build + custom dev client 전환                                      |
+| R2  | 서버 없는 IAP → 영수증 위조                                      | Medium       | 허용 리스크. 스토어 자체 검증으로 일반 사용자 방어                      |
+| R3  | Google Drive App Data Folder 용량 제한 (10MB/app)                | Low          | 백업 파일 5개 FIFO 유지                                                 |
 | R4  | drizzle 스키마 변경 시 마이그레이션 파일 미커밋 → 유저 DB 오동작 | High         | 스키마 변경 후 `drizzle-kit generate` 실행 및 `drizzle/` 폴더 커밋 필수 |
-| R5  | react-native-worklets 의도적 제거 시 reanimated v4 오동작        | **Critical** | worklets는 reanimated v4 peer dep. **절대 제거 금지**                  |
-| R6  | `persons.tags` JSON 파싱 크래시                                  | High         | `utils/person.ts`의 `parseTags()` 사용 필수. Phase 16에서 수정됨.     |
+| R5  | react-native-worklets 의도적 제거 시 reanimated v4 오동작        | **Critical** | worklets는 reanimated v4 peer dep. **절대 제거 금지**                   |
+| R6  | `persons.tags` JSON 파싱 크래시                                  | High         | `utils/person.ts`의 `parseTags()` 사용 필수. Phase 16에서 수정됨.       |
