@@ -8,9 +8,13 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export function SearchBar({ value, onChange, placeholder = "검색..." }: SearchBarProps) {
+export function SearchBar({
+  value,
+  onChange,
+  placeholder = "검색...",
+}: SearchBarProps) {
   return (
-    <View className="flex-row items-center gap-2 mx-4 mb-2 bg-app-surface rounded-[10px] px-3 h-10">
+    <View className="flex-row items-center gap-2 mx-4 mb-2 bg-app-surface rounded-[10px] px-3 ">
       <Search size={15} color="#666" />
       <TextInput
         className="flex-1 text-white text-sm"
@@ -19,7 +23,6 @@ export function SearchBar({ value, onChange, placeholder = "검색..." }: Search
         value={value}
         onChangeText={onChange}
         returnKeyType="search"
-        autoFocus
       />
       {value.length > 0 && (
         <Pressable onPress={() => onChange("")} hitSlop={8}>
