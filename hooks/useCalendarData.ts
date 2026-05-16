@@ -36,8 +36,8 @@ type MarkedDates = Record<
 >;
 
 export function useCalendarData(currentMonthStr: string, selectedDate: string) {
-  const monthStart = dayjs(currentMonthStr).startOf("month");
-  const monthEnd = dayjs(currentMonthStr).endOf("month");
+  const monthStart = useMemo(() => dayjs(currentMonthStr).startOf("month"), [currentMonthStr]);
+  const monthEnd = useMemo(() => dayjs(currentMonthStr).endOf("month"), [currentMonthStr]);
   const monthStartMs = monthStart.valueOf();
   const monthEndMs = monthEnd.valueOf();
 

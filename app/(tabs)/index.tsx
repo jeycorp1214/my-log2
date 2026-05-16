@@ -24,7 +24,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 dayjs.locale("ko");
@@ -51,7 +51,20 @@ export default function HomeScreen() {
   const home = prefs.home;
   const [showWidgetSheet, setShowWidgetSheet] = useState(false);
 
-  const today = useMemo(() => dayjs(), []);
+  const [now, setNow] = useState(() => dayjs());
+  const midnightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    function scheduleMidnight() {
+      const msToMidnight = dayjs().endOf("day").diff(dayjs()) + 1000;
+      midnightTimer.current = setTimeout(() => {
+        setNow(dayjs());
+        scheduleMidnight();
+      }, msToMidnight);
+    }
+    scheduleMidnight();
+    return () => { if (midnightTimer.current) clearTimeout(midnightTimer.current); };
+  }, []);
+  const today = now;
   const todayStr = today.format(
     `YYYY년 M월 D일 ${DAYS_KO[today.day()]}요일`,
   );

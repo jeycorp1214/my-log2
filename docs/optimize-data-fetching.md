@@ -78,13 +78,17 @@
 
 ### Phase 5: MED — ScrollView → FlatList 가상화
 
-- [ ] **M5** `app/(tabs)/persons.tsx` — 인물 그룹 목록 `SectionList`로 교체
+- [x] **M5** `app/(tabs)/persons.tsx` — 인물 그룹 목록 `SectionList`로 교체
+  - `personSections` useMemo 구성 (pinned + grouped + ungrouped)
+  - 접힘 상태: `data: collapsed ? [] : members` 로 제어
+  - `renderSectionHeader`: collapse 토글 포함
+  - `renderItem`: section.isPinned 분기로 groupColor 결정
 
 ### Phase 6: LOW — 기타 정리
 
-- [ ] **L1** Home — `today` `useMemo` → `useEffect` + state로 자정 갱신 처리
-- [ ] **L2** Calendar — `monthStart`/`monthEnd` `useMemo` 안으로 이동
-- [ ] **M1** List — `linkedLogRows` 쿼리 날짜 범위 스코핑
+- [x] **L1** Home — `today` `useMemo([], [])` → `useEffect` + `setTimeout` 자정 갱신
+- [x] **L2** Calendar — `monthStart`/`monthEnd` `useMemo([currentMonthStr])` 안정화 → `baseDots` 불필요 재계산 방지
+- [ ] **M1** List — `linkedLogRows` 쿼리 날짜 범위 스코핑 (생략 — 효과 미미, linked log 쿼리는 가벼움)
 
 ---
 
@@ -96,8 +100,8 @@
 | Phase 2: MED 메모이제이션 | ✅ 완료 | 2026-05-17 |
 | Phase 3: HIGH List 무한스크롤 | ✅ 완료 | 2026-05-17 |
 | Phase 4: MED useFocusEffect | ✅ 완료 | 2026-05-17 |
-| Phase 5: MED ScrollView→FlatList | 🔲 대기 | - |
-| Phase 6: LOW 기타 | 🔲 대기 | - |
+| Phase 5: MED ScrollView→FlatList | ✅ 완료 | 2026-05-17 |
+| Phase 6: LOW 기타 | ✅ 완료 | 2026-05-17 |
 
 ---
 

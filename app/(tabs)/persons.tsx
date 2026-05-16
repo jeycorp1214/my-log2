@@ -293,6 +293,54 @@ export default function PersonsScreen() {
     [allPersons],
   );
 
+  const personSections = useMemo(() => {
+    const result = [] as {
+      id: string;
+      titleText: string;
+      color?: string;
+      collapsible: boolean;
+      memberCount: number;
+      data: typeof allPersons;
+      isPinned?: boolean;
+    }[];
+
+    if (pinnedPersons.length > 0) {
+      result.push({
+        id: "__pinned__",
+        titleText: "📌 고정",
+        collapsible: false,
+        memberCount: pinnedPersons.length,
+        data: pinnedPersons,
+        isPinned: true,
+      });
+    }
+
+    for (const { group, members } of sortedGroupedPersons) {
+      const collapsed = collapsedGroups.has(group.id);
+      result.push({
+        id: group.id,
+        titleText: `${group.emoji ?? ""} ${group.name}`.trim(),
+        color: group.color,
+        collapsible: true,
+        memberCount: members.length,
+        data: collapsed ? [] : members,
+      });
+    }
+
+    if (sortedUngrouped.length > 0) {
+      const collapsed = collapsedGroups.has("__ungrouped__");
+      result.push({
+        id: "__ungrouped__",
+        titleText: "분류 없음",
+        collapsible: true,
+        memberCount: sortedUngrouped.length,
+        data: collapsed ? [] : sortedUngrouped,
+      });
+    }
+
+    return result;
+  }, [pinnedPersons, sortedGroupedPersons, sortedUngrouped, collapsedGroups]);
+
   async function togglePin(personId: string, current: boolean) {
     await db
       .update(persons)
@@ -448,163 +496,102 @@ export default function PersonsScreen() {
                 )}
               </View>
 
-              <ScrollView
-                className="flex-1"
+              <SectionList
+                sections={personSections}
+                keyExtractor={(item) => item.id}
                 contentContainerStyle={{
                   paddingHorizontal: 16,
                   paddingBottom: 96,
                 }}
-              >
-                {allPersons.length === 0 ? (
-                  <Text className="text-app-muted text-center mt-12">
-                    인물을 추가해 보세요.
-                  </Text>
-                ) : visiblePersonCount === 0 ? (
-                  <View className="items-center mt-16 gap-3">
-                    <Text className="text-app-muted text-[14px]">
-                      조건에 맞는 인물이 없습니다.
-                    </Text>
-                    {filterBadge > 0 && (
+                stickySectionHeadersEnabled={false}
+                renderSectionHeader={({ section }) => (
+                  <View className="mt-4 mb-2">
+                    {section.collapsible ? (
                       <Pressable
-                        onPress={() => {
-                          setSortOrder("name-asc");
-                          setGroupFilter("all");
-                          setMbtiFilter("all");
-                          setMbtiDetail("");
-                          setTagFilter("all");
-                          setOverdueFilter("all");
-                        }}
-                        className="bg-[#222] rounded-full px-4 py-2"
+                        onPress={() => toggleCollapse(section.id)}
+                        className="flex-row items-center justify-between"
+                        hitSlop={4}
                       >
-                        <Text className="text-app-teal text-[13px]">
-                          필터 초기화
-                        </Text>
-                      </Pressable>
-                    )}
-                  </View>
-                ) : (
-                  <>
-                    {pinnedPersons.length > 0 && (
-                      <View className="mb-6">
-                        <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px] mb-2">
-                          📌 고정{"  "}
-                          <Text className="text-[#555] font-normal">
-                            {pinnedPersons.length}
-                          </Text>
-                        </Text>
-                        {pinnedPersons.map((person) => {
-                          const grp = groupMap.get(person.groupId);
-                          return (
-                            <PersonCard
-                              key={person.id}
-                              person={person}
-                              groupColor={grp?.color ?? "#555"}
-                              lastLogDate={lastLogDateMap.get(person.id)}
-                              onPress={() =>
-                                router.push({
-                                  pathname: "/persons/[id]",
-                                  params: { id: person.id },
-                                })
-                              }
-                              onPinPress={() =>
-                                togglePin(person.id, person.isPinned)
-                              }
+                        <View className="flex-row items-center gap-2">
+                          {section.color && (
+                            <View
+                              className="w-[6px] h-[6px] rounded-full"
+                              style={{ backgroundColor: section.color }}
                             />
-                          );
-                        })}
-                      </View>
-                    )}
-                    {sortedGroupedPersons.map(({ group, members }) => {
-                      const collapsed = collapsedGroups.has(group.id);
-                      return (
-                        <View key={group.id} className="mb-6">
-                          <Pressable
-                            onPress={() => toggleCollapse(group.id)}
-                            className="flex-row items-center justify-between mb-2"
-                            hitSlop={4}
-                          >
-                            <View className="flex-row items-center gap-2">
-                              <View
-                                className="w-[6px] h-[6px] rounded-full"
-                                style={{ backgroundColor: group.color }}
-                              />
-                              <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
-                                {group.emoji} {group.name}
-                                {"  "}
-                                <Text className="text-[#555] font-normal">
-                                  {members.length}
-                                </Text>
-                              </Text>
-                            </View>
-                            {collapsed ? (
-                              <ChevronRight size={14} color="#555" />
-                            ) : (
-                              <ChevronDown size={14} color="#555" />
-                            )}
-                          </Pressable>
-                          {!collapsed &&
-                            members.map((person) => (
-                              <PersonCard
-                                key={person.id}
-                                person={person}
-                                groupColor={group.color}
-                                lastLogDate={lastLogDateMap.get(person.id)}
-                                onPress={() =>
-                                  router.push({
-                                    pathname: "/persons/[id]",
-                                    params: { id: person.id },
-                                  })
-                                }
-                                onPinPress={() =>
-                                  togglePin(person.id, person.isPinned)
-                                }
-                              />
-                            ))}
-                        </View>
-                      );
-                    })}
-                    {sortedUngrouped.length > 0 && (
-                      <View className="mb-6">
-                        <Pressable
-                          onPress={() => toggleCollapse("__ungrouped__")}
-                          className="flex-row items-center justify-between mb-2"
-                          hitSlop={4}
-                        >
+                          )}
                           <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
-                            분류 없음{"  "}
+                            {section.titleText}{"  "}
                             <Text className="text-[#555] font-normal">
-                              {sortedUngrouped.length}
+                              {section.memberCount}
                             </Text>
                           </Text>
-                          {collapsedGroups.has("__ungrouped__") ? (
-                            <ChevronRight size={14} color="#555" />
-                          ) : (
-                            <ChevronDown size={14} color="#555" />
-                          )}
-                        </Pressable>
-                        {!collapsedGroups.has("__ungrouped__") &&
-                          sortedUngrouped.map((person) => (
-                            <PersonCard
-                              key={person.id}
-                              person={person}
-                              groupColor="#555"
-                              lastLogDate={lastLogDateMap.get(person.id)}
-                              onPress={() =>
-                                router.push({
-                                  pathname: "/persons/[id]",
-                                  params: { id: person.id },
-                                })
-                              }
-                              onPinPress={() =>
-                                togglePin(person.id, person.isPinned)
-                              }
-                            />
-                          ))}
-                      </View>
+                        </View>
+                        {collapsedGroups.has(section.id) ? (
+                          <ChevronRight size={14} color="#555" />
+                        ) : (
+                          <ChevronDown size={14} color="#555" />
+                        )}
+                      </Pressable>
+                    ) : (
+                      <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
+                        {section.titleText}{"  "}
+                        <Text className="text-[#555] font-normal">
+                          {section.memberCount}
+                        </Text>
+                      </Text>
                     )}
-                  </>
+                  </View>
                 )}
-              </ScrollView>
+                renderItem={({ item, section }) => {
+                  const groupColor = section.isPinned
+                    ? (groupMap.get(item.groupId)?.color ?? "#555")
+                    : (section.color ?? "#555");
+                  return (
+                    <PersonCard
+                      person={item}
+                      groupColor={groupColor}
+                      lastLogDate={lastLogDateMap.get(item.id)}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/persons/[id]",
+                          params: { id: item.id },
+                        })
+                      }
+                      onPinPress={() => togglePin(item.id, item.isPinned)}
+                    />
+                  );
+                }}
+                ListEmptyComponent={
+                  allPersons.length === 0 ? (
+                    <Text className="text-app-muted text-center mt-12">
+                      인물을 추가해 보세요.
+                    </Text>
+                  ) : (
+                    <View className="items-center mt-16 gap-3">
+                      <Text className="text-app-muted text-[14px]">
+                        조건에 맞는 인물이 없습니다.
+                      </Text>
+                      {filterBadge > 0 && (
+                        <Pressable
+                          onPress={() => {
+                            setSortOrder("name-asc");
+                            setGroupFilter("all");
+                            setMbtiFilter("all");
+                            setMbtiDetail("");
+                            setTagFilter("all");
+                            setOverdueFilter("all");
+                          }}
+                          className="bg-[#222] rounded-full px-4 py-2"
+                        >
+                          <Text className="text-app-teal text-[13px]">
+                            필터 초기화
+                          </Text>
+                        </Pressable>
+                      )}
+                    </View>
+                  )
+                }
+              />
 
               <QuickInputBar
                 placeholder="이름으로 인물 추가"
