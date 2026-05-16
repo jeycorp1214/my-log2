@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
 import type { DateData } from "react-native-calendars";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -130,6 +130,7 @@ export default function CalendarScreen() {
   } = useCalendarData(currentMonth, selectedDate);
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const isExpandedSV = useSharedValue(false);
   const listOpacity = useSharedValue(1);
 
@@ -147,6 +148,48 @@ export default function CalendarScreen() {
   }, [rawMarkedDates]);
 
   const selectedLabel = dayjs(selectedDate).format("M월 D일 (ddd)");
+
+  const renderItem = useCallback(
+    ({ item }: { item: DayItem }) => {
+      if (item.type === "log") {
+        return (
+          <LogCard
+            log={item.data}
+            onPress={() =>
+              router.push({ pathname: "/logs/[id]", params: { id: item.data.id } })
+            }
+          />
+        );
+      }
+      if (item.type === "repeat") {
+        return (
+          <View style={{ opacity: 0.65 }}>
+            <LogCard
+              log={item.data}
+              onPress={() =>
+                router.push({
+                  pathname: "/logs/[id]",
+                  params: { id: item.data.id, occurrenceDate: item.virtualDate },
+                })
+              }
+            />
+          </View>
+        );
+      }
+      return (
+        <AnniversaryCard
+          personName={item.personName}
+          title={item.title}
+          dDay={item.dDay}
+          isBirthday={item.isBirthday}
+          onPress={() =>
+            router.push({ pathname: "/persons/[id]", params: { id: item.personId } })
+          }
+        />
+      );
+    },
+    [router],
+  );
 
   const panGesture = Gesture.Pan()
     .minDistance(10)
@@ -201,7 +244,10 @@ export default function CalendarScreen() {
 
       return (
         <TouchableOpacity
-          onPress={() => setSelectedDate(dateStr)}
+          onPress={() => {
+            setSelectedDate(dateStr);
+            if (items.length > 0) setShowModal(true);
+          }}
           style={{
             height: EXPANDED_CELL_HEIGHT,
             padding: 3,
@@ -294,6 +340,58 @@ export default function CalendarScreen() {
         </View>
       </GestureDetector>
 
+      {/* 확장 모드 — 선택 날짜 스케줄 모달 */}
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+          onPress={() => setShowModal(false)}
+        />
+        <View
+          style={{
+            backgroundColor: "#1a1a1a",
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            maxHeight: "55%",
+          }}
+        >
+          <View style={{ alignItems: "center", paddingVertical: 8 }}>
+            <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: "#444" }} />
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 16,
+              paddingBottom: 8,
+            }}
+          >
+            <Text
+              style={{
+                flex: 1,
+                color: "#888",
+                fontSize: 10,
+                textTransform: "uppercase",
+                letterSpacing: 1.5,
+              }}
+            >
+              {selectedLabel}
+            </Text>
+            <Text style={{ color: "#666", fontSize: 12 }}>{dayItems.length}건</Text>
+          </View>
+          <FlatList
+            data={dayItems}
+            keyExtractor={itemKey}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, gap: 8 }}
+            renderItem={renderItem}
+          />
+        </View>
+      </Modal>
+
       {/* 선택 날짜 레이블 — 축소 모드에서만 표시 */}
       {!isExpanded && (
         <View className="flex-row items-center px-4 mt-1 mb-2">
@@ -322,53 +420,7 @@ export default function CalendarScreen() {
                 <Text className="text-app-muted text-sm">일정이 없습니다.</Text>
               </View>
             }
-            renderItem={({ item }) => {
-              if (item.type === "log") {
-                return (
-                  <LogCard
-                    log={item.data}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/logs/[id]",
-                        params: { id: item.data.id },
-                      })
-                    }
-                  />
-                );
-              }
-              if (item.type === "repeat") {
-                return (
-                  <View style={{ opacity: 0.65 }}>
-                    <LogCard
-                      log={item.data}
-                      onPress={() =>
-                        router.push({
-                          pathname: "/logs/[id]",
-                          params: {
-                            id: item.data.id,
-                            occurrenceDate: item.virtualDate,
-                          },
-                        })
-                      }
-                    />
-                  </View>
-                );
-              }
-              return (
-                <AnniversaryCard
-                  personName={item.personName}
-                  title={item.title}
-                  dDay={item.dDay}
-                  isBirthday={item.isBirthday}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/persons/[id]",
-                      params: { id: item.personId },
-                    })
-                  }
-                />
-              );
-            }}
+            renderItem={renderItem}
           />
         </Animated.View>
       )}
