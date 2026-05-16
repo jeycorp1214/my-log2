@@ -136,7 +136,8 @@ export default function PersonsScreen() {
   }, [allPersons]);
 
   // ── 기념일 모드 상태 ───────────────────────────────────
-  const [annPreset, setAnnPreset] = useState<AnnPreset>("this-month");
+  const annPreset = prefs.persons.annPreset as AnnPreset;
+  const setAnnPreset = (v: AnnPreset) => setPersonsPrefs({ annPreset: v });
   const [annCustomStart, setAnnCustomStart] = useState(() =>
     dayjs().startOf("month").toDate(),
   );

@@ -49,6 +49,13 @@ export type ListPrefs = {
 };
 
 export type PersonsPrefs = {
+  annPreset:
+    | "this-week"
+    | "this-month"
+    | "recent-3m"
+    | "recent-6m"
+    | "recent-1y"
+    | "custom";
   sortOrder: "name-asc" | "age-asc" | "last-contact-asc";
   groupFilter: string;
   mbtiFilter: "all" | "yes" | "no";
@@ -94,6 +101,7 @@ const DEFAULT_PREFS: AllTabPrefs = {
     showAnniversaries: false,
   },
   persons: {
+    annPreset: "this-month",
     sortOrder: "name-asc",
     groupFilter: "all",
     mbtiFilter: "all",
