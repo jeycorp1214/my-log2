@@ -1,8 +1,8 @@
 // 탭별 기본 설정 제어 화면 — 각 탭의 필터·뷰 설정을 저장
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
-import { cn } from "@/utils/utils";
 import { db } from "@/db/client";
 import { groups } from "@/db/schema";
+import { cn } from "@/utils/utils";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Pressable, ScrollView, Switch, Text, View } from "react-native";
 
@@ -41,10 +41,16 @@ function Chips<T extends string>({
         <Pressable
           key={opt.value}
           onPress={() => onSelect(opt.value)}
-          className={cn("rounded-[10px] px-4 py-2 items-center", current === opt.value ? "bg-app-teal" : "bg-[#2a2a2a]")}
+          className={cn(
+            "rounded-[10px] px-4 py-2 items-center",
+            current === opt.value ? "bg-app-teal" : "bg-[#2a2a2a]",
+          )}
         >
           <Text
-            className={cn("text-[13px] font-semibold", current === opt.value ? "text-[#111]" : "text-[#888]")}
+            className={cn(
+              "text-[13px] font-semibold",
+              current === opt.value ? "text-[#111]" : "text-[#888]",
+            )}
           >
             {opt.label}
           </Text>
@@ -148,7 +154,7 @@ export default function TabPrefsScreen() {
           onSelect={(v) => setListPrefs({ completionFilter: v })}
         />
 
-        <RowLabel label="관련 인물" />
+        <RowLabel label="관련 프로필" />
         <Chips<ListPrefs["personFilter"]>
           options={[
             { value: "all", label: "전체" },
@@ -175,10 +181,18 @@ export default function TabPrefsScreen() {
             <Pressable
               key={opt.value}
               onPress={() => setListPrefs({ groupFilter: opt.value })}
-              className={cn("rounded-[10px] px-4 py-2 items-center", list.groupFilter === opt.value ? "bg-app-teal" : "bg-[#2a2a2a]")}
+              className={cn(
+                "rounded-[10px] px-4 py-2 items-center",
+                list.groupFilter === opt.value ? "bg-app-teal" : "bg-[#2a2a2a]",
+              )}
             >
               <Text
-                className={cn("text-[13px] font-semibold", list.groupFilter === opt.value ? "text-[#111]" : "text-[#888]")}
+                className={cn(
+                  "text-[13px] font-semibold",
+                  list.groupFilter === opt.value
+                    ? "text-[#111]"
+                    : "text-[#888]",
+                )}
               >
                 {opt.label}
               </Text>
@@ -193,8 +207,8 @@ export default function TabPrefsScreen() {
         />
       </View>
 
-      {/* ── 인물 ─────────────────────────────────────── */}
-      <SectionLabel label="인물" />
+      {/* ── 프로필 ─────────────────────────────────────── */}
+      <SectionLabel label="프로필" />
       <View className="bg-app-surface rounded-[12px] px-4 pt-4 pb-1">
         <RowLabel label="정렬" />
         <Chips<PersonsPrefs["sortOrder"]>
@@ -212,10 +226,20 @@ export default function TabPrefsScreen() {
             <Pressable
               key={opt.value}
               onPress={() => setPersonsPrefs({ groupFilter: opt.value })}
-              className={cn("rounded-[10px] px-4 py-2 items-center", persons.groupFilter === opt.value ? "bg-app-teal" : "bg-[#2a2a2a]")}
+              className={cn(
+                "rounded-[10px] px-4 py-2 items-center",
+                persons.groupFilter === opt.value
+                  ? "bg-app-teal"
+                  : "bg-[#2a2a2a]",
+              )}
             >
               <Text
-                className={cn("text-[13px] font-semibold", persons.groupFilter === opt.value ? "text-[#111]" : "text-[#888]")}
+                className={cn(
+                  "text-[13px] font-semibold",
+                  persons.groupFilter === opt.value
+                    ? "text-[#111]"
+                    : "text-[#888]",
+                )}
               >
                 {opt.label}
               </Text>

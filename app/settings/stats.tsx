@@ -1,4 +1,4 @@
-// 설정 통계 화면 — 인물 랭킹, 마지막 연결, 카테고리 비율, 스트릭, 완료율, 반복 비율, 평균 간격, 할일 사분면, 동반 등장, MBTI
+// 설정 통계 화면 — 프로필 랭킹, 마지막 연결, 카테고리 비율, 스트릭, 완료율, 반복 비율, 평균 간격, 할일 사분면, 동반 등장, MBTI
 import {
   calcAvgInterval,
   calcLongestGap,
@@ -118,16 +118,16 @@ export default function StatsScreen() {
         {/* 요약 카드 */}
         <View className="flex-row gap-3 mb-8">
           <StatCard label="총 기록" value={`${summary.totalLogs}개`} />
-          <StatCard label="총 인물" value={`${summary.totalPersons}명`} />
+          <StatCard label="총 프로필" value={`${summary.totalPersons}명`} />
           <StatCard label="이번 달" value={`${summary.monthLogs}개`} />
         </View>
 
         {/* 기간 칩 */}
         <PeriodChips period={period} onChange={setPeriod} />
 
-        {/* 인물 랭킹 */}
+        {/* 프로필 랭킹 */}
         <View className="mb-8">
-          <SectionTitle>인물 랭킹</SectionTitle>
+          <SectionTitle>프로필 랭킹</SectionTitle>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
             {rankingWithLogs.length === 0 ? (
               <View className="py-8 items-center">
@@ -165,7 +165,9 @@ export default function StatsScreen() {
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
             {lastContact.length === 0 ? (
               <View className="py-8 items-center">
-                <Text className="text-app-muted text-sm">인물이 없습니다.</Text>
+                <Text className="text-app-muted text-sm">
+                  프로필이 없습니다.
+                </Text>
               </View>
             ) : (
               lastContact.slice(0, 5).map((item, i) => (

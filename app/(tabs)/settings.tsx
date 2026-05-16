@@ -51,7 +51,7 @@ export default function SettingsScreen() {
   async function insertSampleData() {
     Alert.alert(
       "샘플 데이터 삽입",
-      "인물 50명, 기록 30개, 할 일 30개, 메모 30개를 추가합니다. 계속하시겠습니까?",
+      "프로필 50명, 기록 30개, 할 일 30개, 메모 30개를 추가합니다. 계속하시겠습니까?",
       [
         { text: "취소", style: "cancel" },
         {
@@ -284,7 +284,7 @@ export default function SettingsScreen() {
                 샘플 데이터 삽입
               </Text>
               <Text className="text-app-muted text-[11px] mt-0.5">
-                인물 50명 · 기록 30개 · 할 일 30개 · 메모 30개
+                프로필 50명 · 기록 30개 · 할 일 30개 · 메모 30개
               </Text>
             </Pressable>
 

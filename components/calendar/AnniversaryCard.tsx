@@ -1,4 +1,4 @@
-// 기념일 D-Day 카드 컴포넌트 — 인물명, 제목, D-Day 표시
+// 기념일 D-Day 카드 컴포넌트 — 프로필명, 제목, D-Day 표시
 import { Cake, Star } from "lucide-react-native";
 import { Text, View } from "react-native";
 
@@ -9,7 +9,12 @@ interface Props {
   isBirthday: boolean;
 }
 
-export function AnniversaryCard({ personName, title, dDay, isBirthday }: Props) {
+export function AnniversaryCard({
+  personName,
+  title,
+  dDay,
+  isBirthday,
+}: Props) {
   return (
     <View className="bg-app-surface rounded-[14px] p-[14px] flex-row items-center gap-3">
       <View

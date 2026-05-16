@@ -11,7 +11,7 @@
 
 ### 탭 구조 결정
 
-- 탭 3개: 캘린더(index), 인물(persons), 설정(settings)
+- 탭 3개: 캘린더(index), 프로필(persons), 설정(settings)
 - explore.tsx 제거 → persons.tsx, settings.tsx로 교체
 - lucide-react-native 아이콘 사용 (이미 설치됨, IconSymbol은 iOS SF Symbols 전용)
 
@@ -159,7 +159,7 @@
 
 ### 타임라인 + 히트맵
 
-- 인물 상세 타임라인: persons/[id].tsx에 바텀 시트 추가 (RN Modal).
+- 프로필 상세 타임라인: persons/[id].tsx에 바텀 시트 추가 (RN Modal).
 - settings/heatmap.tsx: 연간 기록 히트맵, 주 단위 그리드.
 
 ---
@@ -180,7 +180,7 @@
 - 6자리 숫자 PIN (4자리보다 보안↑, 생체인증보다 구현 단순).
 - 저장소: expo-secure-store (iOS Keychain / Android Keystore). 평문 저장 (PIN은 비밀번호 관리자 용도 아님, 앱 잠금 목적).
 - PinLockProvider: 전역 isLocked/isPinEnabled 상태. 앱 시작 시 getStoredPin() → PIN 있으면 isLocked=true.
-- LockScreen: PinLockProvider.isLocked=true일 때 앱 전체를 덮는 오버레이. _layout.tsx에서 렌더.
+- LockScreen: PinLockProvider.isLocked=true일 때 앱 전체를 덮는 오버레이. \_layout.tsx에서 렌더.
 - PinPad: 재사용 컴포넌트. password.tsx(설정)와 LockScreen(잠금 해제) 모두 사용.
 - isError: flashError() → 700ms 후 에러 해제 + pin 초기화. 재입력 유도.
 - 단계 흐름: enable(새PIN→확인), disable(현재PIN 검증), change(현재→새→확인).
@@ -188,7 +188,7 @@
 ### 샘플 데이터 (seedSampleData)
 
 - 개발/데모용. debugMode=true 시에만 설정 탭에 노출.
-- 인물 5명(각 그룹), 기록 10개(날짜 분산), 할 일 4개(각 사분면), 메모 2개.
+- 프로필 5명(각 그룹), 기록 10개(날짜 분산), 할 일 4개(각 사분면), 메모 2개.
 
 ---
 
@@ -196,7 +196,7 @@
 
 ### 통계 항목 선정 근거
 
-- **인물 랭킹**: logPersons COUNT. "요즘 자주 만나는 사람" 파악 목적. 기간 필터(이번 달/올해/전체)로 맥락 분리.
+- **프로필 랭킹**: logPersons COUNT. "요즘 자주 만나는 사람" 파악 목적. 기간 필터(이번 달/올해/전체)로 맥락 분리.
 - **마지막 연결**: MAX(logDate) per person, 오래된 순 정렬. 관계 유지 점검 용도. fromNow() 표시로 "3개월째 연락 없음" 직관적 전달.
 - **카테고리 비율**: logs GROUP BY groupId + 그룹 색상 프로그레스 바. 기간 비교로 관심사 변화 추적 가능.
 - **기록 스트릭**: JS에서 날짜 배열 정렬 후 연속 카운트. 히트맵(settings/heatmap.tsx)과 보완 관계.
@@ -205,45 +205,63 @@
 ### 쿼리 전략
 
 ```typescript
-// 인물 랭킹 — leftJoin으로 기록 없는 인물도 포함 (count 0)
-db.select({ personId: persons.id, name: persons.name, count: count(logPersons.id), lastDate: max(logs.logDate) })
+// 프로필 랭킹 — leftJoin으로 기록 없는 프로필도 포함 (count 0)
+db.select({
+  personId: persons.id,
+  name: persons.name,
+  count: count(logPersons.id),
+  lastDate: max(logs.logDate),
+})
   .from(persons)
   .leftJoin(logPersons, eq(persons.id, logPersons.personId))
-  .leftJoin(logs, and(eq(logPersons.logId, logs.id), gte(logs.logDate, periodStart)))
+  .leftJoin(
+    logs,
+    and(eq(logPersons.logId, logs.id), gte(logs.logDate, periodStart)),
+  )
   .groupBy(persons.id)
-  .orderBy(desc(count(logPersons.id)))
+  .orderBy(desc(count(logPersons.id)));
 
 // 카테고리 비율 — leftJoin으로 기록 없는 그룹도 포함
-db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: count(logs.id) })
+db.select({
+  groupId: groups.id,
+  name: groups.name,
+  color: groups.color,
+  count: count(logs.id),
+})
   .from(groups)
-  .leftJoin(logs, and(eq(groups.id, logs.groupId), gte(logs.logDate, periodStart)))
+  .leftJoin(
+    logs,
+    and(eq(groups.id, logs.groupId), gte(logs.logDate, periodStart)),
+  )
   .groupBy(groups.id)
-  .orderBy(desc(count(logs.id)))
+  .orderBy(desc(count(logs.id)));
 ```
 
 ### UI 방침
 
 - **차트 라이브러리 미사용**: react-native-gifted-charts 등 추가 의존성 없이 View + 프로그레스 바로 구현. 개인앱 특성상 과도한 시각화 불필요.
-- **기간 칩 공유**: 인물 랭킹 / 카테고리 비율 / 완료율 섹션이 동일한 기간 칩 상태 공유 (페이지 단일 `period` state).
+- **기간 칩 공유**: 프로필 랭킹 / 카테고리 비율 / 완료율 섹션이 동일한 기간 칩 상태 공유 (페이지 단일 `period` state).
 - **스키마 변경 없음**: 기존 7개 테이블만으로 모든 통계 도출 가능. migration 불필요.
 
 ### 향후 확장 고려 (현재 미구현)
 
 - 기간별 비교 (이번 달 vs 지난 달 delta): 현재 단일 기간만 표시, 추후 delta 뱃지 추가 가능.
 - 함께 등장 빈도 (logPersons self JOIN): A-B 조합 TOP 5. 데이터 충분히 쌓인 후 의미 있음.
-- MBTI 분포: persons GROUP BY mbti. 재미 요소, 인물 10명 이상일 때 유의미.
+- MBTI 분포: persons GROUP BY mbti. 재미 요소, 프로필 10명 이상일 때 유의미.
 
 ---
 
-## 2026-05-16 — Phase 14: 인물 탭 고도화
+## 2026-05-16 — Phase 14: 프로필 탭 고도화
 
 ### 버그 수정
+
 - 기념일 모드 커스텀 피커: `MonthPickerModal` import + `showAnnStartPicker`/`showAnnEndPicker` 연결. 리스트 탭과 동일 패턴.
 - D-DAY 미표시: `<AnniversaryItem date={item.date} />` — `date` prop 누락이 원인. `AnniversaryItem`은 date 있어야 D-DAY 계산.
 
-### 인물 탭 개선 설계 결정
-- `last-contact-asc` 정렬: `lastLogDateMap`(이미 훅에서 제공) 활용. 기록 없는 인물 = 맨 앞.
-- `overdueFilter`: `contactInterval` 설정 인물만 대상. persist 불필요 → 로컬 state.
+### 프로필 탭 개선 설계 결정
+
+- `last-contact-asc` 정렬: `lastLogDateMap`(이미 훅에서 제공) 활용. 기록 없는 프로필 = 맨 앞.
+- `overdueFilter`: `contactInterval` 설정 프로필만 대상. persist 불필요 → 로컬 state.
 - 태그 동적 추출: 하드코딩 제거. `allPersons` useMemo로 집계.
 - TabPreferencesProvider: `sortOrder` 타입 union에 `"last-contact-asc"` 추가.
 
@@ -288,11 +306,11 @@ db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: c
 
 날짜 셀이 작아서 숫자 뱃지 가독성 나쁨. 카테고리별 색상 dot 1개씩.
 
-| key | color | 의미 |
-|-----|-------|------|
-| `log` | `#4ECDC4` | 일반 로그 |
-| `repeat` | `#f59e0b` | 반복 로그 (가상 occurrence) |
-| `anniversary` | `#f97316` | 기념일 / 생년월일 |
+| key           | color     | 의미                        |
+| ------------- | --------- | --------------------------- |
+| `log`         | `#4ECDC4` | 일반 로그                   |
+| `repeat`      | `#f59e0b` | 반복 로그 (가상 occurrence) |
+| `anniversary` | `#f97316` | 기념일 / 생년월일           |
 
 ### 기념일 날짜 정규화
 
@@ -324,27 +342,31 @@ db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: c
 ## 2026-05-16 — 검색 기능 확장 (search-expansion)
 
 ### 구현 범위
+
 - logs + persons → todos + memos까지 검색 확장.
-- 섹션 순서: 기록 → 인물 → 메모 → 할 일 (앱 메인 사용 흐름 반영).
+- 섹션 순서: 기록 → 프로필 → 메모 → 할 일 (앱 메인 사용 흐름 반영).
 
 ### 결정 사항
+
 - **todos 라우팅**: 개별 상세 페이지 없음. 탭 시 `(tabs)/memo`로 이동.
 - **memos 라우팅**: `memos/[id]` 경로 이동.
-- **logPersons COUNT**: drizzle `sql\`count()\`` 집계로 JOIN COUNT. 결과에 `logCount` 필드.
+- **logPersons COUNT**: drizzle `sql\`count()\``집계로 JOIN COUNT. 결과에`logCount` 필드.
 - **필터 칩 기본값**: "전체". 선택 필터 "전체"면 sections 전부 표시.
-- **인물 카드 관련 기록 수**: PersonCard 하단 표시, 탭 시 `persons/[id]` 이동.
+- **프로필 카드 관련 기록 수**: PersonCard 하단 표시, 탭 시 `persons/[id]` 이동.
 
 ---
 
 ## 2026-05-17 — Phase 15-16 결정 사항
 
 ### Phase 15 노트 탭 개선
+
 - 스와이프 액션: reanimated v4 호환 문제로 제거. 버튼 UI 유지.
 - `pinnedAt` 정렬: `pinnedAt DESC NULLS LAST, createdAt DESC` — 핀 먼저, 그 안에서 최신순.
 - `dueDate`: `text("due_date")` YYYY-MM-DD (birthDate 동일 패턴).
 - `todos/[id].tsx`: 할 일 상세 화면 + `note` 컬럼 (부가 설명).
 
 ### Phase 16 버그 수정
+
 - `persons.tags` JSON.parse → `parseTags()` util 중앙화 필요 (크래시 방지).
 - `use-event-filter.ts`: `or(isNull, eq('none'))` + `ne('none')` 패턴으로 로그 누락 수정.
 - `ensureGroupsColumns()`: `sort_order` 누락 시 화이트스크린 방지용 안전망.

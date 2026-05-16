@@ -1,20 +1,27 @@
-// 인물 카드 컴포넌트 — 이름, 나이, 그룹 색상, 고정/연락 주기 표시
+// 프로필 카드 컴포넌트 — 이름, 나이, 그룹 색상, 고정/연락 주기 표시
+import type { persons } from "@/db/schema";
 import { calcAge, fromNow } from "@/utils/date";
 import { parseTags } from "@/utils/person";
-import type { InferSelectModel } from "drizzle-orm";
 import dayjs from "dayjs";
+import type { InferSelectModel } from "drizzle-orm";
 import { Pin } from "lucide-react-native";
-import type { persons } from "@/db/schema";
 import { Pressable, Text, View } from "react-native";
 
 const AVATAR_COLORS = [
-  "#4ECDC4", "#FF6B6B", "#FFA94D", "#74C0FC",
-  "#A9E34B", "#DA77F2", "#F06595", "#63E6BE",
+  "#4ECDC4",
+  "#FF6B6B",
+  "#FFA94D",
+  "#74C0FC",
+  "#A9E34B",
+  "#DA77F2",
+  "#F06595",
+  "#63E6BE",
 ];
 
 function avatarColor(name: string): string {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < name.length; i++)
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
@@ -29,7 +36,14 @@ interface Props {
   onPinPress?: () => void;
 }
 
-export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress, onPinPress }: Props) {
+export function PersonCard({
+  person,
+  groupColor,
+  logCount,
+  lastLogDate,
+  onPress,
+  onPinPress,
+}: Props) {
   const age = person.birthDate ? calcAge(person.birthDate) : null;
 
   const daysSinceLastLog = lastLogDate
@@ -53,7 +67,9 @@ export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress,
   const barWidth =
     person.contactInterval != null
       ? Math.min(
-          ((daysSinceLastLog ?? person.contactInterval) / person.contactInterval) * 100,
+          ((daysSinceLastLog ?? person.contactInterval) /
+            person.contactInterval) *
+            100,
           100,
         )
       : 0;
@@ -69,7 +85,10 @@ export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress,
       style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
     >
       <View className="flex-row">
-        <View className="w-1 self-stretch" style={{ backgroundColor: groupColor }} />
+        <View
+          className="w-1 self-stretch"
+          style={{ backgroundColor: groupColor }}
+        />
         <View className="justify-center pl-[12px] pr-[4px] py-[14px]">
           <View
             style={{
@@ -88,12 +107,17 @@ export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress,
         </View>
         <View className="flex-1 p-[14px] gap-1">
           <View className="flex-row items-center justify-between">
-            <Text className="text-white text-base font-semibold flex-1 mr-2" numberOfLines={1}>
+            <Text
+              className="text-white text-base font-semibold flex-1 mr-2"
+              numberOfLines={1}
+            >
               {person.name}
             </Text>
             <View className="flex-row items-center gap-1.5">
               {lastLogDate ? (
-                <Text className="text-[#666] text-[11px]">{fromNow(lastLogDate)}</Text>
+                <Text className="text-[#666] text-[11px]">
+                  {fromNow(lastLogDate)}
+                </Text>
               ) : person.contactInterval != null ? (
                 <Text className="text-[#555] text-[11px]">기록 없음</Text>
               ) : null}
@@ -124,7 +148,10 @@ export function PersonCard({ person, groupColor, logCount, lastLogDate, onPress,
           {parsedTags.length > 0 && (
             <View className="flex-row flex-wrap gap-1 mt-0.5">
               {parsedTags.map((tag) => (
-                <View key={tag} className="bg-[#1a2e2c] rounded-[6px] px-2 py-0.5">
+                <View
+                  key={tag}
+                  className="bg-[#1a2e2c] rounded-[6px] px-2 py-0.5"
+                >
                   <Text className="text-app-teal text-[11px]">{tag}</Text>
                 </View>
               ))}

@@ -1,8 +1,5 @@
-// 인물 추가 모달 화면
-import {
-  DraftAnniversary,
-  PersonForm,
-} from "@/components/persons/PersonForm";
+// 프로필 추가 모달 화면
+import { DraftAnniversary, PersonForm } from "@/components/persons/PersonForm";
 import { db } from "@/db/client";
 import { groups, personAnniversaries, persons } from "@/db/schema";
 import dayjs from "dayjs";
@@ -76,25 +73,21 @@ export default function PersonNewScreen() {
 
     if (metAt) {
       await new Promise<void>((resolve) => {
-        Alert.alert(
-          "만남 기념일 추가",
-          "첫 만남 날짜를 기념일로 추가할까요?",
-          [
-            {
-              text: "추가",
-              onPress: async () => {
-                await db.insert(personAnniversaries).values({
-                  personId,
-                  title: "만남 기념일",
-                  date: dayjs(metAt).format("YYYY-MM-DD"),
-                  isRepeat: true,
-                });
-                resolve();
-              },
+        Alert.alert("만남 기념일 추가", "첫 만남 날짜를 기념일로 추가할까요?", [
+          {
+            text: "추가",
+            onPress: async () => {
+              await db.insert(personAnniversaries).values({
+                personId,
+                title: "만남 기념일",
+                date: dayjs(metAt).format("YYYY-MM-DD"),
+                isRepeat: true,
+              });
+              resolve();
             },
-            { text: "건너뛰기", style: "cancel", onPress: () => resolve() },
-          ],
-        );
+          },
+          { text: "건너뛰기", style: "cancel", onPress: () => resolve() },
+        ]);
       });
     }
 

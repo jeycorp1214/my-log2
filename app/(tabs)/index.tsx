@@ -41,7 +41,7 @@ const WIDGET_LABELS: {
   { key: "showCategoryRatio", label: "카테고리 비율" },
   { key: "showUpcomingAnn", label: "다가오는 기념일" },
   { key: "showTodayRepeat", label: "오늘의 반복" },
-  { key: "showOverduePersons", label: "연락 필요 인물" },
+  { key: "showOverduePersons", label: "연락 필요 프로필" },
   { key: "showPinnedMemos", label: "고정 메모" },
   { key: "showTodoStatus", label: "할 일 현황" },
   { key: "showRecentLogs", label: "최근 기록" },
@@ -220,7 +220,7 @@ export default function HomeScreen() {
         {/* 새 위젯: 오늘의 반복 */}
         {home.showTodayRepeat && <TodayRepeatWidget />}
 
-        {/* 새 위젯: 연락 필요 인물 */}
+        {/* 새 위젯: 연락 필요 프로필 */}
         {home.showOverduePersons && <OverduePersonsWidget />}
 
         {/* 새 위젯: 고정 메모 */}

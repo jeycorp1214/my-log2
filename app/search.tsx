@@ -1,4 +1,4 @@
-// 전체 텍스트 검색 화면 — 기록/인물/메모/할일 LIKE 검색 + 필터 칩
+// 전체 텍스트 검색 화면 — 기록/프로필/메모/할일 LIKE 검색 + 필터 칩
 import { SearchLogItem } from "@/components/logs/SearchLogItem";
 import { PersonCard } from "@/components/persons/PersonCard";
 import { SearchMemoItem } from "@/components/search/SearchMemoItem";
@@ -28,7 +28,12 @@ type Memo = InferSelectModel<typeof memos>;
 type Todo = InferSelectModel<typeof todos>;
 
 type LogItem = { _type: "log"; log: Log };
-type PersonItem = { _type: "person"; person: Person; groupColor: string; logCount: number };
+type PersonItem = {
+  _type: "person";
+  person: Person;
+  groupColor: string;
+  logCount: number;
+};
 type MemoItem = { _type: "memo"; memo: Memo };
 type TodoItem = { _type: "todo"; todo: Todo };
 type SearchItem = LogItem | PersonItem | MemoItem | TodoItem;
@@ -38,11 +43,11 @@ type SearchSection = { title: string; key: FilterType; data: SearchItem[] };
 type FilterType = "all" | "log" | "person" | "memo" | "todo";
 
 const FILTERS: { key: FilterType; label: string }[] = [
-  { key: "all",    label: "전체" },
-  { key: "log",    label: "기록" },
-  { key: "person", label: "인물" },
-  { key: "memo",   label: "메모" },
-  { key: "todo",   label: "할 일" },
+  { key: "all", label: "전체" },
+  { key: "log", label: "기록" },
+  { key: "person", label: "프로필" },
+  { key: "memo", label: "메모" },
+  { key: "todo", label: "할 일" },
 ];
 
 export default function SearchScreen() {
@@ -130,7 +135,7 @@ export default function SearchScreen() {
     if (rawPersonResults.length > 0) {
       result.push({
         key: "person",
-        title: `인물 (${rawPersonResults.length}개)`,
+        title: `프로필 (${rawPersonResults.length}개)`,
         data: rawPersonResults.map(({ person, groupColor, logCount }) => ({
           _type: "person" as const,
           person,
@@ -184,7 +189,7 @@ export default function SearchScreen() {
           <Search size={16} color="#666" />
           <TextInput
             className="flex-1 text-white text-sm"
-            placeholder="기록, 인물, 메모, 할 일 검색..."
+            placeholder="기록, 프로필, 메모, 할 일 검색..."
             placeholderTextColor="#555"
             value={inputText}
             onChangeText={setInputText}
@@ -208,7 +213,11 @@ export default function SearchScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8, gap: 8 }}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingBottom: 8,
+            gap: 8,
+          }}
           style={{ flexGrow: 0 }}
         >
           {FILTERS.map((f) => {
@@ -237,7 +246,7 @@ export default function SearchScreen() {
         <View className="flex-1 items-center justify-center pb-20">
           <Search size={40} color="#333" />
           <Text className="text-app-muted text-sm mt-4">
-            기록, 인물, 메모, 할 일을 검색합니다.
+            기록, 프로필, 메모, 할 일을 검색합니다.
           </Text>
           <Text className="text-[#444] text-[13px] mt-1">
             2글자 이상 입력해 주세요.
@@ -276,7 +285,10 @@ export default function SearchScreen() {
                   <SearchLogItem
                     log={item.log}
                     onPress={() =>
-                      router.push({ pathname: "/logs/[id]", params: { id: item.log.id } })
+                      router.push({
+                        pathname: "/logs/[id]",
+                        params: { id: item.log.id },
+                      })
                     }
                   />
                 </View>
@@ -290,7 +302,10 @@ export default function SearchScreen() {
                     groupColor={item.groupColor}
                     logCount={item.logCount}
                     onPress={() =>
-                      router.push({ pathname: "/persons/[id]", params: { id: item.person.id } })
+                      router.push({
+                        pathname: "/persons/[id]",
+                        params: { id: item.person.id },
+                      })
                     }
                   />
                 </View>
@@ -302,7 +317,10 @@ export default function SearchScreen() {
                   <SearchMemoItem
                     memo={item.memo}
                     onPress={() =>
-                      router.push({ pathname: "/memos/[id]", params: { id: item.memo.id } })
+                      router.push({
+                        pathname: "/memos/[id]",
+                        params: { id: item.memo.id },
+                      })
                     }
                   />
                 </View>

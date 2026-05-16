@@ -15,34 +15,34 @@
 
 ### 🔴 HIGH — 즉시 수정
 
-| # | 위치 | 문제 |
-|---|---|---|
-| H1 | Home / `useAllLogDates` | `logs` 전체 스캔 후 JS에서 streak 계산. 날짜 범위 미적용. |
-| H2 | List / `useEventFilter` | 선택 기간 전체를 메모리에 적재. 페이지네이션 없음. |
-| H3 | Calendar / `useCalendarData` | `personAnniversaries` + `persons` WHERE 절 없이 전체 페치 |
-| H4 | Persons / `usePersonsWithGroups` | `logPersons` JOIN 전체 로드 후 JS reduce로 `lastLogDate` 계산 |
+| #   | 위치                             | 문제                                                          |
+| --- | -------------------------------- | ------------------------------------------------------------- |
+| H1  | Home / `useAllLogDates`          | `logs` 전체 스캔 후 JS에서 streak 계산. 날짜 범위 미적용.     |
+| H2  | List / `useEventFilter`          | 선택 기간 전체를 메모리에 적재. 페이지네이션 없음.            |
+| H3  | Calendar / `useCalendarData`     | `personAnniversaries` + `persons` WHERE 절 없이 전체 페치     |
+| H4  | Persons / `usePersonsWithGroups` | `logPersons` JOIN 전체 로드 후 JS reduce로 `lastLogDate` 계산 |
 
 ### 🟡 MED — 성능 저하 누적
 
-| # | 위치 | 문제 |
-|---|---|---|
-| M1 | List | `logPersons` 전체 스캔 후 Set 구성 (날짜 범위 미적용) |
-| M2 | List | 필터(group/completion/person) 전부 JS 처리 — SQL WHERE 이동 가능 |
-| M3 | Memo | 서브탭 무관하게 memos + todos 모두 마운트 시 실행 |
-| M4 | Memo | `filteredMemos`, `quadrantTodos` `useMemo` 없이 매 렌더 재계산 |
-| M5 | Persons | `ScrollView` 사용 — `FlatList`/`SectionList` 가상화 필요 |
-| M6 | Persons | `allGroups.find()` 렌더 안에서 N×G 루프 (Map으로 교체) |
-| M7 | `TodoStatusWidget` | `todos` 전체 로드 후 JS count — SQL `COUNT + GROUP BY`로 대체 |
-| M8 | `useAnniversariesInMonth` | 3개 탭에서 동일 전체 테이블 쿼리 동시 실행 |
-| M9 | 전체 탭 | `useFocusEffect` 없음 — 방문한 탭 전부 live subscription 유지 |
+| #   | 위치                      | 문제                                                             |
+| --- | ------------------------- | ---------------------------------------------------------------- |
+| M1  | List                      | `logPersons` 전체 스캔 후 Set 구성 (날짜 범위 미적용)            |
+| M2  | List                      | 필터(group/completion/person) 전부 JS 처리 — SQL WHERE 이동 가능 |
+| M3  | Memo                      | 서브탭 무관하게 memos + todos 모두 마운트 시 실행                |
+| M4  | Memo                      | `filteredMemos`, `quadrantTodos` `useMemo` 없이 매 렌더 재계산   |
+| M5  | Persons                   | `ScrollView` 사용 — `FlatList`/`SectionList` 가상화 필요         |
+| M6  | Persons                   | `allGroups.find()` 렌더 안에서 N×G 루프 (Map으로 교체)           |
+| M7  | `TodoStatusWidget`        | `todos` 전체 로드 후 JS count — SQL `COUNT + GROUP BY`로 대체    |
+| M8  | `useAnniversariesInMonth` | 3개 탭에서 동일 전체 테이블 쿼리 동시 실행                       |
+| M9  | 전체 탭                   | `useFocusEffect` 없음 — 방문한 탭 전부 live subscription 유지    |
 
 ### 🟢 LOW — 코너케이스
 
-| # | 위치 | 문제 |
-|---|---|---|
-| L1 | Home, Persons | `today`/`rangeStart` `useMemo([], [])` → 자정 이후 stale |
-| L2 | Calendar | `monthStart`/`monthEnd` 매 렌더마다 새 객체 → useLiveQuery 불필요 재실행 |
-| L3 | List/Calendar/Persons | `groups` 쿼리 3중 중복 live subscription |
+| #   | 위치                  | 문제                                                                     |
+| --- | --------------------- | ------------------------------------------------------------------------ |
+| L1  | Home, Persons         | `today`/`rangeStart` `useMemo([], [])` → 자정 이후 stale                 |
+| L2  | Calendar              | `monthStart`/`monthEnd` 매 렌더마다 새 객체 → useLiveQuery 불필요 재실행 |
+| L3  | List/Calendar/Persons | `groups` 쿼리 3중 중복 live subscription                                 |
 
 ---
 
@@ -78,7 +78,7 @@
 
 ### Phase 5: MED — ScrollView → FlatList 가상화
 
-- [x] **M5** `app/(tabs)/persons.tsx` — 인물 그룹 목록 `SectionList`로 교체
+- [x] **M5** `app/(tabs)/persons.tsx` — 프로필 그룹 목록 `SectionList`로 교체
   - `personSections` useMemo 구성 (pinned + grouped + ungrouped)
   - 접힘 상태: `data: collapsed ? [] : members` 로 제어
   - `renderSectionHeader`: collapse 토글 포함
@@ -94,14 +94,14 @@
 
 ## 진행 상황
 
-| Phase | 상태 | 완료일 |
-|-------|------|--------|
-| Phase 1: HIGH SQL 집계 | ✅ 완료 | 2026-05-17 |
-| Phase 2: MED 메모이제이션 | ✅ 완료 | 2026-05-17 |
-| Phase 3: HIGH List 무한스크롤 | ✅ 완료 | 2026-05-17 |
-| Phase 4: MED useFocusEffect | ✅ 완료 | 2026-05-17 |
+| Phase                            | 상태    | 완료일     |
+| -------------------------------- | ------- | ---------- |
+| Phase 1: HIGH SQL 집계           | ✅ 완료 | 2026-05-17 |
+| Phase 2: MED 메모이제이션        | ✅ 완료 | 2026-05-17 |
+| Phase 3: HIGH List 무한스크롤    | ✅ 완료 | 2026-05-17 |
+| Phase 4: MED useFocusEffect      | ✅ 완료 | 2026-05-17 |
 | Phase 5: MED ScrollView→FlatList | ✅ 완료 | 2026-05-17 |
-| Phase 6: LOW 기타 | ✅ 완료 | 2026-05-17 |
+| Phase 6: LOW 기타                | ✅ 완료 | 2026-05-17 |
 
 ---
 

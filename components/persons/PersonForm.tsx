@@ -1,4 +1,4 @@
-// 인물 폼 공유 컴포넌트 — 생성/수정에서 공통 사용
+// 프로필 폼 공유 컴포넌트 — 생성/수정에서 공통 사용
 import { DateInput } from "@/components/DateInput";
 import { BirthDateInput } from "@/components/persons/BirthDateInput";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
@@ -24,7 +24,14 @@ const CONTACT_PRESETS = [
   { label: "90일", value: 90 },
 ] as const;
 
-const TAG_PRESETS = ["연인", "가족", "직장동료", "오랜친구", "멘토", "온라인친구"];
+const TAG_PRESETS = [
+  "연인",
+  "가족",
+  "직장동료",
+  "오랜친구",
+  "멘토",
+  "온라인친구",
+];
 
 interface PersonFormProps {
   name: string;

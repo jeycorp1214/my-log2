@@ -1,4 +1,4 @@
-// 인물 상세 / 수정 / 삭제 모달 화면
+// 프로필 상세 / 수정 / 삭제 모달 화면
 import { DraftAnniversary, PersonForm } from "@/components/persons/PersonForm";
 import { PersonStatsCard } from "@/components/persons/PersonStatsCard";
 import { TimelineItem } from "@/components/persons/TimelineItem";
@@ -143,7 +143,7 @@ export default function PersonDetailScreen() {
 
   async function deletePerson() {
     Alert.alert(
-      "인물 삭제",
+      "프로필 삭제",
       `${person?.name}을(를) 삭제할까요? 관련 기록 연결도 삭제됩니다.`,
       [
         { text: "취소", style: "cancel" },
@@ -331,7 +331,7 @@ export default function PersonDetailScreen() {
               onPress={deletePerson}
               className="mt-8 bg-app-danger-bg rounded-[12px] p-[14px] items-center"
             >
-              <Text className="text-app-danger text-sm">인물 삭제</Text>
+              <Text className="text-app-danger text-sm">프로필 삭제</Text>
             </Pressable>
           </>
         )}

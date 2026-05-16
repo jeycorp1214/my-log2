@@ -75,7 +75,7 @@ export default function DataViewerScreen() {
     { name: "groups", label: `📁 그룹 (${allGroups.length})`, data: allGroups },
     {
       name: "persons",
-      label: `👤 인물 (${allPersons.length})`,
+      label: `👤 프로필 (${allPersons.length})`,
       data: allPersons,
     },
     {
@@ -85,7 +85,7 @@ export default function DataViewerScreen() {
     },
     {
       name: "logPersons",
-      label: `🔗 기록-인물 연결 (${allLogPersons.length})`,
+      label: `🔗 기록-프로필 연결 (${allLogPersons.length})`,
       data: allLogPersons,
     },
   ];

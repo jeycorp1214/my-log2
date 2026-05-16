@@ -1,10 +1,10 @@
-// 홈 위젯 — 연락 주기가 지난 인물 목록
+// 홈 위젯 — 연락 주기가 지난 프로필 목록
 import { db } from "@/db/client";
 import { logPersons, logs, persons } from "@/db/schema";
-import { eq, isNotNull, max, sql } from "drizzle-orm";
+import dayjs from "dayjs";
+import { eq, isNotNull, max } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
-import dayjs from "dayjs";
 import { useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
 
@@ -30,7 +30,9 @@ export function OverduePersonsWidget() {
     const today = dayjs().startOf("day");
     return rows
       .map((r) => {
-        const lastDate = r.lastLogDate ? dayjs(r.lastLogDate).startOf("day") : null;
+        const lastDate = r.lastLogDate
+          ? dayjs(r.lastLogDate).startOf("day")
+          : null;
         const daysSince = lastDate ? today.diff(lastDate, "day") : null;
         const interval = r.contactInterval!;
         const isOverdue = daysSince === null || daysSince >= interval;
@@ -54,9 +56,11 @@ export function OverduePersonsWidget() {
       {overdue.map((p, idx) => (
         <Pressable
           key={p.id}
-          onPress={() => router.push({ pathname: "/persons/[id]", params: { id: p.id } })}
+          onPress={() =>
+            router.push({ pathname: "/persons/[id]", params: { id: p.id } })
+          }
           className={`flex-row items-center px-4 py-3 ${idx < overdue.length - 1 ? "border-b border-[#1e1e1e]" : "pb-4"}`}
-          style={({ pressed }) => pressed ? { opacity: 0.7 } : undefined}
+          style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
         >
           <Text className="flex-1 text-white text-[14px]">{p.name}</Text>
           <Text className="text-[#ff6b6b] text-[12px] font-semibold">

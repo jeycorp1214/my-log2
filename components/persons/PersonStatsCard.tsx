@@ -1,4 +1,4 @@
-// 인물 상세 화면의 통계 요약 카드
+// 프로필 상세 화면의 통계 요약 카드
 import dayjs from "dayjs";
 import { Text, View } from "react-native";
 
@@ -55,7 +55,9 @@ export function PersonStatsCard({ logDates }: StatsCardProps) {
       {stats.map((s) => (
         <View key={s.label} style={{ width: "50%" }}>
           <Text className="text-app-muted text-[11px] mb-0.5">{s.label}</Text>
-          <Text className="text-white text-[14px] font-semibold">{s.value}</Text>
+          <Text className="text-white text-[14px] font-semibold">
+            {s.value}
+          </Text>
         </View>
       ))}
     </View>

@@ -7,12 +7,12 @@
 
 ## 우선순위 분류
 
-| 등급 | 기준 |
-|------|------|
-| **Critical** | 데이터 손실 또는 앱 크래시 가능성 |
-| **High** | 성능 저하 또는 확장 시 명확한 문제 |
-| **Medium** | 코드 품질 / 유지보수성 |
-| **Low** | 정리 / 미래 대비 |
+| 등급         | 기준                               |
+| ------------ | ---------------------------------- |
+| **Critical** | 데이터 손실 또는 앱 크래시 가능성  |
+| **High**     | 성능 저하 또는 확장 시 명확한 문제 |
+| **Medium**   | 코드 품질 / 유지보수성             |
+| **Low**      | 정리 / 미래 대비                   |
 
 ---
 
@@ -45,6 +45,7 @@ await db.transaction(async (tx) => {
 **문제.** 스키마가 변경될 때마다 `version !== BACKUP_VERSION` 체크가 오래된 백업을 완전 차단한다. Phase 15에서 `todos.note`, `memos.pinnedAt` 등 컬럼이 추가됐지만 버전은 여전히 1이다.
 
 **개선 방향.**
+
 - 스키마 변경 시 버전 올리고 이전 버전 복원 로직(`migrateBackupV1toV2`) 추가.
 - 또는 컬럼 누락은 기본값으로 채우는 관대한 복원 로직 도입.
 
@@ -76,13 +77,15 @@ if (repeatType === "daily") {
 
 ---
 
-### H2. `useCalendarData` 전체 반복 로그 + 전체 인물 로드 (`hooks/useCalendarData.ts:57,69`)
+### H2. `useCalendarData` 전체 반복 로그 + 전체 프로필 로드 (`hooks/useCalendarData.ts:57,69`)
 
 **문제.**
+
 1. `repeatLogs` 쿼리: 날짜 상한만 있고 하한 없음 → 앱 초기부터의 모든 반복 로그 로드.
-2. `allPersons` 쿼리: 생일 점 표시 목적으로 전체 인물 로드 (컬럼 `birthDate`만 필요).
+2. `allPersons` 쿼리: 생일 점 표시 목적으로 전체 프로필 로드 (컬럼 `birthDate`만 필요).
 
 **개선.**
+
 ```ts
 // repeatLogs: repeatUntil IS NULL OR repeatUntil >= monthStart 조건 추가
 .where(and(
@@ -116,6 +119,7 @@ db.select({ id: persons.id, birthDate: persons.birthDate }).from(persons)
 **문제.** Phase마다 `ensureXxxColumns()` 함수가 추가되고 있다. 현재 4개 함수 = PRAGMA 4회 + ALTER 최대 9회(앱 시작마다). Migration이 정상 동작한다면 이 코드들은 불필요하다.
 
 **개선 방향.**
+
 - `drizzle-kit` 마이그레이션이 안정화된 Phase에 대해서는 `ensureColumns` 제거.
 - 이미 배포된 앱 대응이 목적이라면 `ensure*` 함수들을 하나의 `ensureAllLegacyColumns()` 로 병합해 PRAGMA를 1회로 줄임.
 
@@ -128,12 +132,16 @@ db.select({ id: persons.id, birthDate: persons.birthDate }).from(persons)
 **문제.** `text("tags")` 컬럼에 JSON 배열 문자열 저장. 이미 Phase 16에서 `JSON.parse` 크래시 버그가 발생했다. 파싱 코드가 여러 파일에 분산될 위험.
 
 **단기 개선.** 파싱을 util 함수로 중앙화:
+
 ```ts
 // utils/person.ts
 export function parseTags(raw: string | null): string[] {
   if (!raw) return [];
-  try { return JSON.parse(raw); }
-  catch { return []; }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
 }
 ```
 
@@ -160,6 +168,7 @@ await AsyncStorage.setItem(PREFS_KEY, JSON.stringify(next));
 **문제.** `text("repeat_type")` 컬럼에 어떤 값이든 저장 가능. 실제 유효값은 `none|daily|weekly|monthly|yearly` 5가지인데 DB 레벨 CHECK 제약이 없다.
 
 **개선.** 마이그레이션에 CHECK 제약 추가 또는 insert 시 유효성 검사 추가:
+
 ```sql
 -- 신규 마이그레이션에서
 ALTER TABLE logs ADD CHECK (
@@ -208,10 +217,10 @@ npm uninstall expo-notifications
 
 아래 유틸은 외부 의존성이 없어 테스트 작성이 쉽다.
 
-| 파일 | 함수 |
-|------|------|
-| `utils/repeat.ts` | `expandRepeatInMonth` |
-| `utils/date.ts` | `parseBirthInput`, `dDayLabel`, `calcStreak` |
+| 파일              | 함수                                         |
+| ----------------- | -------------------------------------------- |
+| `utils/repeat.ts` | `expandRepeatInMonth`                        |
+| `utils/date.ts`   | `parseBirthInput`, `dDayLabel`, `calcStreak` |
 
 최소한 엣지 케이스(윤년 2/29, repeatUntil 경계값, invalid input)만 커버해도 Phase 16류 버그를 사전 차단 가능.
 
@@ -225,22 +234,22 @@ npm uninstall expo-notifications
 
 ## 요약
 
-| 코드 | 항목 | 파일 | 상태 |
-|------|------|------|------|
-| C1 | importData 트랜잭션 | `services/backup.ts` | ⬜ 미완료 |
-| C2 | 백업 버전 관대한 체크 | `services/backup.ts` | ⬜ 미완료 |
-| H1 | expandRepeatInMonth O(1) 수학적 점프 | `utils/repeat.ts` | ⬜ 미완료 |
-| H2 | useCalendarData 쿼리 최적화 | `hooks/useCalendarData.ts` | ⬜ 미완료 |
-| H3 | useEventFilter — H1 적용으로 자동 개선 | — | ⬜ H1 선행 필요 |
-| M1 | ensureAllLegacyColumns 단일 함수로 병합 | `db/client.ts` | ⬜ 미완료 |
-| M2 | parseTags util 중앙화 | `utils/person.ts` | ✅ Phase 16 완료 |
-| M3 | SecureStore → AsyncStorage | `providers/TabPreferencesProvider.tsx` | ⬜ 미완료 |
-| M4 | REPEAT_TYPES 상수 + RepeatType 타입 export | `utils/repeat.ts` | ⬜ 미완료 |
-| M5 | resetDatabase 주석 경고 강화 | `db/client.ts` | ⬜ 미완료 |
-| L1 | expo-notifications 제거 | `package.json` | ✅ 완료 |
-| L2 | 문서 정리 및 재구조화 | `docs/` | ✅ 2026-05-17 완료 |
-| L3 | 유틸 단위 테스트 작성 | `__tests__/utils/` | ⬜ 미완료 |
-| L4 | drizzle meta 스냅샷 보완 | `drizzle/meta/` | ⬜ 미완료 |
+| 코드 | 항목                                       | 파일                                   | 상태               |
+| ---- | ------------------------------------------ | -------------------------------------- | ------------------ |
+| C1   | importData 트랜잭션                        | `services/backup.ts`                   | ⬜ 미완료          |
+| C2   | 백업 버전 관대한 체크                      | `services/backup.ts`                   | ⬜ 미완료          |
+| H1   | expandRepeatInMonth O(1) 수학적 점프       | `utils/repeat.ts`                      | ⬜ 미완료          |
+| H2   | useCalendarData 쿼리 최적화                | `hooks/useCalendarData.ts`             | ⬜ 미완료          |
+| H3   | useEventFilter — H1 적용으로 자동 개선     | —                                      | ⬜ H1 선행 필요    |
+| M1   | ensureAllLegacyColumns 단일 함수로 병합    | `db/client.ts`                         | ⬜ 미완료          |
+| M2   | parseTags util 중앙화                      | `utils/person.ts`                      | ✅ Phase 16 완료   |
+| M3   | SecureStore → AsyncStorage                 | `providers/TabPreferencesProvider.tsx` | ⬜ 미완료          |
+| M4   | REPEAT_TYPES 상수 + RepeatType 타입 export | `utils/repeat.ts`                      | ⬜ 미완료          |
+| M5   | resetDatabase 주석 경고 강화               | `db/client.ts`                         | ⬜ 미완료          |
+| L1   | expo-notifications 제거                    | `package.json`                         | ✅ 완료            |
+| L2   | 문서 정리 및 재구조화                      | `docs/`                                | ✅ 2026-05-17 완료 |
+| L3   | 유틸 단위 테스트 작성                      | `__tests__/utils/`                     | ⬜ 미완료          |
+| L4   | drizzle meta 스냅샷 보완                   | `drizzle/meta/`                        | ⬜ 미완료          |
 
 ### L3 테스트 실행 방법
 

@@ -1,4 +1,4 @@
-// 인물 목록과 그룹 정보를 함께 조회하는 훅
+// 프로필 목록과 그룹 정보를 함께 조회하는 훅
 import { db } from "@/db/client";
 import { groups, logPersons, logs, persons } from "@/db/schema";
 import { eq, max } from "drizzle-orm";

@@ -104,7 +104,7 @@ export async function seedSampleData() {
   const d = (y: number, m: number, day: number) => new Date(y, m - 1, day);
   const t = (...tags: string[]) => JSON.stringify(tags);
 
-  // 인물 100명 — p[0]~p[49] 기존, p[50]~p[99] 신규
+  // 프로필 100명 — p[0]~p[49] 기존, p[50]~p[99] 신규
   const p = await db
     .insert(persons)
     .values([
@@ -1416,7 +1416,7 @@ export async function seedSampleData() {
     ])
     .returning();
 
-  // 기록-인물 연결
+  // 기록-프로필 연결
   await db.insert(logPersons).values([
     // ── 기존 30개 연결 ─────────────────────────────────────
     { logId: l[0].id, personId: p[0].id },

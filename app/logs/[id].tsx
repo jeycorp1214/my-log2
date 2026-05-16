@@ -258,7 +258,7 @@ export default function LogDetailScreen() {
             {linkedPersons.length > 0 && (
               <>
                 <Text className="text-app-label text-[13px] font-semibold mt-5 uppercase tracking-[0.5px]">
-                  함께한 인물
+                  함께한 프로필
                 </Text>
                 <View className="flex-row flex-wrap gap-2 mt-1">
                   {linkedPersons.map(({ person }) => (

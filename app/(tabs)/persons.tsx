@@ -1,4 +1,4 @@
-// 인물 목록 탭 — 인물 리스트 / 기념일 리스트 모드 전환 + 필터/정렬
+// 프로필 목록 탭 — 프로필 리스트 / 기념일 리스트 모드 전환 + 필터/정렬
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
@@ -115,7 +115,7 @@ export default function PersonsScreen() {
     [allGroups],
   );
 
-  // ── 인물 모드 상태 ─────────────────────────────────────
+  // ── 프로필 모드 상태 ─────────────────────────────────────
   const { prefs, setPersonsPrefs } = useTabPreferences();
   const sortOrder = prefs.persons.sortOrder as SortOrder;
   const setSortOrder = (v: SortOrder) => setPersonsPrefs({ sortOrder: v });
@@ -178,7 +178,11 @@ export default function PersonsScreen() {
     return { annStart: annCustomStart, annEnd: annCustomEnd };
   }, [annPreset, annCustomStart, annCustomEnd]);
 
-  const { anniversaryBoardItems } = useAnniversariesInMonth(annStart, annEnd, isFocused);
+  const { anniversaryBoardItems } = useAnniversariesInMonth(
+    annStart,
+    annEnd,
+    isFocused,
+  );
 
   const personGroupMap = useMemo(
     () => new Map(allPersons.map((p) => [p.id, p.groupId])),
@@ -207,7 +211,7 @@ export default function PersonsScreen() {
     }));
   }, [filteredAnniversaries]);
 
-  // ── 인물 모드 필터/정렬 ────────────────────────────────
+  // ── 프로필 모드 필터/정렬 ────────────────────────────────
   function applyMbtiFilter<T extends Person>(list: T[]): T[] {
     if (mbtiFilter === "no")
       return list.filter((p) => !p.mbti || p.mbti.length === 0);
@@ -417,7 +421,7 @@ export default function PersonsScreen() {
   return (
     <View className="flex-1 bg-app-bg">
       <TabsHeader
-        title="인물"
+        title="프로필"
         searchOnPress={tabMode === "persons" ? toggleSearch : undefined}
         searchActive={showSearch}
         cakeOnPress={() => {
@@ -430,7 +434,7 @@ export default function PersonsScreen() {
         slidersActive={filterBadge > 0}
       />
 
-      {/* ── 인물 모드 ── */}
+      {/* ── 프로필 모드 ── */}
       {tabMode === "persons" && (
         <>
           {/* 로컬 검색 바 */}
@@ -453,7 +457,7 @@ export default function PersonsScreen() {
               }}
               ListEmptyComponent={
                 <Text className="text-app-muted text-center mt-12 text-[14px]">
-                  일치하는 인물이 없습니다.
+                  일치하는 프로필이 없습니다.
                 </Text>
               }
               renderItem={({ item }) => {
@@ -520,7 +524,8 @@ export default function PersonsScreen() {
                             />
                           )}
                           <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
-                            {section.titleText}{"  "}
+                            {section.titleText}
+                            {"  "}
                             <Text className="text-[#555] font-normal">
                               {section.memberCount}
                             </Text>
@@ -534,7 +539,8 @@ export default function PersonsScreen() {
                       </Pressable>
                     ) : (
                       <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
-                        {section.titleText}{"  "}
+                        {section.titleText}
+                        {"  "}
                         <Text className="text-[#555] font-normal">
                           {section.memberCount}
                         </Text>
@@ -564,12 +570,12 @@ export default function PersonsScreen() {
                 ListEmptyComponent={
                   allPersons.length === 0 ? (
                     <Text className="text-app-muted text-center mt-12">
-                      인물을 추가해 보세요.
+                      프로필을 추가해 보세요.
                     </Text>
                   ) : (
                     <View className="items-center mt-16 gap-3">
                       <Text className="text-app-muted text-[14px]">
-                        조건에 맞는 인물이 없습니다.
+                        조건에 맞는 프로필이 없습니다.
                       </Text>
                       {filterBadge > 0 && (
                         <Pressable
@@ -594,7 +600,7 @@ export default function PersonsScreen() {
               />
 
               <QuickInputBar
-                placeholder="이름으로 인물 추가"
+                placeholder="이름으로 프로필 추가"
                 value={quickName}
                 onChange={setQuickName}
                 onSubmit={handleQuickAdd}
@@ -749,7 +755,7 @@ export default function PersonsScreen() {
             >
               <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
 
-              {/* ── 인물 모드 필터 ── */}
+              {/* ── 프로필 모드 필터 ── */}
               {tabMode === "persons" && (
                 <>
                   <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">

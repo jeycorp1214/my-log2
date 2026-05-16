@@ -494,7 +494,7 @@ export default function ListScreen() {
           onChange={setTypeFilter}
         />
         <FilterChipGroup
-          label="관련 인물"
+          label="관련 프로필"
           options={[
             { value: "all", label: "전체" },
             { value: "yes", label: "있음" },

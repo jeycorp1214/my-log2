@@ -158,7 +158,7 @@ export function LogForm({
         ))}
       </View>
 
-      <Text className="text-app-label text-[13px] mt-3">관련 인물</Text>
+      <Text className="text-app-label text-[13px] mt-3">관련 프로필</Text>
       <View className="flex-row flex-wrap gap-2 mt-1">
         {allPersons.map((p) => (
           <Pressable

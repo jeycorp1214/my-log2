@@ -1,5 +1,4 @@
 // 데이터 내보내기 / 불러오기 — 현재 DB 요약 + 파일 미리보기
-import dayjs from "dayjs";
 import { db } from "@/db/client";
 import {
   groups,
@@ -10,7 +9,13 @@ import {
   persons,
   todos,
 } from "@/db/schema";
-import { type BackupData, applyImport, exportData, pickBackupFile } from "@/services/backup";
+import {
+  type BackupData,
+  applyImport,
+  exportData,
+  pickBackupFile,
+} from "@/services/backup";
+import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Download, Upload } from "lucide-react-native";
@@ -19,7 +24,13 @@ import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
 type DataRow = { label: string; count: number; accent?: boolean };
 
-function SummaryTable({ rows, exportedAt }: { rows: DataRow[]; exportedAt?: string }) {
+function SummaryTable({
+  rows,
+  exportedAt,
+}: {
+  rows: DataRow[];
+  exportedAt?: string;
+}) {
   return (
     <View className="bg-[#141414] rounded-[10px] overflow-hidden">
       {exportedAt && (
@@ -33,7 +44,9 @@ function SummaryTable({ rows, exportedAt }: { rows: DataRow[]; exportedAt?: stri
         <View
           key={row.label}
           className="flex-row items-center px-4 py-3"
-          style={i > 0 ? { borderTopWidth: 1, borderColor: "#1e1e1e" } : undefined}
+          style={
+            i > 0 ? { borderTopWidth: 1, borderColor: "#1e1e1e" } : undefined
+          }
         >
           <Text className="flex-1 text-[#aaa] text-[13px]">{row.label}</Text>
           <Text
@@ -59,16 +72,20 @@ export default function BackupScreen() {
   const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
   const { data: allPersons = [] } = useLiveQuery(db.select().from(persons));
   const { data: allLogs = [] } = useLiveQuery(db.select().from(logs));
-  const { data: allAnniversaries = [] } = useLiveQuery(db.select().from(personAnniversaries));
+  const { data: allAnniversaries = [] } = useLiveQuery(
+    db.select().from(personAnniversaries),
+  );
   const { data: allTodos = [] } = useLiveQuery(db.select().from(todos));
   const { data: allMemos = [] } = useLiveQuery(db.select().from(memos));
-  const { data: allLogPersons = [] } = useLiveQuery(db.select().from(logPersons));
+  const { data: allLogPersons = [] } = useLiveQuery(
+    db.select().from(logPersons),
+  );
 
   const currentRows: DataRow[] = [
     { label: "그룹", count: allGroups.length },
-    { label: "인물", count: allPersons.length },
+    { label: "프로필", count: allPersons.length },
     { label: "기록", count: allLogs.length },
-    { label: "기록–인물 연결", count: allLogPersons.length },
+    { label: "기록–프로필 연결", count: allLogPersons.length },
     { label: "기념일", count: allAnniversaries.length },
     { label: "할 일", count: allTodos.length },
     { label: "메모", count: allMemos.length },
@@ -77,10 +94,18 @@ export default function BackupScreen() {
   function previewRows(d: BackupData["data"]): DataRow[] {
     return [
       { label: "그룹", count: d.groups.length, accent: true },
-      { label: "인물", count: d.persons.length, accent: true },
+      { label: "프로필", count: d.persons.length, accent: true },
       { label: "기록", count: d.logs.length, accent: true },
-      { label: "기록–인물 연결", count: d.logPersons?.length ?? 0, accent: true },
-      { label: "기념일", count: d.personAnniversaries?.length ?? 0, accent: true },
+      {
+        label: "기록–프로필 연결",
+        count: d.logPersons?.length ?? 0,
+        accent: true,
+      },
+      {
+        label: "기념일",
+        count: d.personAnniversaries?.length ?? 0,
+        accent: true,
+      },
       { label: "할 일", count: d.todos?.length ?? 0, accent: true },
       { label: "메모", count: d.memos?.length ?? 0, accent: true },
     ];
@@ -139,8 +164,9 @@ export default function BackupScreen() {
         </Text>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 48 }}>
-
+      <ScrollView
+        contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 48 }}
+      >
         {/* ── 내보내기 ── */}
         <View className="gap-3">
           <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px]">
@@ -171,12 +197,15 @@ export default function BackupScreen() {
           {preview ? (
             // 파일 선택 후: 미리보기 + 확인/취소
             <>
-              <SummaryTable rows={previewRows(preview.data)} exportedAt={preview.exported_at} />
+              <SummaryTable
+                rows={previewRows(preview.data)}
+                exportedAt={preview.exported_at}
+              />
 
               <View className="bg-[#1a0e0e] rounded-[10px] px-4 py-3">
                 <Text className="text-app-danger text-[12px] leading-5">
-                  위 데이터로 교체됩니다. 현재 데이터 전체가 삭제됩니다.{"\n"}
-                  이 작업은 되돌릴 수 없습니다.
+                  위 데이터로 교체됩니다. 현재 데이터 전체가 삭제됩니다.{"\n"}이
+                  작업은 되돌릴 수 없습니다.
                 </Text>
               </View>
 
@@ -184,15 +213,21 @@ export default function BackupScreen() {
                 <Pressable
                   onPress={() => setPreview(null)}
                   className="flex-1 bg-app-surface rounded-[12px] py-3.5 items-center"
-                  style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+                  style={({ pressed }) =>
+                    pressed ? { opacity: 0.7 } : undefined
+                  }
                 >
-                  <Text className="text-[#888] text-[14px] font-semibold">취소</Text>
+                  <Text className="text-[#888] text-[14px] font-semibold">
+                    취소
+                  </Text>
                 </Pressable>
                 <Pressable
                   onPress={handleConfirmImport}
                   disabled={isImporting}
                   className="flex-1 bg-[#2a0e0e] rounded-[12px] py-3.5 items-center"
-                  style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+                  style={({ pressed }) =>
+                    pressed ? { opacity: 0.7 } : undefined
+                  }
                 >
                   <Text className="text-app-danger text-[14px] font-semibold">
                     {isImporting ? "불러오는 중…" : "교체 확인"}
@@ -207,10 +242,15 @@ export default function BackupScreen() {
                 onPress={handlePickFile}
                 disabled={isPicking}
                 className="bg-[#28200c] rounded-[12px] py-3.5 flex-row items-center justify-center gap-2"
-                style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
+                style={({ pressed }) =>
+                  pressed ? { opacity: 0.7 } : undefined
+                }
               >
                 <Download size={16} color="#c9922a" />
-                <Text className="text-[14px] font-semibold" style={{ color: "#c9922a" }}>
+                <Text
+                  className="text-[14px] font-semibold"
+                  style={{ color: "#c9922a" }}
+                >
                   {isPicking ? "파일 선택 중…" : "백업 파일 선택"}
                 </Text>
               </Pressable>
@@ -220,7 +260,6 @@ export default function BackupScreen() {
             </>
           )}
         </View>
-
       </ScrollView>
     </View>
   );

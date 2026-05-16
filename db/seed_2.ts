@@ -103,7 +103,7 @@ export async function seedSampleData() {
   const d = (y: number, m: number, day: number) => new Date(y, m - 1, day);
   const t = (...tags: string[]) => JSON.stringify(tags);
 
-  // 인물 50명 (기존 30 + 신규 20)
+  // 프로필 50명 (기존 30 + 신규 20)
   const p = await db
     .insert(persons)
     .values([
@@ -717,7 +717,7 @@ export async function seedSampleData() {
     ])
     .returning();
 
-  // 기록-인물 연결
+  // 기록-프로필 연결
   await db.insert(logPersons).values([
     { logId: l[0].id, personId: p[0].id },
     { logId: l[0].id, personId: p[7].id },
@@ -822,17 +822,17 @@ export async function seedSampleData() {
     { logId: l[29].id, personId: p[17].id },
     { logId: l[29].id, personId: p[22].id },
     { logId: l[29].id, personId: p[27].id },
-    // 신규 인물 연결
-    { logId: l[0].id, personId: p[35].id },  // 박서연 — 가족 저녁 식사
-    { logId: l[0].id, personId: p[47].id },  // 전지혁 — 가족 저녁 식사
-    { logId: l[1].id, personId: p[30].id },  // 권나영 — 친구들이랑 영화
-    { logId: l[1].id, personId: p[32].id },  // 이민호 — 친구들이랑 영화
-    { logId: l[3].id, personId: p[30].id },  // 권나영 — 생일파티
-    { logId: l[3].id, personId: p[37].id },  // 임채은 — 생일파티
-    { logId: l[5].id, personId: p[34].id },  // 최준혁 — 커피 미팅
-    { logId: l[7].id, personId: p[32].id },  // 이민호 — 대학 동창 모임
-    { logId: l[7].id, personId: p[35].id },  // 장수빈 — 대학 동창 모임
-    { logId: l[7].id, personId: p[41].id },  // 문하린 — 대학 동창 모임
+    // 신규 프로필 연결
+    { logId: l[0].id, personId: p[35].id }, // 박서연 — 가족 저녁 식사
+    { logId: l[0].id, personId: p[47].id }, // 전지혁 — 가족 저녁 식사
+    { logId: l[1].id, personId: p[30].id }, // 권나영 — 친구들이랑 영화
+    { logId: l[1].id, personId: p[32].id }, // 이민호 — 친구들이랑 영화
+    { logId: l[3].id, personId: p[30].id }, // 권나영 — 생일파티
+    { logId: l[3].id, personId: p[37].id }, // 임채은 — 생일파티
+    { logId: l[5].id, personId: p[34].id }, // 최준혁 — 커피 미팅
+    { logId: l[7].id, personId: p[32].id }, // 이민호 — 대학 동창 모임
+    { logId: l[7].id, personId: p[35].id }, // 장수빈 — 대학 동창 모임
+    { logId: l[7].id, personId: p[41].id }, // 문하린 — 대학 동창 모임
     { logId: l[10].id, personId: p[30].id }, // 권나영 — 치맥 번개
     { logId: l[10].id, personId: p[43].id }, // 우서진 — 치맥 번개
     { logId: l[11].id, personId: p[31].id }, // 김태양 — 팀 워크숍

@@ -1,4 +1,4 @@
-// 인물 상세 타임라인의 개별 아이템 컴포넌트
+// 프로필 상세 타임라인의 개별 아이템 컴포넌트
 import { Pressable, Text, View } from "react-native";
 
 interface TimelineItemProps {
@@ -49,7 +49,9 @@ export function TimelineItem({
 
       {/* 내용 */}
       <View className="flex-1 pb-3">
-        <Text className="text-app-muted text-[11px] mt-[10px] mb-1">{date}</Text>
+        <Text className="text-app-muted text-[11px] mt-[10px] mb-1">
+          {date}
+        </Text>
         <Pressable
           onPress={onPress}
           disabled={!onPress}
@@ -72,7 +74,9 @@ export function TimelineItem({
             )}
           </View>
           {subtitle && (
-            <Text className="text-app-muted text-[12px] mt-0.5">{subtitle}</Text>
+            <Text className="text-app-muted text-[12px] mt-0.5">
+              {subtitle}
+            </Text>
           )}
         </Pressable>
       </View>

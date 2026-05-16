@@ -12,9 +12,9 @@
 ## 앱 구조
 
 - [x] app/\_layout.tsx — migrations + QueryClient + seed 호출 + GestureHandlerRootView
-- [x] app/(tabs)/\_layout.tsx — 탭 구조 (캘린더/인물/설정)
+- [x] app/(tabs)/\_layout.tsx — 탭 구조 (캘린더/프로필/설정)
 - [x] app/(tabs)/index.tsx — 캘린더 뷰
-- [x] app/(tabs)/persons.tsx — 인물 목록
+- [x] app/(tabs)/persons.tsx — 프로필 목록
 - [x] app/(tabs)/settings.tsx — 설정
 
 ## 그룹 CRUD
@@ -23,10 +23,10 @@
 - [x] settings 탭에서 그룹 목록 + 삭제
 - [x] 기본 그룹 삭제 방지 로직
 
-## 인물 CRUD
+## 프로필 CRUD
 
-- [x] app/persons/new.tsx — 인물 추가
-- [x] app/persons/[id].tsx — 인물 상세/수정/삭제
+- [x] app/persons/new.tsx — 프로필 추가
+- [x] app/persons/[id].tsx — 프로필 상세/수정/삭제
 - [x] components/persons/PersonCard.tsx — 카드 컴포넌트
 - [x] 나이 표시: calcAge(birthDate)
 
@@ -54,7 +54,7 @@
 
 ## P1 — 모바일 UX 핵심
 
-- [x] FAB (Floating Action Button) — 우측 하단, 기록 추가 / 인물 추가
+- [x] FAB (Floating Action Button) — 우측 하단, 기록 추가 / 프로필 추가
 - [x] 스와이프로 월 이동 (GestureDetector + Gesture.Pan)
 - [x] 오늘로 돌아가기 버튼 (Today button)
 - [x] logs/new.tsx — 그룹 첫 번째 자동 pre-select (useEffect)
@@ -71,7 +71,7 @@
 - [x] 스키마: logs.groupId nullable 변경 + migration 0001 수동 생성
 - [x] 스키마: persons.groupId nullable 변경 + migration 0002 수동 생성
 - [x] seed: "미설정" 그룹 추가 (sortOrder:0, gray #ADB5BD)
-- [x] UI: 인물 탭 FAB 교체 (헤더 버튼 → 우측 하단 FAB)
+- [x] UI: 프로필 탭 FAB 교체 (헤더 버튼 → 우측 하단 FAB)
 - [x] 설정: 전체 데이터 초기화 버튼 (개발 도구 섹션)
 - [x] 설정: 초기화 후 router.replace → UI 즉시 갱신
 - [x] NativeWind 전환: 모든 화면/컴포넌트 StyleSheet → className
@@ -97,7 +97,7 @@
 - [x] app/settings/groups.tsx — 그룹 목록 + FAB(→ /groups/new)
 - [x] app/settings/repeats.tsx — 반복 로그 목록 + FAB(→ /logs/new) + 해제 기능
 - [x] \_layout.tsx에 settings/groups, settings/repeats Stack.Screen 등록
-- [x] 인물 타임라인 — persons/[id].tsx에 이미 구현됨 (personLogs + "함께한 기록" 섹션)
+- [x] 프로필 타임라인 — persons/[id].tsx에 이미 구현됨 (personLogs + "함께한 기록" 섹션)
 
 ---
 
@@ -122,12 +122,12 @@
 
 ## 검색
 
-- [x] app/search.tsx 신규 생성 — 제목/메모/인물명 LIKE 검색 (FTS5 불필요, 개인앱 규모)
+- [x] app/search.tsx 신규 생성 — 제목/메모/프로필명 LIKE 검색 (FTS5 불필요, 개인앱 규모)
 - [x] (tabs)/index.tsx: 캘린더 헤더 Search 아이콘 → /search push
 - [x] \_layout.tsx: search Stack.Screen 등록 (presentation: modal)
 - [x] components/logs/SearchLogItem.tsx: 날짜+제목+메모 검색 결과 아이템
-- [x] 기록(title/memo) + 인물(name/memo) 통합 검색, SectionList 2섹션
-- [x] 300ms 디바운스, 2자 이상 검색, 결과 limit 기록 50 / 인물 20
+- [x] 기록(title/memo) + 프로필(name/memo) 통합 검색, SectionList 2섹션
+- [x] 300ms 디바운스, 2자 이상 검색, 결과 limit 기록 50 / 프로필 20
 
 ~~## 알림/리마인더~~ ← 기획 방향과 맞지 않아 제거 (2026-05-09)
 
@@ -160,7 +160,7 @@
 
 ## 탭 구조
 
-- [x] app/(tabs)/\_layout.tsx: 리스트 탭 추가 (캘린더/인물/리스트/설정)
+- [x] app/(tabs)/\_layout.tsx: 리스트 탭 추가 (캘린더/프로필/리스트/설정)
 
 ## 설계 결정 메모
 
@@ -170,7 +170,7 @@
 
 ---
 
-# Phase 6 체크리스트 — 인물 기념일
+# Phase 6 체크리스트 — 프로필 기념일
 
 ## DB 스키마
 
@@ -262,7 +262,7 @@
 - [x] BirthDateInput: 스마트 숫자 파싱 (2자리 나이 / 4자리 연도 / 6자리 YYMMDD / 8자리 YYYYMMDD)
 - [x] utils/date.ts: parseBirthInput() 추가
 
-## 인물 기념일 (Phase 6 연계)
+## 프로필 기념일 (Phase 6 연계)
 
 - [x] db/schema.ts: personAnniversaries 테이블
 - [x] migration 0002: person_anniversaries 생성
@@ -349,7 +349,7 @@
 
 ## 타임라인 + 히트맵
 
-- [x] 인물 상세 타임라인 — 바텀 시트 형태
+- [x] 프로필 상세 타임라인 — 바텀 시트 형태
 - [x] app/settings/heatmap.tsx — 연간 기록 히트맵
 
 ---
@@ -380,7 +380,7 @@
 
 ## 개발 도구 확장
 
-- [x] db/seed.ts: seedSampleData() — 인물 5명 + 기록 10개 + 할 일 4개 + 메모 2개
+- [x] db/seed.ts: seedSampleData() — 프로필 5명 + 기록 10개 + 할 일 4개 + 메모 2개
 - [x] settings.tsx (debugMode=true일 때): 샘플 데이터 삽입 버튼
 
 ---
@@ -390,9 +390,9 @@
 ## 훅
 
 - [x] `hooks/stats/use-stats.ts` — 통계 집계 쿼리 모음 (useLiveQuery 기반)
-  - [x] `useSummaryStats()` — 총 기록수 / 총 인물수 / 이번 달 기록수
-  - [x] `usePersonRanking(period)` — 인물별 등장 횟수 + 마지막 날짜 (period: 'month' | 'year' | 'all')
-  - [x] `useLastContact()` — 인물별 마지막 연결 날짜, 오래된 순 정렬
+  - [x] `useSummaryStats()` — 총 기록수 / 총 프로필수 / 이번 달 기록수
+  - [x] `usePersonRanking(period)` — 프로필별 등장 횟수 + 마지막 날짜 (period: 'month' | 'year' | 'all')
+  - [x] `useLastContact()` — 프로필별 마지막 연결 날짜, 오래된 순 정렬
   - [x] `useCategoryRatio(period)` — 그룹별 기록 수 + 비율 (period: 'month' | 'year' | 'all')
   - [x] `useAllLogDates()` + `calcStreak()` — 연속 기록 일수 (JS 계산)
   - [x] `useCompletionRate(period)` — 로그 완료율 (checkedAt IS NOT NULL / total)
@@ -400,8 +400,8 @@
 ## 화면
 
 - [x] `app/settings/stats.tsx` — 통계 메인 페이지
-  - [x] 요약 카드 3개 (총 기록수 / 총 인물수 / 이번 달 기록수)
-  - [x] 인물 랭킹 섹션 (기간 칩: 이번 달 / 올해 / 전체)
+  - [x] 요약 카드 3개 (총 기록수 / 총 프로필수 / 이번 달 기록수)
+  - [x] 프로필 랭킹 섹션 (기간 칩: 이번 달 / 올해 / 전체)
   - [x] 마지막 연결 리스트 (오래된 순 TOP 5, fromNow() 표시)
   - [x] 카테고리 비율 섹션 (그룹 색상 프로그레스 바, 기간 칩 연동)
   - [x] 기록 스트릭 카드 (현재 / 최장)
@@ -472,7 +472,7 @@
 - [x] 선택 날짜 섹션 헤더 (날짜 + 요일 표시)
 - [x] 로그 아이템 — 기존 `LogCard` 재활용, 탭 시 `/logs/[id]` 이동
 - [x] 반복 로그 아이템 — 기존 `LogCard` + `occurrenceDate` param, opacity 0.65 구분
-- [x] 기념일 아이템 — `AnniversaryCard` (인물명 + 기념일 제목 + D-Day)
+- [x] 기념일 아이템 — `AnniversaryCard` (프로필명 + 기념일 제목 + D-Day)
 - [x] 빈 날짜 — "기록이 없습니다" 안내 + FAB으로 추가 유도
 
 ## FAB
@@ -513,7 +513,7 @@
 
 ---
 
-# Phase 14 체크리스트 — 인물 탭 고도화
+# Phase 14 체크리스트 — 프로필 탭 고도화
 
 ## 버그 수정
 
@@ -526,13 +526,13 @@
 - [x] `persons.tsx`: 마지막 연락 오래된순 정렬 추가 (`sortPersons`에 `lastLogDateMap` 파라미터)
 - [x] `persons.tsx`: 연락 주기 초과 필터 (`overdueFilter` 로컬 state + 필터 시트 옵션)
 - [x] `persons.tsx`: 태그 필터 동적 추출 (`allPersons`에서 useMemo로 집계)
-- [x] `persons.tsx`: 인물 모드 요약 바 — "총 N명 · 표시 M명" 표시
+- [x] `persons.tsx`: 프로필 모드 요약 바 — "총 N명 · 표시 M명" 표시
 
 ## UI/UX 개선
 
 - [x] `PersonCard.tsx`: 마지막 연락 `fromNow()` 표시 — `lastLogDate` 있으면 "3일 전", 없고 `contactInterval` 있으면 "기록 없음"
 - [x] `PersonCard.tsx`: 핀 버튼 명시적 노출 — `onPinPress` prop 추가, 카드 우측 핀 아이콘 Pressable (onLongPress 제거)
-- [x] `persons.tsx`: 빈 상태 CTA — 필터 후 결과 없을 때 "필터 초기화" 버튼 (인물/기념일 모드 모두)
+- [x] `persons.tsx`: 빈 상태 CTA — 필터 후 결과 없을 때 "필터 초기화" 버튼 (프로필/기념일 모드 모두)
 - [x] `PersonCard.tsx`: 연락 주기 진행률 바 — `contactInterval` 설정 시 카드 하단 얇은 바 (초과 빨강, 임박 주황, 여유 teal)
 - [x] `persons.tsx`: 전체 접기/펼치기 버튼 — 요약 바 우측
 - [x] `persons.tsx`: 그룹 헤더 색상 도트 — 그룹명 앞 6px 컬러 dot
@@ -540,10 +540,10 @@
 
 ## 설계 결정 메모
 
-- `last-contact-asc` 정렬: 기록 없는 인물은 맨 앞(연락 가장 오래됨)으로.
+- `last-contact-asc` 정렬: 기록 없는 프로필은 맨 앞(연락 가장 오래됨)으로.
 - `overdueFilter`: persist 불필요 → 로컬 state. 필터 바텀시트에서 토글.
 - 태그 동적 추출: `JSON.parse(p.tags)` 집계 → 실제 DB 태그만 표시. 태그 없으면 섹션 숨김.
-- 요약 바: 필터 적용 후 렌더 인물 수 vs 전체 인물 수 둘 다 표시.
+- 요약 바: 필터 적용 후 렌더 프로필 수 vs 전체 프로필 수 둘 다 표시.
 - `onPinPress`: `onLongPress` 대체. PersonCard에서 별도 Pressable로 노출.
 - 진행률 바: `daysSinceLastLog / contactInterval`. 100% 초과 시 클램프. 기록 없으면 100%.
 - 기념일 인디케이터: `personGroupMap`(이미 있음) + `allGroups` → `groupColor` → `AnniversaryItem` prop.
@@ -578,7 +578,7 @@
 
 ## P0 — 크래시/데이터 누락 (높음)
 
-- [x] **#1** `persons.tsx`: `JSON.parse(p.tags)` try/catch 래핑 — 손상 데이터 시 인물 탭 전체 크래시
+- [x] **#1** `persons.tsx`: `JSON.parse(p.tags)` try/catch 래핑 — 손상 데이터 시 프로필 탭 전체 크래시
 - [x] **#2** `hooks/logs/use-event-filter.ts`: `or(isNull, eq('none'))` + repeatSources에 `ne('none')` 추가 — 리스트 탭 로그 누락 버그
 - [x] **#3** `db/client.ts`: `ensureGroupsColumns()` 추가 — `sort_order` 누락 시 화이트스크린
 - [x] **#4** `hooks/useCalendarData.ts`: 날짜 파싱 try/catch + parts.length 가드 — 빈값/잘못된 포맷 런타임 에러
