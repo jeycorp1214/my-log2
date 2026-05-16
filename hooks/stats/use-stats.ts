@@ -122,9 +122,18 @@ export function useCategoryRatio(period: Period) {
   return { data, total };
 }
 
-export function useAllLogDates() {
+export function useAllLogDates(limitDays?: number) {
+  const since = useMemo(
+    () => limitDays ? dayjs().subtract(limitDays, "day").startOf("day").toDate() : undefined,
+    [limitDays],
+  );
+
   const { data = [] } = useLiveQuery(
-    db.select({ logDate: logs.logDate }).from(logs),
+    db
+      .select({ logDate: logs.logDate })
+      .from(logs)
+      .where(since ? gte(logs.logDate, since) : undefined),
+    [since?.getTime()],
   );
   return data.map((r) => new Date(r.logDate));
 }

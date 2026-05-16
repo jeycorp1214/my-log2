@@ -1,6 +1,6 @@
 // 캘린더 탭 — 월별 markedDates와 선택 날짜 항목 계산 훅
 import dayjs from "dayjs";
-import { and, gte, isNotNull, isNull, lt, ne, or } from "drizzle-orm";
+import { and, eq, gte, isNotNull, isNull, lt, ne, or, sql } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useMemo } from "react";
 
@@ -69,8 +69,23 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
     [monthStartMs, monthEndMs],
   );
 
+  const currentYearMonth = monthStart.format("YYYY-MM");
+  const currentMonthPad = monthStart.format("MM");
+
   const { data: anniversaries = [] } = useLiveQuery(
-    db.select().from(personAnniversaries),
+    db.select().from(personAnniversaries).where(
+      or(
+        and(
+          eq(personAnniversaries.isRepeat, true),
+          sql`strftime('%m', ${personAnniversaries.date}) = ${currentMonthPad}`,
+        ),
+        and(
+          eq(personAnniversaries.isRepeat, false),
+          sql`strftime('%Y-%m', ${personAnniversaries.date}) = ${currentYearMonth}`,
+        ),
+      ),
+    ),
+    [monthStartMs],
   );
 
   const { data: allPersons = [] } = useLiveQuery(

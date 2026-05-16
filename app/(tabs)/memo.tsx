@@ -11,7 +11,7 @@ import { asc, desc, eq, isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Pin, Trash2 } from "lucide-react-native";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -65,16 +65,16 @@ export default function NoteScreen() {
     ),
     [sortOrder],
   );
-  const filteredMemos = allMemos.filter((m) => {
-    if (completionFilter === "done") return !!m.checkedAt;
-    if (completionFilter === "undone") return !m.checkedAt;
-    return true;
-  }).filter((m) => {
+  const filteredMemos = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return true;
-    return m.content?.toLowerCase().includes(q);
-  });
-  const memoDoneCount = allMemos.filter((m) => !!m.checkedAt).length;
+    return allMemos.filter((m) => {
+      if (completionFilter === "done" && !m.checkedAt) return false;
+      if (completionFilter === "undone" && m.checkedAt) return false;
+      if (q && !m.content?.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [allMemos, completionFilter, searchQuery]);
+  const memoDoneCount = useMemo(() => allMemos.filter((m) => !!m.checkedAt).length, [allMemos]);
 
   // ── 할 일 상태 ──
   const [selectedQuadrant, setSelectedQuadrant] = useState<Quadrant>("do");
@@ -84,24 +84,30 @@ export default function NoteScreen() {
   const { data: allTodos = [] } = useLiveQuery(
     db.select().from(todos).orderBy(asc(todos.createdAt)),
   );
-  const quadrantTodos = allTodos
-    .filter((t) => {
-      const q = searchQuery.trim().toLowerCase();
-      if (q) return t.title?.toLowerCase().includes(q);
-      return t.quadrant === selectedQuadrant;
-    })
-    .sort((a, b) => {
-      if (!a.checkedAt && b.checkedAt) return -1;
-      if (a.checkedAt && !b.checkedAt) return 1;
-      return 0;
-    });
-  const todoCounts = Object.fromEntries(
-    QUADRANTS.map((q) => {
-      const qTodos = allTodos.filter((t) => t.quadrant === q.key);
-      return [q.key, { done: qTodos.filter((t) => !!t.checkedAt).length, total: qTodos.length }];
-    }),
-  ) as Record<Quadrant, { done: number; total: number }>;
-  const todoDoneCount = allTodos.filter((t) => !!t.checkedAt).length;
+  const quadrantTodos = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return allTodos
+      .filter((t) => {
+        if (q) return t.title?.toLowerCase().includes(q);
+        return t.quadrant === selectedQuadrant;
+      })
+      .sort((a, b) => {
+        if (!a.checkedAt && b.checkedAt) return -1;
+        if (a.checkedAt && !b.checkedAt) return 1;
+        return 0;
+      });
+  }, [allTodos, searchQuery, selectedQuadrant]);
+  const todoCounts = useMemo(
+    () =>
+      Object.fromEntries(
+        QUADRANTS.map((q) => {
+          const qTodos = allTodos.filter((t) => t.quadrant === q.key);
+          return [q.key, { done: qTodos.filter((t) => !!t.checkedAt).length, total: qTodos.length }];
+        }),
+      ) as Record<Quadrant, { done: number; total: number }>,
+    [allTodos],
+  );
+  const todoDoneCount = useMemo(() => allTodos.filter((t) => !!t.checkedAt).length, [allTodos]);
 
   // ── 메모 핸들러 ──
   async function handleMemoQuickAdd() {

@@ -108,6 +108,10 @@ export default function PersonsScreen() {
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
   );
+  const groupMap = useMemo(
+    () => new Map(allGroups.map((g) => [g.id, g])),
+    [allGroups],
+  );
 
   // ── 인물 모드 상태 ─────────────────────────────────────
   const { prefs, setPersonsPrefs } = useTabPreferences();
@@ -403,7 +407,7 @@ export default function PersonsScreen() {
                 </Text>
               }
               renderItem={({ item }) => {
-                const grp = allGroups.find((g) => g.id === item.groupId);
+                const grp = groupMap.get(item.groupId);
                 return (
                   <PersonCard
                     key={item.id}
@@ -487,9 +491,7 @@ export default function PersonsScreen() {
                           </Text>
                         </Text>
                         {pinnedPersons.map((person) => {
-                          const grp = allGroups.find(
-                            (g) => g.id === person.groupId,
-                          );
+                          const grp = groupMap.get(person.groupId);
                           return (
                             <PersonCard
                               key={person.id}
@@ -692,7 +694,7 @@ export default function PersonsScreen() {
             )}
             renderItem={({ item }) => {
               const gId = personGroupMap.get(item.personId);
-              const grp = gId ? allGroups.find((g) => g.id === gId) : undefined;
+              const grp = gId ? groupMap.get(gId) : undefined;
               return (
                 <View className="px-4">
                   <AnniversaryItem

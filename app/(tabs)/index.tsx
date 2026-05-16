@@ -60,7 +60,7 @@ export default function HomeScreen() {
     monthTotal > 0 ? Math.round((monthDone / monthTotal) * 100) : 0;
 
   // 스트릭
-  const logDates = useAllLogDates();
+  const logDates = useAllLogDates(730);
   const { current: streakCurrent, best: streakBest } = useMemo(
     () => calcStreak(logDates),
     [logDates],

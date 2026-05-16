@@ -1,6 +1,7 @@
 // 홈 위젯 — 할 일 사분면별 현황 요약
 import { db } from "@/db/client";
 import { todos, type Quadrant } from "@/db/schema";
+import { count, sql } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { useMemo } from "react";
@@ -16,21 +17,32 @@ const QUADRANTS: { key: Quadrant; label: string; color: string }[] = [
 export function TodoStatusWidget() {
   const router = useRouter();
 
-  const { data: allTodos = [] } = useLiveQuery(db.select().from(todos));
+  const { data: countRows = [] } = useLiveQuery(
+    db
+      .select({
+        quadrant: todos.quadrant,
+        total: count(),
+        done: sql<number>`SUM(CASE WHEN ${todos.checkedAt} IS NOT NULL THEN 1 ELSE 0 END)`,
+      })
+      .from(todos)
+      .groupBy(todos.quadrant),
+  );
 
   const counts = useMemo(
     () =>
       Object.fromEntries(
-        QUADRANTS.map((q) => {
-          const qItems = allTodos.filter((t) => t.quadrant === q.key);
-          return [q.key, { done: qItems.filter((t) => !!t.checkedAt).length, total: qItems.length }];
-        }),
+        countRows.map((r) => [r.quadrant, { done: r.done ?? 0, total: r.total }]),
       ) as Record<Quadrant, { done: number; total: number }>,
-    [allTodos],
+    [countRows],
   );
 
-  const totalUndone = allTodos.filter((t) => !t.checkedAt).length;
-  if (allTodos.length === 0) return null;
+  const totalUndone = useMemo(
+    () => countRows.reduce((s, r) => s + (r.total - (r.done ?? 0)), 0),
+    [countRows],
+  );
+  const grandTotal = useMemo(() => countRows.reduce((s, r) => s + r.total, 0), [countRows]);
+
+  if (grandTotal === 0) return null;
 
   return (
     <Pressable

@@ -50,15 +50,15 @@
 
 ### Phase 1: HIGH — SQL 집계 전환 및 범위 제한
 
-- [ ] **H1** `hooks/use-all-log-dates.ts` — `WHERE logDate >= 1년 전` 범위 추가 (streak 최대 365일이면 충분)
-- [ ] **H3** `hooks/use-calendar-data.ts` — `personAnniversaries` 쿼리에 `strftime('%m')` WHERE 절 추가
-- [ ] **H4** `hooks/persons/use-persons-with-groups.ts` — `SELECT personId, MAX(logDate) FROM logPersons JOIN logs GROUP BY personId` 집계 쿼리로 교체
+- [x] **H1** `hooks/stats/use-stats.ts` — `useAllLogDates(limitDays?)` 파라미터 추가, Home 탭에서 730일 제한 적용
+- [x] **H3** `hooks/useCalendarData.ts` — `personAnniversaries` 쿼리에 `strftime` WHERE 절 추가 (isRepeat 분기)
+- [x] **H4** `hooks/persons/use-persons-with-groups.ts` — `MAX(logDate) GROUP BY personId` DB 집계로 교체
 
 ### Phase 2: MED — 메모이제이션 및 JS 필터 제거
 
-- [ ] **M4** `app/(tabs)/memo.tsx` — `filteredMemos`, `quadrantTodos`, `todoCounts`, `memoDoneCount` `useMemo` 적용
-- [ ] **M6** `app/(tabs)/persons.tsx` — `allGroups.find()` → `groupMap` (Map) 미리 계산 후 사용
-- [ ] **M7** `components/home/TodoStatusWidget.tsx` — DB 집계 쿼리로 교체 (`COUNT FILTER WHERE`)
+- [x] **M4** `app/(tabs)/memo.tsx` — `filteredMemos`, `quadrantTodos`, `todoCounts`, `memoDoneCount`, `todoDoneCount` `useMemo` 적용
+- [x] **M6** `app/(tabs)/persons.tsx` — `allGroups.find()` 3곳 → `groupMap` (Map) 조회로 교체
+- [x] **M7** `components/home/TodoStatusWidget.tsx` — `COUNT + GROUP BY` DB 집계 쿼리로 교체
 
 ### Phase 3: HIGH — List 무한스크롤
 
@@ -88,8 +88,8 @@
 
 | Phase | 상태 | 완료일 |
 |-------|------|--------|
-| Phase 1: HIGH SQL 집계 | 🔲 대기 | - |
-| Phase 2: MED 메모이제이션 | 🔲 대기 | - |
+| Phase 1: HIGH SQL 집계 | ✅ 완료 | 2026-05-17 |
+| Phase 2: MED 메모이제이션 | ✅ 완료 | 2026-05-17 |
 | Phase 3: HIGH List 무한스크롤 | 🔲 대기 | - |
 | Phase 4: MED useFocusEffect | 🔲 대기 | - |
 | Phase 5: MED ScrollView→FlatList | 🔲 대기 | - |
