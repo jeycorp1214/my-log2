@@ -1,0 +1,2 @@
+- [repeatType NULL/'none' 이원화 함정](project_repeattype_dual_representation.md) — 로그 "반복 없음"이 NULL과 'none' 두 값으로 저장되어 쿼리 누락 유발
+- [ensureColumns 안전망 범위](project_ensurecolumns_safety_net.md) — db/client.ts 안전망에 groups 테이블이 빠져 있음

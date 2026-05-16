@@ -571,3 +571,29 @@
 - 핀고정 정렬: `pinnedAt DESC NULLS LAST, createdAt DESC` — 핀 먼저, 그 안에서 최신순
 - dueDate: `text("due_date")` YYYY-MM-DD (birthDate 동일 패턴)
 - 할 일 상세: todos에 `title`만 있어서 현재 탭 시 아무것도 없음 → 상세 화면 추가 필요
+
+---
+
+# Phase 16 체크리스트 — 버그 수정 및 코드 품질
+
+## P0 — 크래시/데이터 누락 (높음)
+
+- [ ] **#1** `persons.tsx`: `JSON.parse(p.tags)` try/catch 래핑 — 손상 데이터 시 인물 탭 전체 크래시
+- [ ] **#2** `hooks/logs/use-event-filter.ts`: `isNull(logs.repeatType)` → `repeatType='none'` 포함 조건으로 수정 — 리스트 탭 로그 누락 버그
+- [ ] **#3** `db/client.ts`: `ensureColumns` 안전망에 `groups` 테이블 추가 — `sortOrder` 누락 시 화이트스크린
+- [ ] **#4** `hooks/useCalendarData.ts`: 날짜 파싱 try/catch 래핑 — 빈값/잘못된 포맷 런타임 에러
+
+## P1 — 코드 중복 (중간)
+
+- [ ] **#5** 필터 바텀시트 공통 컴포넌트화 — `memo.tsx` / `persons.tsx` / `list.tsx` 동일 패턴 반복
+
+## P2 — 성능 (중간)
+
+- [ ] **#6** `persons.tsx`: `ScrollView` → `FlatList` 교체 — 인물 많을수록 성능 저하
+- [ ] **#7** `useCalendarData.ts`: `markedDates` useMemo 최적화 — 날짜 탭마다 전체 재계산
+
+## 설계 결정 메모
+
+- #2 수정 기준: `useCalendarData.ts`의 `ne(logs.repeatType, 'none')` 패턴 동일 적용
+- #3 groups 안전망: `sortOrder` 컬럼만 추가하면 됨 (seed에서 DEFAULT 처리)
+- #5 공통화 범위: 완료 상태 / 정렬 / 유형 필터 칩 + 삭제 버튼 → `FilterBottomSheet` 컴포넌트
