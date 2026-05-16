@@ -2,7 +2,7 @@ import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
-import { Cake, Search, SlidersHorizontal } from "lucide-react-native";
+import { History, Search, SlidersHorizontal } from "lucide-react-native";
 import { View } from "react-native";
 
 interface TabsHeaderProps {
@@ -11,7 +11,7 @@ interface TabsHeaderProps {
   cakeOnPress?: () => void;
   searchOnPress?: boolean | (() => void);
   slidersOnPress?: () => void;
-  cakeActive?: boolean;
+  historyActive?: boolean;
   slidersActive?: boolean;
   searchActive?: boolean;
 }
@@ -22,7 +22,7 @@ export default function TabsHeader({
   searchOnPress,
   slidersOnPress,
   CustomRight,
-  cakeActive = false,
+  historyActive = false,
   slidersActive = false,
   searchActive = false,
 }: TabsHeaderProps) {
@@ -33,7 +33,7 @@ export default function TabsHeader({
       <View className="flex-row items-center gap-2">
         {cakeOnPress && (
           <Pressable className="p-2" onPress={cakeOnPress}>
-            <Cake size={22} color={cakeActive ? "#c084fc" : "#888"} />
+            <History size={22} color={historyActive ? "#c084fc" : "#888"} />
           </Pressable>
         )}
         {searchOnPress && (
