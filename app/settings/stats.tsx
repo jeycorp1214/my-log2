@@ -131,14 +131,12 @@ export default function StatsScreen() {
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
             {rankingWithLogs.length === 0 ? (
               <View className="py-8 items-center">
-                <Text className="text-app-muted text-sm">기록이 없습니다.</Text>
+                <Text className="text-app-muted text-sm">일정이 없습니다.</Text>
               </View>
             ) : (
               rankingWithLogs.map((item, i) => (
                 <View key={item.personId}>
-                  {i > 0 && (
-                    <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
-                  )}
+                  {i > 0 && <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />}
                   <View className="flex-row items-center px-[14px] py-[13px] gap-3">
                     <Text className="text-app-muted text-[13px] w-5 text-center">
                       {i + 1}
@@ -172,9 +170,7 @@ export default function StatsScreen() {
             ) : (
               lastContact.slice(0, 5).map((item, i) => (
                 <View key={item.personId}>
-                  {i > 0 && (
-                    <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
-                  )}
+                  {i > 0 && <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />}
                   <View className="flex-row items-center px-[14px] py-[13px]">
                     <Text className="flex-1 text-white text-sm">
                       {item.name}
@@ -197,14 +193,12 @@ export default function StatsScreen() {
           <View className="bg-app-surface rounded-[12px] p-[14px] gap-3">
             {catWithLogs.length === 0 ? (
               <View className="py-4 items-center">
-                <Text className="text-app-muted text-sm">기록이 없습니다.</Text>
+                <Text className="text-app-muted text-sm">일정이 없습니다.</Text>
               </View>
             ) : (
               catWithLogs.map((g) => {
                 const pct =
-                  catTotal > 0
-                    ? Math.round((g.logCount / catTotal) * 100)
-                    : 0;
+                  catTotal > 0 ? Math.round((g.logCount / catTotal) * 100) : 0;
                 return (
                   <View key={g.groupId}>
                     <View className="flex-row items-center mb-1.5">
@@ -281,7 +275,9 @@ export default function StatsScreen() {
             <Text className="text-white text-[22px] font-bold">
               {avgInterval}
             </Text>
-            <Text className="text-app-muted text-[10px] mt-0.5">일마다 1회</Text>
+            <Text className="text-app-muted text-[10px] mt-0.5">
+              일마다 1회
+            </Text>
           </View>
         </View>
 
@@ -370,9 +366,7 @@ export default function StatsScreen() {
             <View className="bg-app-surface rounded-[12px] overflow-hidden">
               {coAppearance.map((item, i) => (
                 <View key={`${item.nameA}-${item.nameB}`}>
-                  {i > 0 && (
-                    <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
-                  )}
+                  {i > 0 && <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />}
                   <View className="flex-row items-center px-[14px] py-[13px]">
                     <Text className="flex-1 text-white text-sm">
                       {item.nameA} · {item.nameB}

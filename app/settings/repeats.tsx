@@ -50,7 +50,7 @@ export default function RepeatsScreen() {
       >
         {repeatLogs.length === 0 ? (
           <Text className="text-app-muted text-center mt-8">
-            반복 기록이 없습니다.
+            반복 일정이 없습니다.
           </Text>
         ) : (
           <VStack space="sm">

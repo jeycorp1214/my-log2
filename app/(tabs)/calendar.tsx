@@ -10,16 +10,50 @@ import { AnniversaryCard } from "@/components/calendar/AnniversaryCard";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { LogCard } from "@/components/logs/LogCard";
-import { useCalendarData } from "@/hooks/useCalendarData";
 import type { DayItem } from "@/hooks/useCalendarData";
+import { useCalendarData } from "@/hooks/useCalendarData";
 
 dayjs.locale("ko");
 
 LocaleConfig.locales["ko"] = {
-  monthNames: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
-  monthNamesShort: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
-  dayNames: ["일요일","월요일","화요일","수요일","목요일","금요일","토요일"],
-  dayNamesShort: ["일","월","화","수","목","금","토"],
+  monthNames: [
+    "1월",
+    "2월",
+    "3월",
+    "4월",
+    "5월",
+    "6월",
+    "7월",
+    "8월",
+    "9월",
+    "10월",
+    "11월",
+    "12월",
+  ],
+  monthNamesShort: [
+    "1월",
+    "2월",
+    "3월",
+    "4월",
+    "5월",
+    "6월",
+    "7월",
+    "8월",
+    "9월",
+    "10월",
+    "11월",
+    "12월",
+  ],
+  dayNames: [
+    "일요일",
+    "월요일",
+    "화요일",
+    "수요일",
+    "목요일",
+    "금요일",
+    "토요일",
+  ],
+  dayNamesShort: ["일", "월", "화", "수", "목", "금", "토"],
   today: "오늘",
 };
 LocaleConfig.defaultLocale = "ko";
@@ -56,7 +90,8 @@ const CALENDAR_THEME = {
 
 function itemKey(item: DayItem, idx: number): string {
   if (item.type === "log") return `log-${item.data.id}`;
-  if (item.type === "repeat") return `repeat-${item.data.id}-${item.virtualDate}`;
+  if (item.type === "repeat")
+    return `repeat-${item.data.id}-${item.virtualDate}`;
   return `ann-${item.id}-${idx}`;
 }
 
@@ -64,7 +99,10 @@ export default function CalendarScreen() {
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(TODAY);
   const [selectedDate, setSelectedDate] = useState(TODAY);
-  const { markedDates: rawMarkedDates, dayItems } = useCalendarData(currentMonth, selectedDate);
+  const { markedDates: rawMarkedDates, dayItems } = useCalendarData(
+    currentMonth,
+    selectedDate,
+  );
 
   // 오늘 날짜에 흰 점 추가 — 선택·미선택 무관하게 구분 표시
   const markedDates = useMemo(() => {
@@ -107,7 +145,7 @@ export default function CalendarScreen() {
           {selectedLabel}
         </Text>
         {dayItems.length > 0 && (
-          <Text className="text-app-muted text-xs">{dayItems.length}개</Text>
+          <Text className="text-app-muted text-xs">{dayItems.length}건</Text>
         )}
       </View>
 
@@ -121,7 +159,7 @@ export default function CalendarScreen() {
         }}
         ListEmptyComponent={
           <View className="items-center py-8">
-            <Text className="text-app-muted text-sm">기록이 없습니다.</Text>
+            <Text className="text-app-muted text-sm">일정이 없습니다.</Text>
           </View>
         }
         renderItem={({ item }) => {

@@ -63,20 +63,38 @@ export default function ListScreen() {
 
   const { prefs, setListPrefs } = useTabPreferences();
   const preset = prefs.list.preset as Preset;
-  const setPreset = (v: Preset) => { setListPrefs({ preset: v }); setVisibleSections(PAGE_SIZE); };
+  const setPreset = (v: Preset) => {
+    setListPrefs({ preset: v });
+    setVisibleSections(PAGE_SIZE);
+  };
   const [customStart] = useState(() => dayjs().startOf("month").toDate());
   const [customEnd] = useState(() => dayjs().endOf("month").toDate());
 
   const completionFilter = prefs.list.completionFilter as CompletionFilter;
-  const setCompletionFilter = (v: CompletionFilter) => { setListPrefs({ completionFilter: v }); setVisibleSections(PAGE_SIZE); };
+  const setCompletionFilter = (v: CompletionFilter) => {
+    setListPrefs({ completionFilter: v });
+    setVisibleSections(PAGE_SIZE);
+  };
   const typeFilter = prefs.list.typeFilter as TypeFilter;
-  const setTypeFilter = (v: TypeFilter) => { setListPrefs({ typeFilter: v }); setVisibleSections(PAGE_SIZE); };
+  const setTypeFilter = (v: TypeFilter) => {
+    setListPrefs({ typeFilter: v });
+    setVisibleSections(PAGE_SIZE);
+  };
   const sortOrder = prefs.list.sortOrder as SortOrder;
-  const setSortOrder = (v: SortOrder) => { setListPrefs({ sortOrder: v }); setVisibleSections(PAGE_SIZE); };
+  const setSortOrder = (v: SortOrder) => {
+    setListPrefs({ sortOrder: v });
+    setVisibleSections(PAGE_SIZE);
+  };
   const groupFilter = prefs.list.groupFilter;
-  const setGroupFilter = (v: string) => { setListPrefs({ groupFilter: v }); setVisibleSections(PAGE_SIZE); };
+  const setGroupFilter = (v: string) => {
+    setListPrefs({ groupFilter: v });
+    setVisibleSections(PAGE_SIZE);
+  };
   const personFilter = prefs.list.personFilter as PersonFilter;
-  const setPersonFilter = (v: PersonFilter) => { setListPrefs({ personFilter: v }); setVisibleSections(PAGE_SIZE); };
+  const setPersonFilter = (v: PersonFilter) => {
+    setListPrefs({ personFilter: v });
+    setVisibleSections(PAGE_SIZE);
+  };
   const showAnniversaries = prefs.list.showAnniversaries;
   const setShowAnniversaries = (v: boolean) =>
     setListPrefs({ showAnniversaries: v });
@@ -135,7 +153,11 @@ export default function ListScreen() {
   }, [preset, customStart, customEnd]);
 
   const allItems = useEventFilter(start, end);
-  const { anniversaryBoardItems } = useAnniversariesInMonth(start, end, isFocused);
+  const { anniversaryBoardItems } = useAnniversariesInMonth(
+    start,
+    end,
+    isFocused,
+  );
 
   const filtered = useMemo(() => {
     let items = allItems;
@@ -416,7 +438,7 @@ export default function ListScreen() {
         ListEmptyComponent={
           <View className="items-center mt-16 gap-3">
             <Text className="text-app-muted text-[14px]">
-              해당 기간에 기록이 없습니다.
+              해당 기간에 일정이 없습니다.
             </Text>
             {filterBadge > 0 && (
               <Pressable

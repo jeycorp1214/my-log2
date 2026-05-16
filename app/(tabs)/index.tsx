@@ -11,18 +11,18 @@ import { HomeLogItem } from "@/components/logs/HomeLogItem";
 import { db } from "@/db/client";
 import { groups, logs } from "@/db/schema";
 import { useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
-import { useIsFocused } from "@/hooks/use-is-focused";
 import {
   calcLongestGap,
   calcStreak,
   useAllLogDates,
   useCompletionRate,
 } from "@/hooks/stats/use-stats";
+import { useIsFocused } from "@/hooks/use-is-focused";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
-import { desc, eq } from "drizzle-orm";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
+import { desc, eq } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, Switch, Text, View } from "react-native";
@@ -31,17 +31,20 @@ dayjs.locale("ko");
 
 const DAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
-const WIDGET_LABELS: { key: keyof import("@/providers/TabPreferencesProvider").HomePrefs; label: string }[] = [
-  { key: "showMonthSummary",  label: "이번 달 요약" },
-  { key: "showStreak",        label: "스트릭" },
-  { key: "showMiniHeatmap",   label: "최근 12주 히트맵" },
+const WIDGET_LABELS: {
+  key: keyof import("@/providers/TabPreferencesProvider").HomePrefs;
+  label: string;
+}[] = [
+  { key: "showMonthSummary", label: "이번 달 요약" },
+  { key: "showStreak", label: "스트릭" },
+  { key: "showMiniHeatmap", label: "최근 12주 히트맵" },
   { key: "showCategoryRatio", label: "카테고리 비율" },
-  { key: "showUpcomingAnn",   label: "다가오는 기념일" },
-  { key: "showTodayRepeat",   label: "오늘의 반복" },
-  { key: "showOverduePersons",label: "연락 필요 인물" },
-  { key: "showPinnedMemos",   label: "고정 메모" },
-  { key: "showTodoStatus",    label: "할 일 현황" },
-  { key: "showRecentLogs",    label: "최근 기록" },
+  { key: "showUpcomingAnn", label: "다가오는 기념일" },
+  { key: "showTodayRepeat", label: "오늘의 반복" },
+  { key: "showOverduePersons", label: "연락 필요 인물" },
+  { key: "showPinnedMemos", label: "고정 메모" },
+  { key: "showTodoStatus", label: "할 일 현황" },
+  { key: "showRecentLogs", label: "최근 기록" },
 ];
 
 export default function HomeScreen() {
@@ -62,15 +65,16 @@ export default function HomeScreen() {
       }, msToMidnight);
     }
     scheduleMidnight();
-    return () => { if (midnightTimer.current) clearTimeout(midnightTimer.current); };
+    return () => {
+      if (midnightTimer.current) clearTimeout(midnightTimer.current);
+    };
   }, []);
   const today = now;
-  const todayStr = today.format(
-    `YYYY년 M월 D일 ${DAYS_KO[today.day()]}요일`,
-  );
+  const todayStr = today.format(`YYYY년 M월 D일 ${DAYS_KO[today.day()]}요일`);
 
   // 이번달 완료율
-  const { total: monthTotal, completed: monthDone } = useCompletionRate("month");
+  const { total: monthTotal, completed: monthDone } =
+    useCompletionRate("month");
   const monthRate =
     monthTotal > 0 ? Math.round((monthDone / monthTotal) * 100) : 0;
 
@@ -88,7 +92,11 @@ export default function HomeScreen() {
     () => today.add(7, "day").endOf("day").toDate(),
     [today],
   );
-  const { anniversaryBoardItems } = useAnniversariesInMonth(annStart, annEnd, isFocused);
+  const { anniversaryBoardItems } = useAnniversariesInMonth(
+    annStart,
+    annEnd,
+    isFocused,
+  );
   const upcomingAnn = useMemo(
     () =>
       [...anniversaryBoardItems].sort(
@@ -135,63 +143,72 @@ export default function HomeScreen() {
 
         {/* 이번달 요약 카드 */}
         {home.showMonthSummary && (
-        <View className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4">
-          <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
-            이번 달 요약
-          </Text>
-          <View className="flex-row items-center mb-3">
-            <View className="flex-1">
-              <Text className="text-app-muted text-[13px]">
-                총{" "}
-                <Text className="text-white font-semibold">{monthTotal}</Text>
-                개 · 완료{" "}
-                <Text className="text-white font-semibold">{monthDone}</Text>개
+          <View className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4">
+            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+              이번 달 요약
+            </Text>
+            <View className="flex-row items-center mb-3">
+              <View className="flex-1">
+                <Text className="text-app-muted text-[13px]">
+                  총{" "}
+                  <Text className="text-white font-semibold">{monthTotal}</Text>
+                  개 · 완료{" "}
+                  <Text className="text-white font-semibold">{monthDone}</Text>
+                  개
+                </Text>
+              </View>
+              <Text className="text-app-teal text-[22px] font-bold">
+                {monthRate}%
               </Text>
             </View>
-            <Text className="text-app-teal text-[22px] font-bold">
-              {monthRate}%
-            </Text>
+            {/* 프로그레스바 */}
+            <View className="h-2 bg-[#2a2a2a] rounded-full overflow-hidden">
+              <View
+                className="h-full bg-app-teal rounded-full"
+                style={{ width: `${monthRate}%` }}
+              />
+            </View>
           </View>
-          {/* 프로그레스바 */}
-          <View className="h-2 bg-[#2a2a2a] rounded-full overflow-hidden">
-            <View
-              className="h-full bg-app-teal rounded-full"
-              style={{ width: `${monthRate}%` }}
-            />
-          </View>
-        </View>
         )}
 
         {/* 스트릭 카드 */}
         {home.showStreak && (
-        <Pressable
-          className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4"
-          onPress={() => router.push("/settings/stats")}
-          style={({ pressed }) => (pressed ? { opacity: 0.8 } : undefined)}
-        >
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
-              스트릭
-            </Text>
-            <Text className="text-[#555] text-[11px]">통계 →</Text>
-          </View>
-          <View className="flex-row gap-4">
-            <View className="flex-1 items-center">
-              <Text className="text-[26px] font-bold text-white">{streakCurrent}</Text>
-              <Text className="text-app-muted text-[11px] mt-0.5">현재</Text>
+          <Pressable
+            className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4"
+            onPress={() => router.push("/settings/stats")}
+            style={({ pressed }) => (pressed ? { opacity: 0.8 } : undefined)}
+          >
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+                스트릭
+              </Text>
+              <Text className="text-[#555] text-[11px]">통계 →</Text>
             </View>
-            <View className="w-px bg-[#2a2a2a]" />
-            <View className="flex-1 items-center">
-              <Text className="text-[26px] font-bold text-white">{streakBest}</Text>
-              <Text className="text-app-muted text-[11px] mt-0.5">최장</Text>
+            <View className="flex-row gap-4">
+              <View className="flex-1 items-center">
+                <Text className="text-[26px] font-bold text-white">
+                  {streakCurrent}
+                </Text>
+                <Text className="text-app-muted text-[11px] mt-0.5">현재</Text>
+              </View>
+              <View className="w-px bg-[#2a2a2a]" />
+              <View className="flex-1 items-center">
+                <Text className="text-[26px] font-bold text-white">
+                  {streakBest}
+                </Text>
+                <Text className="text-app-muted text-[11px] mt-0.5">최장</Text>
+              </View>
+              <View className="w-px bg-[#2a2a2a]" />
+              <View className="flex-1 items-center">
+                <Text className="text-[26px] font-bold text-white">
+                  {longestGap}
+                </Text>
+                <Text className="text-app-muted text-[11px] mt-0.5">
+                  최장 공백
+                </Text>
+              </View>
             </View>
-            <View className="w-px bg-[#2a2a2a]" />
-            <View className="flex-1 items-center">
-              <Text className="text-[26px] font-bold text-white">{longestGap}</Text>
-              <Text className="text-app-muted text-[11px] mt-0.5">최장 공백</Text>
-            </View>
-          </View>
-        </Pressable>
+          </Pressable>
         )}
 
         {/* 새 위젯: 미니 히트맵 */}
@@ -221,8 +238,7 @@ export default function HomeScreen() {
             <View className="bg-app-surface rounded-[16px] overflow-hidden">
               {upcomingAnn.map((ann, idx) => {
                 const diff = dayjs(ann.date).diff(today.startOf("day"), "day");
-                const dLabel =
-                  diff === 0 ? "D-Day" : `D-${diff}`;
+                const dLabel = diff === 0 ? "D-Day" : `D-${diff}`;
                 return (
                   <Pressable
                     key={`${ann.personId}-${ann.date.getTime()}`}
@@ -256,42 +272,42 @@ export default function HomeScreen() {
 
         {/* 최근 기록 */}
         {home.showRecentLogs && (
-        <View className="mx-4">
-          <View className="flex-row items-center justify-between mb-2 px-1">
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
-              최근 기록
-            </Text>
-            <Pressable onPress={() => router.push("/(tabs)/list")}>
-              <Text className="text-app-teal text-[12px]">전체 보기</Text>
-            </Pressable>
-          </View>
-          {recentLogs.length === 0 ? (
-            <Text className="text-app-muted text-center py-8 text-[14px]">
-              기록이 없습니다.
-            </Text>
-          ) : (
-            <View className="gap-2">
-              {recentLogs.map((log) => (
-                <HomeLogItem
-                  key={log.id}
-                  title={log.title}
-                  logDate={new Date(log.logDate)}
-                  checkedAt={log.checkedAt ? new Date(log.checkedAt) : null}
-                  repeatType={log.repeatType ?? null}
-                  groupColor={log.groupColor ?? "#4ECDC4"}
-                  groupEmoji={log.groupEmoji ?? null}
-                  groupName={log.groupName ?? ""}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/logs/[id]",
-                      params: { id: log.id },
-                    })
-                  }
-                />
-              ))}
+          <View className="mx-4">
+            <View className="flex-row items-center justify-between mb-2 px-1">
+              <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+                최근 기록
+              </Text>
+              <Pressable onPress={() => router.push("/(tabs)/list")}>
+                <Text className="text-app-teal text-[12px]">전체 보기</Text>
+              </Pressable>
             </View>
-          )}
-        </View>
+            {recentLogs.length === 0 ? (
+              <Text className="text-app-muted text-center py-8 text-[14px]">
+                일정이 없습니다.
+              </Text>
+            ) : (
+              <View className="gap-2">
+                {recentLogs.map((log) => (
+                  <HomeLogItem
+                    key={log.id}
+                    title={log.title}
+                    logDate={new Date(log.logDate)}
+                    checkedAt={log.checkedAt ? new Date(log.checkedAt) : null}
+                    repeatType={log.repeatType ?? null}
+                    groupColor={log.groupColor ?? "#4ECDC4"}
+                    groupEmoji={log.groupEmoji ?? null}
+                    groupName={log.groupName ?? ""}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/logs/[id]",
+                        params: { id: log.id },
+                      })
+                    }
+                  />
+                ))}
+              </View>
+            )}
+          </View>
         )}
       </ScrollView>
       <FloatingActionButton onPress={() => router.push("/logs/new")} />
@@ -312,7 +328,9 @@ export default function HomeScreen() {
             onPress={(e) => e.stopPropagation()}
           >
             <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
-            <Text className="text-white text-[16px] font-bold mb-4">홈 화면 구성</Text>
+            <Text className="text-white text-[16px] font-bold mb-4">
+              홈 화면 구성
+            </Text>
             {WIDGET_LABELS.map(({ key, label }) => (
               <View
                 key={key}
