@@ -578,10 +578,10 @@
 
 ## P0 — 크래시/데이터 누락 (높음)
 
-- [ ] **#1** `persons.tsx`: `JSON.parse(p.tags)` try/catch 래핑 — 손상 데이터 시 인물 탭 전체 크래시
-- [ ] **#2** `hooks/logs/use-event-filter.ts`: `isNull(logs.repeatType)` → `repeatType='none'` 포함 조건으로 수정 — 리스트 탭 로그 누락 버그
-- [ ] **#3** `db/client.ts`: `ensureColumns` 안전망에 `groups` 테이블 추가 — `sortOrder` 누락 시 화이트스크린
-- [ ] **#4** `hooks/useCalendarData.ts`: 날짜 파싱 try/catch 래핑 — 빈값/잘못된 포맷 런타임 에러
+- [x] **#1** `persons.tsx`: `JSON.parse(p.tags)` try/catch 래핑 — 손상 데이터 시 인물 탭 전체 크래시
+- [x] **#2** `hooks/logs/use-event-filter.ts`: `or(isNull, eq('none'))` + repeatSources에 `ne('none')` 추가 — 리스트 탭 로그 누락 버그
+- [x] **#3** `db/client.ts`: `ensureGroupsColumns()` 추가 — `sort_order` 누락 시 화이트스크린
+- [x] **#4** `hooks/useCalendarData.ts`: 날짜 파싱 try/catch + parts.length 가드 — 빈값/잘못된 포맷 런타임 에러
 
 ## P1 — 코드 중복 (중간)
 

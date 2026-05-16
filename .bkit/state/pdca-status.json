@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-16T02:38:14.455Z",
+  "lastUpdated": "2026-05-16T03:02:17.180Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -53,9 +53,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-16T02:33:14.720Z"
+        "lastUpdated": "2026-05-16T03:01:17.912Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/memo.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/persons.tsx"
     },
     "db": {
       "phase": "do",
@@ -66,7 +66,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:11:49.193Z",
-        "lastUpdated": "2026-05-16T02:38:14.455Z"
+        "lastUpdated": "2026-05-16T03:02:06.577Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/db/client.ts"
     },
@@ -92,9 +92,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T14:11:18.589Z",
-        "lastUpdated": "2026-05-16T01:56:45.183Z"
+        "lastUpdated": "2026-05-16T03:02:17.179Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/_layout.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/hooks/useCalendarData.ts"
     },
     "providers": {
       "phase": "do",
@@ -170,9 +170,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-16T00:15:58.887Z",
-        "lastUpdated": "2026-05-16T00:39:09.119Z"
+        "lastUpdated": "2026-05-16T03:01:57.095Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/logs/ListEventItem.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/hooks/logs/use-event-filter.ts"
     },
     "todos": {
       "phase": "do",
@@ -196,7 +196,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-16T02:38:14.455Z"
+    "lastActivity": "2026-05-16T03:02:17.180Z"
   },
   "history": [
     {
@@ -1726,6 +1726,60 @@
     {
       "timestamp": "2026-05-16T02:38:14.455Z",
       "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:01:14.499Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:01:17.912Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:01:22.909Z",
+      "feature": "logs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:01:27.085Z",
+      "feature": "logs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:01:48.911Z",
+      "feature": "logs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:01:52.612Z",
+      "feature": "logs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:01:57.095Z",
+      "feature": "logs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:02:06.577Z",
+      "feature": "db",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T03:02:17.180Z",
+      "feature": "kwak-app",
       "phase": "do",
       "action": "updated"
     }

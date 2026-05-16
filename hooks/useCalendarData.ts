@@ -96,25 +96,37 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
     const currentMonthNum = monthStart.month() + 1;
 
     for (const ann of anniversaries) {
-      const [, mm, dd] = ann.date.split("-");
-      const annMonth = parseInt(mm, 10);
-      if (ann.isRepeat) {
-        if (annMonth === currentMonthNum) {
-          addDot(`${currentYear}-${mm}-${dd}`, DOT_ANNIVERSARY);
+      try {
+        const parts = ann.date.split("-");
+        if (parts.length < 3) continue;
+        const [, mm, dd] = parts;
+        const annMonth = parseInt(mm, 10);
+        if (ann.isRepeat) {
+          if (annMonth === currentMonthNum) {
+            addDot(`${currentYear}-${mm}-${dd}`, DOT_ANNIVERSARY);
+          }
+        } else {
+          const annYear = parseInt(parts[0], 10);
+          if (annYear === currentYear && annMonth === currentMonthNum) {
+            addDot(ann.date, DOT_ANNIVERSARY);
+          }
         }
-      } else {
-        const annYear = parseInt(ann.date.split("-")[0], 10);
-        if (annYear === currentYear && annMonth === currentMonthNum) {
-          addDot(ann.date, DOT_ANNIVERSARY);
-        }
+      } catch {
+        // 잘못된 날짜 포맷 무시
       }
     }
 
     for (const person of allPersons) {
       if (!person.birthDate) continue;
-      const [, mm, dd] = person.birthDate.split("-");
-      if (parseInt(mm, 10) === currentMonthNum) {
-        addDot(`${currentYear}-${mm}-${dd}`, DOT_ANNIVERSARY);
+      try {
+        const parts = person.birthDate.split("-");
+        if (parts.length < 3) continue;
+        const [, mm, dd] = parts;
+        if (parseInt(mm, 10) === currentMonthNum) {
+          addDot(`${currentYear}-${mm}-${dd}`, DOT_ANNIVERSARY);
+        }
+      } catch {
+        // 잘못된 날짜 포맷 무시
       }
     }
 

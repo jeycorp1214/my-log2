@@ -58,8 +58,15 @@ async function ensureMemosColumns() {
   ]);
 }
 
+async function ensureGroupsColumns() {
+  await ensureColumns("groups", [
+    { column: "sort_order", sql: "ALTER TABLE groups ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0" },
+  ]);
+}
+
 export async function runMigrations() {
   await migrate(db, migrations);
+  await ensureGroupsColumns();
   await ensurePersonsColumns();
   await ensureTodosColumns();
   await ensureMemosColumns();

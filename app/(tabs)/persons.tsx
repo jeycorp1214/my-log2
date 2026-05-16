@@ -116,7 +116,7 @@ export default function PersonsScreen() {
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     for (const p of allPersons) {
-      const tags: string[] = p.tags ? JSON.parse(p.tags) : [];
+      const tags: string[] = p.tags ? (() => { try { return JSON.parse(p.tags!); } catch { return []; } })() : [];
       for (const t of tags) tagSet.add(t);
     }
     return Array.from(tagSet).sort((a, b) => a.localeCompare(b, "ko"));
@@ -200,7 +200,7 @@ export default function PersonsScreen() {
   function applyTagFilter<T extends Person>(list: T[]): T[] {
     if (tagFilter === "all") return list;
     return list.filter((p) => {
-      const parsedTags: string[] = p.tags ? JSON.parse(p.tags) : [];
+      const parsedTags: string[] = p.tags ? (() => { try { return JSON.parse(p.tags!); } catch { return []; } })() : [];
       return parsedTags.includes(tagFilter);
     });
   }
