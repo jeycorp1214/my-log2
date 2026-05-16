@@ -5,7 +5,6 @@ import {
 } from "@/components/FilterBottomSheet";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { ListEventItem } from "@/components/logs/ListEventItem";
-import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { db } from "@/db/client";
@@ -62,14 +61,8 @@ export default function ListScreen() {
   const { prefs, setListPrefs } = useTabPreferences();
   const preset = prefs.list.preset as Preset;
   const setPreset = (v: Preset) => setListPrefs({ preset: v });
-  const [customStart, setCustomStart] = useState(() =>
-    dayjs().startOf("month").toDate(),
-  );
-  const [customEnd, setCustomEnd] = useState(() =>
-    dayjs().endOf("month").toDate(),
-  );
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [customStart] = useState(() => dayjs().startOf("month").toDate());
+  const [customEnd] = useState(() => dayjs().endOf("month").toDate());
 
   const completionFilter = prefs.list.completionFilter as CompletionFilter;
   const setCompletionFilter = (v: CompletionFilter) =>
@@ -306,27 +299,21 @@ export default function ListScreen() {
       {/* 직접 선택 시 날짜 범위 버튼 */}
       {preset === "custom" && (
         <View className="flex-row gap-2 px-4 pb-2">
-          <Pressable
-            onPress={() => setShowStartPicker(true)}
-            className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center"
-          >
+          <View className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center">
             <Text className="text-white text-[13px]">
               {dayjs(customStart).format("YYYY년 M월")}
             </Text>
             <Text className="text-app-muted text-[11px] mt-0.5">시작</Text>
-          </Pressable>
+          </View>
           <View className="justify-center px-1">
             <Text className="text-app-muted">—</Text>
           </View>
-          <Pressable
-            onPress={() => setShowEndPicker(true)}
-            className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center"
-          >
+          <View className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center">
             <Text className="text-white text-[13px]">
               {dayjs(customEnd).format("YYYY년 M월")}
             </Text>
             <Text className="text-app-muted text-[11px] mt-0.5">종료</Text>
-          </Pressable>
+          </View>
         </View>
       )}
 
@@ -432,26 +419,6 @@ export default function ListScreen() {
         }
         contentContainerStyle={{ paddingBottom: 96 }}
         stickySectionHeadersEnabled
-      />
-
-      {/* 커스텀 기간 월 선택 피커 */}
-      <MonthPickerModal
-        visible={showStartPicker}
-        value={customStart}
-        onChange={(date) => {
-          setCustomStart(date);
-          if (date > customEnd) setCustomEnd(date);
-        }}
-        onClose={() => setShowStartPicker(false)}
-      />
-      <MonthPickerModal
-        visible={showEndPicker}
-        value={customEnd}
-        onChange={(date) => {
-          setCustomEnd(date);
-          if (date < customStart) setCustomStart(date);
-        }}
-        onClose={() => setShowEndPicker(false)}
       />
 
       {/* 필터 바텀 시트 */}

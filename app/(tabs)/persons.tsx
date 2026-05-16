@@ -1,7 +1,6 @@
 // 인물 목록 탭 — 인물 리스트 / 기념일 리스트 모드 전환 + 필터/정렬
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
-import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { PersonCard } from "@/components/persons/PersonCard";
@@ -138,14 +137,8 @@ export default function PersonsScreen() {
   // ── 기념일 모드 상태 ───────────────────────────────────
   const annPreset = prefs.persons.annPreset as AnnPreset;
   const setAnnPreset = (v: AnnPreset) => setPersonsPrefs({ annPreset: v });
-  const [annCustomStart, setAnnCustomStart] = useState(() =>
-    dayjs().startOf("month").toDate(),
-  );
-  const [annCustomEnd, setAnnCustomEnd] = useState(() =>
-    dayjs().endOf("month").toDate(),
-  );
-  const [showAnnStartPicker, setShowAnnStartPicker] = useState(false);
-  const [showAnnEndPicker, setShowAnnEndPicker] = useState(false);
+  const [annCustomStart] = useState(() => dayjs().startOf("month").toDate());
+  const [annCustomEnd] = useState(() => dayjs().endOf("month").toDate());
   const [annGroupFilter, setAnnGroupFilter] = useState<string>("all");
 
   // ── 기념일 기간 계산 ───────────────────────────────────
@@ -659,27 +652,21 @@ export default function PersonsScreen() {
           {/* 직접 선택 날짜 범위 */}
           {annPreset === "custom" && (
             <View className="flex-row gap-2 px-4 pb-2">
-              <Pressable
-                onPress={() => setShowAnnStartPicker(true)}
-                className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center"
-              >
+              <View className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center">
                 <Text className="text-white text-[13px]">
                   {dayjs(annCustomStart).format("YYYY년 M월")}
                 </Text>
                 <Text className="text-app-muted text-[11px] mt-0.5">시작</Text>
-              </Pressable>
+              </View>
               <View className="justify-center px-1">
                 <Text className="text-app-muted">—</Text>
               </View>
-              <Pressable
-                onPress={() => setShowAnnEndPicker(true)}
-                className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center"
-              >
+              <View className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center">
                 <Text className="text-white text-[13px]">
                   {dayjs(annCustomEnd).format("YYYY년 M월")}
                 </Text>
                 <Text className="text-app-muted text-[11px] mt-0.5">종료</Text>
-              </Pressable>
+              </View>
             </View>
           )}
 
@@ -744,26 +731,6 @@ export default function PersonsScreen() {
           />
         </View>
       )}
-
-      {/* 기념일 커스텀 기간 월 선택 피커 */}
-      <MonthPickerModal
-        visible={showAnnStartPicker}
-        value={annCustomStart}
-        onChange={(date) => {
-          setAnnCustomStart(date);
-          if (date > annCustomEnd) setAnnCustomEnd(date);
-        }}
-        onClose={() => setShowAnnStartPicker(false)}
-      />
-      <MonthPickerModal
-        visible={showAnnEndPicker}
-        value={annCustomEnd}
-        onChange={(date) => {
-          setAnnCustomEnd(date);
-          if (date < annCustomStart) setAnnCustomStart(date);
-        }}
-        onClose={() => setShowAnnEndPicker(false)}
-      />
 
       {/* ── 필터 바텀 시트 (모드 공통) ── */}
       <Modal
