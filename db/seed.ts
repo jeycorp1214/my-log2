@@ -101,114 +101,450 @@ export async function seedSampleData() {
   const acquaintId = g("지인");
 
   const d = (y: number, m: number, day: number) => new Date(y, m - 1, day);
+  const t = (...tags: string[]) => JSON.stringify(tags);
 
-  // 인물 30명
+  // 인물 50명 (기존 30 + 신규 20)
   const p = await db
     .insert(persons)
     .values([
+      // ── 기존 30명 (새 필드 추가) ──────────────────────────
       {
         name: "김민수",
         groupId: familyId,
         mbti: "ISTJ",
         memo: "형, 서울 거주",
+        tags: t("가족"),
+        metAt: "2010-03-01",
+        contactInterval: 7,
+        isPinned: true,
       },
       {
         name: "박지원",
         groupId: friendId,
         mbti: "ENFP",
         birthDate: "1995-03-22",
+        tags: t("오랜친구"),
+        metAt: "2013-03-22",
+        contactInterval: 30,
       },
-      { name: "이수진", groupId: workId, memo: "팀장, 디자인 담당" },
-      { name: "최현우", groupId: acquaintId, mbti: "ENTP" },
-      { name: "정다은", groupId: friendId, birthDate: "1996-08-10" },
+      {
+        name: "이수진",
+        groupId: workId,
+        memo: "팀장, 디자인 담당",
+        tags: t("직장동료"),
+        contactInterval: 30,
+      },
+      {
+        name: "최현우",
+        groupId: acquaintId,
+        mbti: "ENTP",
+        tags: t("온라인친구"),
+        contactInterval: 90,
+      },
+      {
+        name: "정다은",
+        groupId: friendId,
+        birthDate: "1996-08-10",
+        tags: t("오랜친구"),
+        metAt: "2014-08-10",
+        contactInterval: 30,
+      },
       {
         name: "한지민",
         groupId: friendId,
         mbti: "INFP",
         birthDate: "1998-02-14",
+        tags: t("오랜친구"),
+        metAt: "2016-02-14",
+        contactInterval: 30,
       },
-      { name: "오승준", groupId: workId, mbti: "INTJ", memo: "개발팀 시니어" },
+      {
+        name: "오승준",
+        groupId: workId,
+        mbti: "INTJ",
+        memo: "개발팀 시니어",
+        tags: t("직장동료", "멘토"),
+        contactInterval: 30,
+      },
       {
         name: "서예린",
         groupId: familyId,
         mbti: "ISFJ",
         birthDate: "1990-07-04",
         memo: "누나, 결혼함",
+        tags: t("가족"),
+        metAt: "2005-01-01",
+        contactInterval: 7,
       },
       {
         name: "임도현",
         groupId: friendId,
         mbti: "ESTP",
         birthDate: "1997-11-30",
+        tags: t("오랜친구"),
+        metAt: "2015-11-30",
+        contactInterval: 30,
       },
-      { name: "강민지", groupId: workId, mbti: "ENFJ", memo: "인사팀 매니저" },
-      { name: "윤성호", groupId: acquaintId, mbti: "INTP" },
+      {
+        name: "강민지",
+        groupId: workId,
+        mbti: "ENFJ",
+        memo: "인사팀 매니저",
+        tags: t("직장동료"),
+        contactInterval: 30,
+      },
+      {
+        name: "윤성호",
+        groupId: acquaintId,
+        mbti: "INTP",
+        tags: t("온라인친구"),
+        contactInterval: 90,
+      },
       {
         name: "황주연",
         groupId: friendId,
         mbti: "ESFP",
         birthDate: "1996-05-17",
+        tags: t("오랜친구"),
+        metAt: "2014-05-17",
+        contactInterval: 30,
       },
-      { name: "송재원", groupId: workId, mbti: "ISTJ", memo: "기획팀" },
+      {
+        name: "송재원",
+        groupId: workId,
+        mbti: "ISTJ",
+        memo: "기획팀",
+        tags: t("직장동료"),
+        contactInterval: 30,
+      },
       {
         name: "신예지",
         groupId: familyId,
         mbti: "INFJ",
         birthDate: "1993-12-25",
         memo: "사촌동생",
+        tags: t("가족"),
+        metAt: "2000-01-01",
+        contactInterval: 30,
       },
-      { name: "전민혁", groupId: acquaintId, mbti: "ISTP" },
+      {
+        name: "전민혁",
+        groupId: acquaintId,
+        mbti: "ISTP",
+        tags: t("온라인친구"),
+        contactInterval: 90,
+      },
       {
         name: "조아연",
         groupId: friendId,
         mbti: "ENFP",
         birthDate: "2000-04-08",
+        tags: t("오랜친구"),
+        metAt: "2018-04-08",
+        contactInterval: 30,
       },
-      { name: "류승현", groupId: workId, mbti: "ENTJ", memo: "부장님" },
+      {
+        name: "류승현",
+        groupId: workId,
+        mbti: "ENTJ",
+        memo: "부장님",
+        tags: t("직장동료"),
+        contactInterval: 30,
+      },
       {
         name: "배소영",
         groupId: acquaintId,
         mbti: "ISFP",
         memo: "헬스장에서 만난 지인",
+        tags: t("온라인친구"),
+        contactInterval: 90,
       },
       {
         name: "고다현",
         groupId: friendId,
         mbti: "ESFJ",
         birthDate: "1998-09-21",
+        tags: t("오랜친구"),
+        metAt: "2016-09-21",
+        contactInterval: 30,
       },
-      { name: "남지훈", groupId: workId, mbti: "INTP", memo: "데이터팀" },
+      {
+        name: "남지훈",
+        groupId: workId,
+        mbti: "INTP",
+        memo: "데이터팀",
+        tags: t("직장동료"),
+        contactInterval: 30,
+      },
       {
         name: "문세연",
         groupId: familyId,
         mbti: "ESTJ",
         birthDate: "1985-03-15",
         memo: "형수님",
+        tags: t("가족"),
+        metAt: "2012-06-01",
+        contactInterval: 7,
       },
-      { name: "양현준", groupId: friendId, mbti: "ENFJ" },
+      {
+        name: "양현준",
+        groupId: friendId,
+        mbti: "ENFJ",
+        tags: t("오랜친구"),
+        metAt: "2015-03-01",
+        contactInterval: 30,
+      },
       {
         name: "차지수",
         groupId: acquaintId,
         mbti: "INFP",
         birthDate: "1999-06-30",
+        tags: t("온라인친구"),
+        contactInterval: 90,
       },
-      { name: "마해린", groupId: workId, mbti: "ISTP", memo: "디자인팀" },
+      {
+        name: "마해린",
+        groupId: workId,
+        mbti: "ISTP",
+        memo: "디자인팀",
+        tags: t("직장동료"),
+        contactInterval: 30,
+      },
       {
         name: "노태민",
         groupId: friendId,
         mbti: "ESTP",
         birthDate: "1997-01-12",
+        tags: t("오랜친구"),
+        metAt: "2015-01-12",
+        contactInterval: 30,
       },
-      { name: "허수빈", groupId: familyId, mbti: "ISFJ", memo: "어머니" },
-      { name: "성유진", groupId: workId, mbti: "ENTP", memo: "마케팅팀" },
-      { name: "우지후", groupId: acquaintId, mbti: "INTJ" },
+      {
+        name: "허수빈",
+        groupId: familyId,
+        mbti: "ISFJ",
+        memo: "어머니",
+        tags: t("가족"),
+        metAt: "1993-01-01",
+        contactInterval: 7,
+        isPinned: true,
+      },
+      {
+        name: "성유진",
+        groupId: workId,
+        mbti: "ENTP",
+        memo: "마케팅팀",
+        tags: t("직장동료"),
+        contactInterval: 30,
+      },
+      {
+        name: "우지후",
+        groupId: acquaintId,
+        mbti: "INTJ",
+        tags: t("온라인친구"),
+        contactInterval: 90,
+      },
       {
         name: "민채원",
         groupId: friendId,
         mbti: "ESFP",
         birthDate: "2001-08-25",
+        tags: t("오랜친구"),
+        metAt: "2019-08-25",
+        contactInterval: 30,
       },
-      { name: "표상우", groupId: workId, mbti: "INFJ", memo: "멘토" },
+      {
+        name: "표상우",
+        groupId: workId,
+        mbti: "INFJ",
+        memo: "멘토",
+        tags: t("멘토", "직장동료"),
+        contactInterval: 30,
+        isPinned: true,
+      },
+      // ── 신규 20명 ──────────────────────────────────────────
+      {
+        name: "권나영",
+        groupId: friendId,
+        mbti: "ESFJ",
+        birthDate: "1997-04-15",
+        tags: t("연인"),
+        metAt: "2023-04-15",
+        contactInterval: 7,
+        isPinned: true,
+      },
+      {
+        name: "김태양",
+        groupId: workId,
+        mbti: "ENTJ",
+        memo: "스타트업 공동창업자",
+        tags: t("직장동료", "멘토"),
+        metAt: "2022-07-01",
+        contactInterval: 30,
+      },
+      {
+        name: "이민호",
+        groupId: friendId,
+        mbti: "ISTP",
+        birthDate: "1996-09-08",
+        tags: t("오랜친구"),
+        metAt: "2014-09-08",
+        contactInterval: 30,
+      },
+      {
+        name: "박서연",
+        groupId: familyId,
+        mbti: "ISFJ",
+        birthDate: "2003-11-22",
+        memo: "막내 여동생",
+        tags: t("가족"),
+        metAt: "2003-11-22",
+        contactInterval: 7,
+      },
+      {
+        name: "최준혁",
+        groupId: acquaintId,
+        mbti: "ENTP",
+        memo: "독서 모임에서 만남",
+        tags: t("온라인친구"),
+        metAt: "2024-01-15",
+        contactInterval: 90,
+      },
+      {
+        name: "장수빈",
+        groupId: friendId,
+        mbti: "ENFP",
+        birthDate: "1999-07-03",
+        tags: t("오랜친구"),
+        metAt: "2017-07-03",
+        contactInterval: 30,
+      },
+      {
+        name: "한지호",
+        groupId: workId,
+        mbti: "INTP",
+        memo: "개발팀 후배",
+        tags: t("직장동료"),
+        metAt: "2023-03-02",
+        contactInterval: 30,
+      },
+      {
+        name: "임채은",
+        groupId: friendId,
+        mbti: "INFP",
+        birthDate: "2000-12-01",
+        tags: t("오랜친구"),
+        metAt: "2018-12-01",
+        contactInterval: 30,
+      },
+      {
+        name: "윤재원",
+        groupId: acquaintId,
+        mbti: "ISTJ",
+        memo: "같은 아파트 주민",
+        tags: t("온라인친구"),
+        contactInterval: 90,
+      },
+      {
+        name: "강지선",
+        groupId: familyId,
+        mbti: "ESFJ",
+        birthDate: "1968-05-08",
+        memo: "이모",
+        tags: t("가족"),
+        metAt: "1993-01-01",
+        contactInterval: 30,
+      },
+      {
+        name: "조현기",
+        groupId: workId,
+        mbti: "ESTJ",
+        memo: "전 직장 동료, 현재 타사",
+        tags: t("직장동료"),
+        metAt: "2020-04-01",
+        contactInterval: 90,
+      },
+      {
+        name: "문하린",
+        groupId: friendId,
+        mbti: "ESFP",
+        birthDate: "1998-06-18",
+        tags: t("오랜친구"),
+        metAt: "2016-06-18",
+        contactInterval: 30,
+      },
+      {
+        name: "신동욱",
+        groupId: acquaintId,
+        mbti: "INTJ",
+        memo: "온라인 커뮤니티 인연",
+        tags: t("온라인친구"),
+        metAt: "2023-11-10",
+        contactInterval: 90,
+      },
+      {
+        name: "우서진",
+        groupId: friendId,
+        mbti: "ENFJ",
+        birthDate: "1997-02-28",
+        tags: t("오랜친구"),
+        metAt: "2015-02-28",
+        contactInterval: 30,
+      },
+      {
+        name: "배민아",
+        groupId: workId,
+        mbti: "ISFP",
+        memo: "UX 리서처",
+        tags: t("직장동료"),
+        metAt: "2024-01-02",
+        contactInterval: 30,
+      },
+      {
+        name: "전지혁",
+        groupId: familyId,
+        mbti: "ESTP",
+        memo: "삼촌",
+        tags: t("가족"),
+        metAt: "1993-01-01",
+        contactInterval: 30,
+      },
+      {
+        name: "송아름",
+        groupId: friendId,
+        mbti: "INFJ",
+        birthDate: "1996-10-14",
+        tags: t("오랜친구"),
+        metAt: "2014-10-14",
+        contactInterval: 30,
+      },
+      {
+        name: "양서준",
+        groupId: workId,
+        mbti: "ENFP",
+        memo: "프리랜서 협업",
+        tags: t("직장동료"),
+        metAt: "2024-06-01",
+        contactInterval: 90,
+      },
+      {
+        name: "차민경",
+        groupId: acquaintId,
+        mbti: "ISFJ",
+        memo: "학원 동창",
+        tags: t("오랜친구"),
+        metAt: "2008-03-01",
+        contactInterval: 90,
+      },
+      {
+        name: "허태현",
+        groupId: workId,
+        mbti: "ENTJ",
+        memo: "투자자, 비즈니스 파트너",
+        tags: t("멘토"),
+        metAt: "2023-09-15",
+        contactInterval: 30,
+      },
     ])
     .returning();
 
@@ -486,6 +822,41 @@ export async function seedSampleData() {
     { logId: l[29].id, personId: p[17].id },
     { logId: l[29].id, personId: p[22].id },
     { logId: l[29].id, personId: p[27].id },
+    // 신규 인물 연결
+    { logId: l[0].id, personId: p[35].id },  // 박서연 — 가족 저녁 식사
+    { logId: l[0].id, personId: p[47].id },  // 전지혁 — 가족 저녁 식사
+    { logId: l[1].id, personId: p[30].id },  // 권나영 — 친구들이랑 영화
+    { logId: l[1].id, personId: p[32].id },  // 이민호 — 친구들이랑 영화
+    { logId: l[3].id, personId: p[30].id },  // 권나영 — 생일파티
+    { logId: l[3].id, personId: p[37].id },  // 임채은 — 생일파티
+    { logId: l[5].id, personId: p[34].id },  // 최준혁 — 커피 미팅
+    { logId: l[7].id, personId: p[32].id },  // 이민호 — 대학 동창 모임
+    { logId: l[7].id, personId: p[35].id },  // 장수빈 — 대학 동창 모임
+    { logId: l[7].id, personId: p[41].id },  // 문하린 — 대학 동창 모임
+    { logId: l[10].id, personId: p[30].id }, // 권나영 — 치맥 번개
+    { logId: l[10].id, personId: p[43].id }, // 우서진 — 치맥 번개
+    { logId: l[11].id, personId: p[31].id }, // 김태양 — 팀 워크숍
+    { logId: l[11].id, personId: p[36].id }, // 한지호 — 팀 워크숍
+    { logId: l[12].id, personId: p[30].id }, // 권나영 — 봄 소풍
+    { logId: l[12].id, personId: p[37].id }, // 임채은 — 봄 소풍
+    { logId: l[12].id, personId: p[46].id }, // 송아름 — 봄 소풍
+    { logId: l[15].id, personId: p[35].id }, // 박서연 — 설 명절
+    { logId: l[15].id, personId: p[40].id }, // 강지선 — 설 명절
+    { logId: l[15].id, personId: p[47].id }, // 전지혁 — 설 명절
+    { logId: l[16].id, personId: p[36].id }, // 한지호 — 신입 환영회
+    { logId: l[16].id, personId: p[44].id }, // 배민아 — 신입 환영회
+    { logId: l[17].id, personId: p[30].id }, // 권나영 — 보드게임 카페
+    { logId: l[21].id, personId: p[31].id }, // 김태양 — 신년회
+    { logId: l[21].id, personId: p[49].id }, // 허태현 — 신년회
+    { logId: l[23].id, personId: p[32].id }, // 이민호 — 크리스마스 파티
+    { logId: l[23].id, personId: p[41].id }, // 문하린 — 크리스마스 파티
+    { logId: l[24].id, personId: p[31].id }, // 김태양 — 송년회
+    { logId: l[24].id, personId: p[36].id }, // 한지호 — 송년회
+    { logId: l[27].id, personId: p[43].id }, // 우서진 — 야구 경기
+    { logId: l[28].id, personId: p[31].id }, // 김태양 — 팀 프로젝트 완료
+    { logId: l[28].id, personId: p[44].id }, // 배민아 — 팀 프로젝트 완료
+    { logId: l[29].id, personId: p[34].id }, // 최준혁 — 집들이
+    { logId: l[29].id, personId: p[42].id }, // 신동욱 — 집들이
   ]);
 
   // 할 일 30개 — 사분면별 8/8/8/6

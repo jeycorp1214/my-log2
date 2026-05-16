@@ -1,6 +1,8 @@
 // 리스트 탭 — 기간 필터링된 로그를 월별 섹션으로 표시 + 체크 완료 관리
+import { FilterBottomSheet, FilterChipGroup } from "@/components/FilterBottomSheet";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { ListEventItem } from "@/components/logs/ListEventItem";
+import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { db } from "@/db/client";
 import { groups, logPersons, logs } from "@/db/schema";
@@ -19,7 +21,6 @@ import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   FlatList,
-  Modal,
   Pressable,
   ScrollView,
   SectionList,
@@ -77,6 +78,11 @@ export default function ListScreen() {
 
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
+  );
+
+  const groupColorMap = useMemo(
+    () => new Map(allGroups.map((g) => [g.id, g.color])),
+    [allGroups],
   );
 
   const { data: linkedLogRows = [] } = useLiveQuery(
@@ -149,13 +155,33 @@ export default function ListScreen() {
       }
     }
 
+    const getItemDate = (item: SectionData): number =>
+      "type" in item && item.type === "anniversary"
+        ? item.date.getTime()
+        : (item as EventItem).displayDate.getTime();
+
     return Array.from(map.values())
       .sort((a, b) =>
         sortOrder === "newest"
           ? b.date.getTime() - a.date.getTime()
           : a.date.getTime() - b.date.getTime(),
       )
-      .map(({ date, data }) => ({ title: formatMonthYear(date), data }));
+      .map(({ date, data }) => {
+        const sorted = [...data].sort((a, b) =>
+          sortOrder === "newest"
+            ? getItemDate(b) - getItemDate(a)
+            : getItemDate(a) - getItemDate(b),
+        );
+        const regularInSection = sorted.filter(
+          (i) => !("type" in i && i.type === "anniversary") && !(i as EventItem).isRepeat,
+        ) as EventItem[];
+        return {
+          title: formatMonthYear(date),
+          data: sorted,
+          sectionTotal: regularInSection.length,
+          sectionDone: regularInSection.filter((i) => !!i.log.checkedAt).length,
+        };
+      });
   }, [filtered, showAnniversaries, anniversaryBoardItems, sortOrder]);
 
   const regularItems = filtered.filter((i) => !i.isRepeat);
@@ -168,6 +194,7 @@ export default function ListScreen() {
     sortOrder !== "oldest",
     groupFilter !== "all",
     personFilter !== "all",
+    showAnniversaries,
   ].filter(Boolean).length;
 
   async function toggleCheck(id: string, current: Date | null) {
@@ -181,10 +208,6 @@ export default function ListScreen() {
     <View className="flex-1 bg-app-bg">
       <TabsHeader
         title="리스트"
-        cakeOnPress={() =>
-          setListPrefs({ showAnniversaries: !showAnniversaries })
-        }
-        cakeActive={showAnniversaries}
         slidersOnPress={() => setShowFilterSheet(true)}
         slidersActive={filterBadge > 0}
       />
@@ -249,11 +272,26 @@ export default function ListScreen() {
         </View>
       )}
 
-      {/* 요약 */}
-      <View className="flex-row items-center px-5 py-2.5 border-b border-[#1e1e1e]">
-        <Text className="text-app-muted text-[13px]">
-          총 {totalCount}개 · 완료 {doneCount}개
-        </Text>
+      {/* 요약 + 진행률 바 */}
+      <View className="px-5 py-2.5 border-b border-[#1e1e1e] gap-1.5">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-app-muted text-[13px]">
+            총 {totalCount}개 · 완료 {doneCount}개
+          </Text>
+          {totalCount > 0 && (
+            <Text className="text-app-teal text-[13px] font-semibold">
+              {Math.round((doneCount / totalCount) * 100)}%
+            </Text>
+          )}
+        </View>
+        {totalCount > 0 && (
+          <View className="h-1 bg-[#2a2a2a] rounded-full overflow-hidden">
+            <View
+              className="h-full bg-app-teal rounded-full"
+              style={{ width: `${(doneCount / totalCount) * 100}%` }}
+            />
+          </View>
+        )}
       </View>
 
       {/* 월별 섹션 리스트 */}
@@ -265,10 +303,15 @@ export default function ListScreen() {
             : ((item as EventItem).key ?? String(idx))
         }
         renderSectionHeader={({ section }) => (
-          <View className="bg-[#111] px-5 py-2">
+          <View className="bg-[#111] px-5 py-2 flex-row items-center justify-between">
             <Text className="text-app-dim text-[13px] font-semibold">
               {section.title}
             </Text>
+            {section.sectionTotal > 0 && (
+              <Text className="text-[#555] text-[11px]">
+                {section.sectionDone}/{section.sectionTotal}
+              </Text>
+            )}
           </View>
         )}
         renderItem={({ item }) => {
@@ -277,6 +320,7 @@ export default function ListScreen() {
               <View className="px-4">
                 <AnniversaryItem
                   title={item.displayTitle}
+                  date={item.date}
                   onPress={() =>
                     router.push({
                       pathname: "/persons/[id]",
@@ -291,6 +335,11 @@ export default function ListScreen() {
           return (
             <ListEventItem
               item={eventItem}
+              groupColor={
+                eventItem.log.groupId
+                  ? groupColorMap.get(eventItem.log.groupId)
+                  : undefined
+              }
               onToggleCheck={toggleCheck}
               onPress={() =>
                 router.push({
@@ -302,190 +351,121 @@ export default function ListScreen() {
           );
         }}
         ListEmptyComponent={
-          <Text className="text-app-muted text-center mt-16 text-[14px]">
-            해당 기간에 기록이 없습니다.
-          </Text>
+          <View className="items-center mt-16 gap-3">
+            <Text className="text-app-muted text-[14px]">
+              해당 기간에 기록이 없습니다.
+            </Text>
+            {filterBadge > 0 && (
+              <Pressable
+                onPress={() => {
+                  setCompletionFilter("all");
+                  setTypeFilter("all");
+                  setSortOrder("oldest");
+                  setGroupFilter("all");
+                  setPersonFilter("all");
+                  setShowAnniversaries(false);
+                }}
+                className="bg-[#222] rounded-full px-4 py-2"
+              >
+                <Text className="text-app-teal text-[13px]">
+                  필터 초기화
+                </Text>
+              </Pressable>
+            )}
+          </View>
         }
         contentContainerStyle={{ paddingBottom: 96 }}
         stickySectionHeadersEnabled
       />
 
+      {/* 커스텀 기간 월 선택 피커 */}
+      <MonthPickerModal
+        visible={showStartPicker}
+        value={customStart}
+        onChange={(date) => {
+          setCustomStart(date);
+          if (date > customEnd) setCustomEnd(date);
+        }}
+        onClose={() => setShowStartPicker(false)}
+      />
+      <MonthPickerModal
+        visible={showEndPicker}
+        value={customEnd}
+        onChange={(date) => {
+          setCustomEnd(date);
+          if (date < customStart) setCustomStart(date);
+        }}
+        onClose={() => setShowEndPicker(false)}
+      />
+
       {/* 필터 바텀 시트 */}
-      <Modal
-        visible={showFilterSheet}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowFilterSheet(false)}
-      >
-        <Pressable
-          className="flex-1 bg-black/50 justify-end"
-          onPress={() => setShowFilterSheet(false)}
-        >
-          <Pressable className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10">
-            <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
+      <FilterBottomSheet visible={showFilterSheet} onClose={() => setShowFilterSheet(false)}>
+        <FilterChipGroup
+          label="완료 상태"
+          options={[{ value: "all", label: "전체" }, { value: "done", label: "완료" }, { value: "undone", label: "미완료" }]}
+          value={completionFilter}
+          onChange={setCompletionFilter}
+        />
+        <FilterChipGroup
+          label="기록 유형"
+          options={[{ value: "all", label: "전체" }, { value: "regular", label: "일반" }, { value: "repeat", label: "반복" }]}
+          value={typeFilter}
+          onChange={setTypeFilter}
+        />
+        <FilterChipGroup
+          label="관련 인물"
+          options={[{ value: "all", label: "전체" }, { value: "yes", label: "있음" }, { value: "no", label: "없음" }]}
+          value={personFilter}
+          onChange={setPersonFilter}
+        />
+        <FilterChipGroup
+          label="정렬"
+          options={[{ value: "oldest", label: "오래된순" }, { value: "newest", label: "최신순" }]}
+          value={sortOrder}
+          onChange={setSortOrder}
+        />
 
-            {/* 완료 상태 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              완료 상태
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {(["all", "done", "undone"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setCompletionFilter(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor:
-                        completionFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
-                  >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{
-                        color: completionFilter === v ? "#111" : "#888",
-                      }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 기록 유형 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              기록 유형
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {(["all", "regular", "repeat"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "regular" ? "일반" : "반복";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setTypeFilter(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor: typeFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
-                  >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{ color: typeFilter === v ? "#111" : "#888" }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 그룹 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              그룹
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-5"
-              contentContainerStyle={{ gap: 8 }}
-            >
-              <Pressable
-                onPress={() => setGroupFilter("all")}
-                className="rounded-[10px] px-4 py-2.5"
-                style={{
-                  backgroundColor:
-                    groupFilter === "all" ? "#4ecdc4" : "#2a2a2a",
-                }}
-              >
-                <Text
-                  className="text-[13px] font-semibold"
-                  style={{ color: groupFilter === "all" ? "#111" : "#888" }}
-                >
-                  전체
-                </Text>
-              </Pressable>
-              {allGroups.map((g) => (
-                <Pressable
-                  key={g.id}
-                  onPress={() => setGroupFilter(g.id)}
-                  className="rounded-[10px] px-4 py-2.5"
-                  style={{
-                    backgroundColor:
-                      groupFilter === g.id ? "#4ecdc4" : "#2a2a2a",
-                  }}
-                >
-                  <Text
-                    className="text-[13px] font-semibold"
-                    style={{ color: groupFilter === g.id ? "#111" : "#888" }}
-                  >
-                    {g.emoji ? `${g.emoji} ${g.name}` : g.name}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-
-            {/* 관련 인물 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              관련 인물
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {(["all", "yes", "no"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "yes" ? "있음" : "없음";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setPersonFilter(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor:
-                        personFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
-                  >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{ color: personFilter === v ? "#111" : "#888" }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 정렬 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              정렬
-            </Text>
-            <View className="flex-row gap-2">
-              {(["oldest", "newest"] as const).map((v) => {
-                const label = v === "oldest" ? "오래된순" : "최신순";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setSortOrder(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
-                  >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{ color: sortOrder === v ? "#111" : "#888" }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+        {/* 그룹 — horizontal scroll이라 커스텀 유지 */}
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+          그룹
+        </Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-5" contentContainerStyle={{ gap: 8 }}>
+          <Pressable
+            onPress={() => setGroupFilter("all")}
+            className="rounded-[10px] px-4 py-2.5"
+            style={{ backgroundColor: groupFilter === "all" ? "#4ecdc4" : "#2a2a2a" }}
+          >
+            <Text className="text-[13px] font-semibold" style={{ color: groupFilter === "all" ? "#111" : "#888" }}>전체</Text>
           </Pressable>
+          {allGroups.map((g) => (
+            <Pressable
+              key={g.id}
+              onPress={() => setGroupFilter(g.id)}
+              className="rounded-[10px] px-4 py-2.5"
+              style={{ backgroundColor: groupFilter === g.id ? "#4ecdc4" : "#2a2a2a" }}
+            >
+              <Text className="text-[13px] font-semibold" style={{ color: groupFilter === g.id ? "#111" : "#888" }}>
+                {g.emoji ? `${g.emoji} ${g.name}` : g.name}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        {/* 기념일 — 토글이라 커스텀 유지 */}
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+          기념일
+        </Text>
+        <Pressable
+          onPress={() => setShowAnniversaries(!showAnniversaries)}
+          className="flex-row items-center justify-between rounded-[10px] px-4 py-3"
+          style={{ backgroundColor: "#2a2a2a" }}
+        >
+          <Text className="text-[13px]" style={{ color: "#ccc" }}>기념일 함께 표시</Text>
+          <View className="w-12 h-6 rounded-full justify-center" style={{ backgroundColor: showAnniversaries ? "#7c3aed" : "#444" }}>
+            <View className="w-5 h-5 rounded-full bg-white" style={showAnniversaries ? { marginLeft: "auto", marginRight: 2 } : { marginLeft: 2 }} />
+          </View>
         </Pressable>
-      </Modal>
+      </FilterBottomSheet>
     </View>
   );
 }

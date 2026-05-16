@@ -488,3 +488,112 @@
 - 기념일 D-Day: `dDayLabel()` 기존 유틸 재활용
 - 반복 로그 스타일: `opacity-60` or 점선 처리로 가상 occurrence 구분
 - 성능: 월 단위 쿼리 (`logDate >= monthStart AND logDate < nextMonthStart`)
+
+---
+
+# Phase 13 체크리스트 — 리스트 탭 고도화 v2
+
+## 버그 수정
+
+- [x] `list.tsx`: 커스텀 날짜 피커 미구현 버그 수정 — `MonthPickerModal` 컴포넌트 신규 생성 + start/end 연결
+
+## UX 개선
+
+- [x] `ListEventItem.tsx`: 좌측 그룹 색상 인디케이터 세로 바 추가 (`groupColor` prop)
+- [x] `list.tsx`: 요약 영역 진행률 바 추가 (완료/전체 비율 시각화)
+- [x] `list.tsx`: 섹션 헤더에 월별 완료율 표시 ("N개 중 M개 완료")
+- [x] `list.tsx`: 빈 상태 — 필터 적용 시 "필터 초기화" CTA 버튼 추가
+
+## 설계 결정 메모
+
+- 그룹 색상: `allGroups`(이미 query 중) → `Map<id, color>` → `ListEventItem` prop 전달. 훅/쿼리 추가 없음.
+- 진행률 바: 반복 항목 제외 (체크 개념 없음). 기존 `doneCount/totalCount` 재활용.
+- 섹션 완료율: `sections` useMemo에서 각 섹션별 regularCount/doneCount 계산.
+- 빈 상태 CTA: `filterBadge > 0`일 때만 "필터 초기화" 버튼 노출.
+
+---
+
+# Phase 14 체크리스트 — 인물 탭 고도화
+
+## 버그 수정
+
+- [x] `persons.tsx`: 기념일 모드 커스텀 날짜 피커 미구현 — `MonthPickerModal` 연결
+- [x] `persons.tsx`: 기념일 모드 `AnniversaryItem`에 `date` prop 누락 → D-DAY 미표시 수정
+
+## 기능 개선
+
+- [x] `TabPreferencesProvider.tsx`: `PersonsPrefs.sortOrder`에 `"last-contact-asc"` 추가
+- [x] `persons.tsx`: 마지막 연락 오래된순 정렬 추가 (`sortPersons`에 `lastLogDateMap` 파라미터)
+- [x] `persons.tsx`: 연락 주기 초과 필터 (`overdueFilter` 로컬 state + 필터 시트 옵션)
+- [x] `persons.tsx`: 태그 필터 동적 추출 (`allPersons`에서 useMemo로 집계)
+- [x] `persons.tsx`: 인물 모드 요약 바 — "총 N명 · 표시 M명" 표시
+
+## UI/UX 개선
+
+- [x] `PersonCard.tsx`: 마지막 연락 `fromNow()` 표시 — `lastLogDate` 있으면 "3일 전", 없고 `contactInterval` 있으면 "기록 없음"
+- [x] `PersonCard.tsx`: 핀 버튼 명시적 노출 — `onPinPress` prop 추가, 카드 우측 핀 아이콘 Pressable (onLongPress 제거)
+- [x] `persons.tsx`: 빈 상태 CTA — 필터 후 결과 없을 때 "필터 초기화" 버튼 (인물/기념일 모드 모두)
+- [x] `PersonCard.tsx`: 연락 주기 진행률 바 — `contactInterval` 설정 시 카드 하단 얇은 바 (초과 빨강, 임박 주황, 여유 teal)
+- [x] `persons.tsx`: 전체 접기/펼치기 버튼 — 요약 바 우측
+- [x] `persons.tsx`: 그룹 헤더 색상 도트 — 그룹명 앞 6px 컬러 dot
+- [x] `persons.tsx` + `AnniversaryItem.tsx`: 기념일 그룹 색상 인디케이터
+
+## 설계 결정 메모
+
+- `last-contact-asc` 정렬: 기록 없는 인물은 맨 앞(연락 가장 오래됨)으로.
+- `overdueFilter`: persist 불필요 → 로컬 state. 필터 바텀시트에서 토글.
+- 태그 동적 추출: `JSON.parse(p.tags)` 집계 → 실제 DB 태그만 표시. 태그 없으면 섹션 숨김.
+- 요약 바: 필터 적용 후 렌더 인물 수 vs 전체 인물 수 둘 다 표시.
+- `onPinPress`: `onLongPress` 대체. PersonCard에서 별도 Pressable로 노출.
+- 진행률 바: `daysSinceLastLog / contactInterval`. 100% 초과 시 클램프. 기록 없으면 100%.
+- 기념일 인디케이터: `personGroupMap`(이미 있음) + `allGroups` → `groupColor` → `AnniversaryItem` prop.
+
+---
+
+# Phase 15 체크리스트 — 노트 탭 개선
+
+## A. 코드만 (스키마 변경 없음)
+
+- [x] **A2** `memo.tsx`: 할 일 탭에 완료 항목 일괄 삭제 추가 (메모 탭과 동일 패턴, 필터 시트 추가)
+- [x] **A3** `memo.tsx`: 사분면 그리드 카운트 `완료/전체` 형태로 변경 (현재 미완료만 표시)
+- [ ] **A1** `memo.tsx`: 메모 스와이프 액션 — reanimated v4 호환 문제로 제거. 버튼 UI 유지.
+- [x] **A5** `memo.tsx`: 메모 생성일 표시 옵션 — 필터 시트에 토글 추가 + TabPreferences persist
+
+## B. 스키마 소규모 확장
+
+- [x] **B6** `db/schema.ts` + migration 0008: memos에 `pinnedAt` 컬럼 추가 → 핀고정 기능 (목록 상단 고정)
+- [x] **B7** `db/schema.ts` + migration 0009: todos에 `dueDate` 컬럼 추가 → 기한 설정 + 그리드에 D-day 뱃지
+- [x] **B8** `app/todos/[id].tsx` 신규: 할 일 상세 화면 + `note` 컬럼 추가 (부가 설명 필드)
+
+## 설계 결정 메모
+
+- 스와이프: `react-native-gesture-handler`의 `Swipeable` 사용 (이미 GestureHandlerRootView 설치됨)
+- 핀고정 정렬: `pinnedAt DESC NULLS LAST, createdAt DESC` — 핀 먼저, 그 안에서 최신순
+- dueDate: `text("due_date")` YYYY-MM-DD (birthDate 동일 패턴)
+- 할 일 상세: todos에 `title`만 있어서 현재 탭 시 아무것도 없음 → 상세 화면 추가 필요
+
+---
+
+# Phase 16 체크리스트 — 버그 수정 및 코드 품질
+
+## P0 — 크래시/데이터 누락 (높음)
+
+- [x] **#1** `persons.tsx`: `JSON.parse(p.tags)` try/catch 래핑 — 손상 데이터 시 인물 탭 전체 크래시
+- [x] **#2** `hooks/logs/use-event-filter.ts`: `or(isNull, eq('none'))` + repeatSources에 `ne('none')` 추가 — 리스트 탭 로그 누락 버그
+- [x] **#3** `db/client.ts`: `ensureGroupsColumns()` 추가 — `sort_order` 누락 시 화이트스크린
+- [x] **#4** `hooks/useCalendarData.ts`: 날짜 파싱 try/catch + parts.length 가드 — 빈값/잘못된 포맷 런타임 에러
+
+## P1 — 코드 중복 (중간)
+
+- [x] **#5** `FilterBottomSheet` + `FilterChipGroup` 컴포넌트 신규 — `memo.tsx` / `list.tsx` 교체 완료
+
+## P2 — 성능 (중간)
+
+- [ ] **#6** `persons.tsx`: `ScrollView` → SectionList 교체 — 접기/펼치기 + 핀고정 혼재로 리스크 큼, 스킵
+- [x] **#7** `useCalendarData.ts`: `baseDots` / `markedDates` 분리 — 날짜 탭 시 dots 재계산 제거
+
+## 설계 결정 메모
+
+- #2 수정 기준: `useCalendarData.ts`의 `ne(logs.repeatType, 'none')` 패턴 동일 적용
+- #3 groups 안전망: `sortOrder` 컬럼만 추가하면 됨 (seed에서 DEFAULT 처리)
+- #5 공통화 범위: 완료 상태 / 정렬 / 유형 필터 칩 + 삭제 버튼 → `FilterBottomSheet` 컴포넌트

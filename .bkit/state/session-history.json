@@ -1,13 +1,5 @@
 [
   {
-    "sessionId": "8d6afea1-d8df-4c50-9825-e709e707d3a9",
-    "reason": "other",
-    "endedAt": "2026-05-09T14:57:36.004Z",
-    "feature": null,
-    "phase": null,
-    "progress": null
-  },
-  {
     "sessionId": "1d2c3c7d-a3fc-49db-b376-f3c40ef8d4fc",
     "reason": "other",
     "endedAt": "2026-05-09T20:48:00.163Z",
@@ -99,6 +91,70 @@
     "sessionId": "9cecb88b-7fb9-48cb-8aa2-ab38e3e80b99",
     "reason": "clear",
     "endedAt": "2026-05-15T17:05:51.376Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "cb176552-8ffe-42cc-805f-48a4ba1e8b36",
+    "reason": "other",
+    "endedAt": "2026-05-15T17:13:45.001Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "f75b03e2-ca82-42b5-8b17-e169789f7f06",
+    "reason": "clear",
+    "endedAt": "2026-05-15T23:23:12.795Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "fb561527-7ca5-415b-b3ca-e7a992f3c30a",
+    "reason": "clear",
+    "endedAt": "2026-05-15T23:44:45.434Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "5388d2c8-6ff8-4574-92c7-14f83620cfea",
+    "reason": "clear",
+    "endedAt": "2026-05-16T00:06:07.100Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "13b52c29-7ee6-4e34-a88f-ded23503bfdf",
+    "reason": "clear",
+    "endedAt": "2026-05-16T00:29:43.983Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "40e6a26d-4845-4a82-850b-0a05a323d85c",
+    "reason": "other",
+    "endedAt": "2026-05-16T00:29:49.118Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "c3c76911-ebe4-4640-b055-2bf2896604af",
+    "reason": "clear",
+    "endedAt": "2026-05-16T01:26:10.154Z",
+    "feature": null,
+    "phase": null,
+    "progress": null
+  },
+  {
+    "sessionId": "b522b87f-caa2-4a21-bd1d-8f9f12b7b82b",
+    "reason": "other",
+    "endedAt": "2026-05-16T07:18:11.007Z",
     "feature": null,
     "phase": null,
     "progress": null

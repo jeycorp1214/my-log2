@@ -1,10 +1,12 @@
 // 인물 목록 탭 — 인물 리스트 / 기념일 리스트 모드 전환 + 필터/정렬
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
+import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { PersonCard } from "@/components/persons/PersonCard";
 import { db } from "@/db/client";
+import { eq } from "drizzle-orm";
 import { groups, persons } from "@/db/schema";
 import {
   type AnniversaryBoardItem,
@@ -32,8 +34,9 @@ import {
 
 type TabMode = "persons" | "anniversary";
 type AnnPreset = "this-week" | "this-month" | "recent-3m" | "custom";
-type SortOrder = "name-asc" | "age-asc";
+type SortOrder = "name-asc" | "age-asc" | "last-contact-asc";
 type MbtiFilter = "all" | "yes" | "no";
+type OverdueFilter = "all" | "overdue";
 
 type Person = {
   id: string;
@@ -41,6 +44,10 @@ type Person = {
   birthDate?: string | null;
   mbti?: string | null;
   groupId: string;
+  isPinned: boolean;
+  tags?: string | null;
+  metAt?: string | null;
+  contactInterval?: number | null;
   createdAt: Date;
 };
 
@@ -51,9 +58,23 @@ const ANN_PRESETS: { key: AnnPreset; label: string }[] = [
   { key: "custom", label: "직접 선택" },
 ];
 
-function sortPersons<T extends Person>(list: T[], order: SortOrder): T[] {
+function sortPersons<T extends Person>(
+  list: T[],
+  order: SortOrder,
+  lastLogDateMap?: Map<string, Date>,
+): T[] {
   if (order === "name-asc")
     return [...list].sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  if (order === "last-contact-asc") {
+    return [...list].sort((a, b) => {
+      const da = lastLogDateMap?.get(a.id) ?? null;
+      const db_ = lastLogDateMap?.get(b.id) ?? null;
+      if (!da && !db_) return 0;
+      if (!da) return -1; // 기록 없음 = 연락 가장 오래됨 → 맨 앞
+      if (!db_) return 1;
+      return da.getTime() - db_.getTime();
+    });
+  }
   return [...list].sort((a, b) => {
     const da = a.birthDate ?? null;
     const db_ = b.birthDate ?? null;
@@ -66,7 +87,7 @@ function sortPersons<T extends Person>(list: T[], order: SortOrder): T[] {
 
 export default function PersonsScreen() {
   const router = useRouter();
-  const { allPersons, groupedPersons, ungrouped } = usePersonsWithGroups();
+  const { allPersons, groupedPersons, ungrouped, lastLogDateMap } = usePersonsWithGroups();
 
   const [tabMode, setTabMode] = useState<TabMode>("persons");
   const [quickName, setQuickName] = useState("");
@@ -89,6 +110,17 @@ export default function PersonsScreen() {
   const setMbtiFilter = (v: MbtiFilter) => setPersonsPrefs({ mbtiFilter: v });
   const mbtiDetail = prefs.persons.mbtiDetail;
   const setMbtiDetail = (v: string) => setPersonsPrefs({ mbtiDetail: v });
+  const [tagFilter, setTagFilter] = useState<string>("all");
+  const [overdueFilter, setOverdueFilter] = useState<OverdueFilter>("all");
+
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    for (const p of allPersons) {
+      const tags: string[] = p.tags ? (() => { try { return JSON.parse(p.tags!); } catch { return []; } })() : [];
+      for (const t of tags) tagSet.add(t);
+    }
+    return Array.from(tagSet).sort((a, b) => a.localeCompare(b, "ko"));
+  }, [allPersons]);
 
   // ── 기념일 모드 상태 ───────────────────────────────────
   const [annPreset, setAnnPreset] = useState<AnnPreset>("this-month");
@@ -165,6 +197,26 @@ export default function PersonsScreen() {
     return list;
   }
 
+  function applyTagFilter<T extends Person>(list: T[]): T[] {
+    if (tagFilter === "all") return list;
+    return list.filter((p) => {
+      const parsedTags: string[] = p.tags ? (() => { try { return JSON.parse(p.tags!); } catch { return []; } })() : [];
+      return parsedTags.includes(tagFilter);
+    });
+  }
+
+  function applyOverdueFilter<T extends Person>(list: T[]): T[] {
+    if (overdueFilter === "all") return list;
+    return list.filter((p) => {
+      if (p.contactInterval == null) return false;
+      const lastDate = lastLogDateMap.get(p.id) ?? null;
+      const daysSince = lastDate
+        ? dayjs().startOf("day").diff(dayjs(lastDate).startOf("day"), "day")
+        : null;
+      return daysSince == null || daysSince >= p.contactInterval;
+    });
+  }
+
   const sortedGroupedPersons = useMemo(
     () =>
       groupedPersons
@@ -173,20 +225,40 @@ export default function PersonsScreen() {
         )
         .map(({ group, members }) => ({
           group,
-          members: applyMbtiFilter(
-            sortPersons(members as Person[], sortOrder),
+          members: applyOverdueFilter(
+            applyTagFilter(
+              applyMbtiFilter(
+                sortPersons(members as Person[], sortOrder, lastLogDateMap),
+              ),
+            ),
           ) as typeof members,
         }))
         .filter(({ members }) => members.length > 0),
-    [groupedPersons, sortOrder, groupFilter, mbtiFilter, mbtiDetail],
+    [groupedPersons, sortOrder, groupFilter, mbtiFilter, mbtiDetail, tagFilter, overdueFilter, lastLogDateMap],
   );
 
   const sortedUngrouped = useMemo(() => {
     if (groupFilter !== "all") return [];
-    return applyMbtiFilter(
-      sortPersons(ungrouped as Person[], sortOrder),
+    return applyOverdueFilter(
+      applyTagFilter(
+        applyMbtiFilter(
+          sortPersons(ungrouped as Person[], sortOrder, lastLogDateMap),
+        ),
+      ),
     ) as typeof ungrouped;
-  }, [ungrouped, sortOrder, groupFilter, mbtiFilter, mbtiDetail]);
+  }, [ungrouped, sortOrder, groupFilter, mbtiFilter, mbtiDetail, tagFilter, overdueFilter, lastLogDateMap]);
+
+  const pinnedPersons = useMemo(
+    () => allPersons.filter((p) => p.isPinned),
+    [allPersons],
+  );
+
+  async function togglePin(personId: string, current: boolean) {
+    await db
+      .update(persons)
+      .set({ isPinned: !current, updatedAt: new Date() })
+      .where(eq(persons.id, personId));
+  }
 
   function toggleCollapse(id: string) {
     setCollapsedGroups((prev) => {
@@ -209,12 +281,30 @@ export default function PersonsScreen() {
     Keyboard.dismiss();
   }
 
+  const visiblePersonCount =
+    sortedGroupedPersons.reduce((sum, { members }) => sum + members.length, 0) +
+    sortedUngrouped.length;
+
+  const allGroupIds = sortedGroupedPersons.map(({ group }) => group.id);
+  const isAllCollapsed =
+    allGroupIds.length > 0 && allGroupIds.every((id) => collapsedGroups.has(id));
+
+  function toggleAllCollapse() {
+    if (isAllCollapsed) {
+      setCollapsedGroups(new Set());
+    } else {
+      setCollapsedGroups(new Set(allGroupIds));
+    }
+  }
+
   const filterBadge =
     tabMode === "persons"
       ? [
           sortOrder !== "name-asc",
           groupFilter !== "all",
           mbtiFilter !== "all",
+          tagFilter !== "all",
+          overdueFilter !== "all",
         ].filter(Boolean).length
       : annGroupFilter !== "all"
         ? 1
@@ -236,6 +326,22 @@ export default function PersonsScreen() {
       {/* ── 인물 모드 ── */}
       {tabMode === "persons" && (
         <>
+          {/* 요약 바 */}
+          <View className="flex-row items-center justify-between px-5 py-2.5 border-b border-[#1e1e1e]">
+            <Text className="text-app-muted text-[13px]">
+              총 {allPersons.length}명
+              {visiblePersonCount !== allPersons.length &&
+                ` · 표시 ${visiblePersonCount}명`}
+            </Text>
+            {allGroupIds.length > 0 && (
+              <Pressable onPress={toggleAllCollapse} hitSlop={8}>
+                <Text className="text-[#555] text-[12px]">
+                  {isAllCollapsed ? "전체 펼치기" : "전체 접기"}
+                </Text>
+              </Pressable>
+            )}
+          </View>
+
           <ScrollView
             className="flex-1"
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}
@@ -244,8 +350,57 @@ export default function PersonsScreen() {
               <Text className="text-app-muted text-center mt-12">
                 인물을 추가해 보세요.
               </Text>
+            ) : visiblePersonCount === 0 ? (
+              <View className="items-center mt-16 gap-3">
+                <Text className="text-app-muted text-[14px]">
+                  조건에 맞는 인물이 없습니다.
+                </Text>
+                {filterBadge > 0 && (
+                  <Pressable
+                    onPress={() => {
+                      setSortOrder("name-asc");
+                      setGroupFilter("all");
+                      setMbtiFilter("all");
+                      setMbtiDetail("");
+                      setTagFilter("all");
+                      setOverdueFilter("all");
+                    }}
+                    className="bg-[#222] rounded-full px-4 py-2"
+                  >
+                    <Text className="text-app-teal text-[13px]">필터 초기화</Text>
+                  </Pressable>
+                )}
+              </View>
             ) : (
               <>
+                {pinnedPersons.length > 0 && (
+                  <View className="mb-6">
+                    <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px] mb-2">
+                      📌 고정{"  "}
+                      <Text className="text-[#555] font-normal">
+                        {pinnedPersons.length}
+                      </Text>
+                    </Text>
+                    {pinnedPersons.map((person) => {
+                      const grp = allGroups.find((g) => g.id === person.groupId);
+                      return (
+                        <PersonCard
+                          key={person.id}
+                          person={person}
+                          groupColor={grp?.color ?? "#555"}
+                          lastLogDate={lastLogDateMap.get(person.id)}
+                          onPress={() =>
+                            router.push({
+                              pathname: "/persons/[id]",
+                              params: { id: person.id },
+                            })
+                          }
+                          onPinPress={() => togglePin(person.id, person.isPinned)}
+                        />
+                      );
+                    })}
+                  </View>
+                )}
                 {sortedGroupedPersons.map(({ group, members }) => {
                   const collapsed = collapsedGroups.has(group.id);
                   return (
@@ -255,13 +410,19 @@ export default function PersonsScreen() {
                         className="flex-row items-center justify-between mb-2"
                         hitSlop={4}
                       >
-                        <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
-                          {group.emoji} {group.name}
-                          {"  "}
-                          <Text className="text-[#555] font-normal">
-                            {members.length}
+                        <View className="flex-row items-center gap-2">
+                          <View
+                            className="w-[6px] h-[6px] rounded-full"
+                            style={{ backgroundColor: group.color }}
+                          />
+                          <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
+                            {group.emoji} {group.name}
+                            {"  "}
+                            <Text className="text-[#555] font-normal">
+                              {members.length}
+                            </Text>
                           </Text>
-                        </Text>
+                        </View>
                         {collapsed ? (
                           <ChevronRight size={14} color="#555" />
                         ) : (
@@ -274,11 +435,15 @@ export default function PersonsScreen() {
                             key={person.id}
                             person={person}
                             groupColor={group.color}
+                            lastLogDate={lastLogDateMap.get(person.id)}
                             onPress={() =>
                               router.push({
                                 pathname: "/persons/[id]",
                                 params: { id: person.id },
                               })
+                            }
+                            onPinPress={() =>
+                              togglePin(person.id, person.isPinned)
                             }
                           />
                         ))}
@@ -310,11 +475,15 @@ export default function PersonsScreen() {
                           key={person.id}
                           person={person}
                           groupColor="#555"
+                          lastLogDate={lastLogDateMap.get(person.id)}
                           onPress={() =>
                             router.push({
                               pathname: "/persons/[id]",
                               params: { id: person.id },
                             })
+                          }
+                          onPinPress={() =>
+                            togglePin(person.id, person.isPinned)
                           }
                         />
                       ))}
@@ -416,29 +585,65 @@ export default function PersonsScreen() {
                 </Text>
               </View>
             )}
-            renderItem={({ item }) => (
-              <View className="px-4">
-                <AnniversaryItem
-                  title={item.displayTitle}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/persons/[id]",
-                      params: { id: item.personId },
-                    })
-                  }
-                />
-              </View>
-            )}
+            renderItem={({ item }) => {
+              const gId = personGroupMap.get(item.personId);
+              const grp = gId ? allGroups.find((g) => g.id === gId) : undefined;
+              return (
+                <View className="px-4">
+                  <AnniversaryItem
+                    title={item.displayTitle}
+                    date={item.date}
+                    groupColor={grp?.color}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/persons/[id]",
+                        params: { id: item.personId },
+                      })
+                    }
+                  />
+                </View>
+              );
+            }}
             ListEmptyComponent={
-              <Text className="text-app-muted text-center mt-16 text-[14px]">
-                해당 기간에 기념일이 없습니다.
-              </Text>
+              <View className="items-center mt-16 gap-3">
+                <Text className="text-app-muted text-[14px]">
+                  해당 기간에 기념일이 없습니다.
+                </Text>
+                {annGroupFilter !== "all" && (
+                  <Pressable
+                    onPress={() => setAnnGroupFilter("all")}
+                    className="bg-[#222] rounded-full px-4 py-2"
+                  >
+                    <Text className="text-app-teal text-[13px]">필터 초기화</Text>
+                  </Pressable>
+                )}
+              </View>
             }
             contentContainerStyle={{ paddingBottom: 16 }} // 섹션 헤더가 아이템과 겹치는 문제 완화
             stickySectionHeadersEnabled
           />
         </View>
       )}
+
+      {/* 기념일 커스텀 기간 월 선택 피커 */}
+      <MonthPickerModal
+        visible={showAnnStartPicker}
+        value={annCustomStart}
+        onChange={(date) => {
+          setAnnCustomStart(date);
+          if (date > annCustomEnd) setAnnCustomEnd(date);
+        }}
+        onClose={() => setShowAnnStartPicker(false)}
+      />
+      <MonthPickerModal
+        visible={showAnnEndPicker}
+        value={annCustomEnd}
+        onChange={(date) => {
+          setAnnCustomEnd(date);
+          if (date < annCustomStart) setAnnCustomStart(date);
+        }}
+        onClose={() => setShowAnnEndPicker(false)}
+      />
 
       {/* ── 필터 바텀 시트 (모드 공통) ── */}
       <Modal
@@ -556,12 +761,79 @@ export default function PersonsScreen() {
                   )}
                   {mbtiFilter !== "yes" && <View className="mb-5" />}
 
+                  {allTags.length > 0 && (
+                    <>
+                      <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                        관계 태그
+                      </Text>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        className="mb-5"
+                        contentContainerStyle={{ gap: 8 }}
+                      >
+                        {["all", ...allTags].map((tag) => (
+                          <Pressable
+                            key={tag}
+                            onPress={() => setTagFilter(tag)}
+                            className="rounded-[10px] px-4 py-2.5"
+                            style={{
+                              backgroundColor:
+                                tagFilter === tag ? "#4ecdc4" : "#2a2a2a",
+                            }}
+                          >
+                            <Text
+                              className="text-[13px] font-semibold"
+                              style={{
+                                color: tagFilter === tag ? "#111" : "#888",
+                              }}
+                            >
+                              {tag === "all" ? "전체" : tag}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </ScrollView>
+                    </>
+                  )}
+
+                  <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                    연락 주기
+                  </Text>
+                  <View className="flex-row gap-2 mb-5">
+                    {(["all", "overdue"] as const).map((v) => {
+                      const label = v === "all" ? "전체" : "연락 필요";
+                      return (
+                        <Pressable
+                          key={v}
+                          onPress={() => setOverdueFilter(v)}
+                          className="flex-1 rounded-[10px] py-2.5 items-center"
+                          style={{
+                            backgroundColor:
+                              overdueFilter === v ? "#4ecdc4" : "#2a2a2a",
+                          }}
+                        >
+                          <Text
+                            className="text-[13px] font-semibold"
+                            style={{
+                              color: overdueFilter === v ? "#111" : "#888",
+                            }}
+                          >
+                            {label}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+
                   <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
                     정렬
                   </Text>
                   <View className="flex-row gap-2">
-                    {(["name-asc", "age-asc"] as const).map((v) => {
-                      const label = v === "name-asc" ? "이름순" : "나이순";
+                    {(["name-asc", "age-asc", "last-contact-asc"] as const).map((v) => {
+                      const label =
+                        v === "name-asc" ? "이름순"
+                        : v === "age-asc" ? "나이순"
+                        : "연락순";
                       return (
                         <Pressable
                           key={v}

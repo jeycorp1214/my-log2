@@ -51,7 +51,7 @@ export default function SettingsScreen() {
   async function insertSampleData() {
     Alert.alert(
       "샘플 데이터 삽입",
-      "인물 5명, 기록 10개, 할 일 4개, 메모 2개를 추가합니다. 계속하시겠습니까?",
+      "인물 50명, 기록 30개, 할 일 30개, 메모 30개를 추가합니다. 계속하시겠습니까?",
       [
         { text: "취소", style: "cancel" },
         {
@@ -284,25 +284,31 @@ export default function SettingsScreen() {
                 샘플 데이터 삽입
               </Text>
               <Text className="text-app-muted text-[11px] mt-0.5">
-                인물 5명 · 기록 10개 · 할 일 4개 · 메모 2개
+                인물 50명 · 기록 30개 · 할 일 30개 · 메모 30개
               </Text>
             </Pressable>
 
             <Pressable
               onPress={resetAllData}
-              className="bg-app-danger-bg rounded-[12px] p-[14px] items-center"
+              className="bg-app-danger-bg rounded-[12px] p-[14px] items-center mb-2"
             >
               <Text className="text-app-danger text-sm font-semibold">
                 전체 데이터 초기화
+              </Text>
+              <Text className="text-app-muted text-[11px] mt-0.5">
+                스키마 유지 · 데이터만 삭제
               </Text>
             </Pressable>
 
             <Pressable
               onPress={resetTableStructure}
-              className="bg-app-danger-bg rounded-[12px] p-[14px] items-center mt-2"
+              className="bg-app-danger-bg rounded-[12px] p-[14px] items-center"
             >
               <Text className="text-app-danger text-sm font-semibold">
                 테이블 초기화 (DROP + 재생성)
+              </Text>
+              <Text className="text-app-muted text-[11px] mt-0.5">
+                스키마까지 완전 초기화 · 마이그레이션 재실행
               </Text>
             </Pressable>
           </View>

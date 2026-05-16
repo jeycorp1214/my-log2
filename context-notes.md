@@ -235,6 +235,36 @@ db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: c
 
 ---
 
+## 2026-05-16 — Phase 14: 인물 탭 고도화
+
+### 버그 수정
+- 기념일 모드 커스텀 피커: `MonthPickerModal` import + `showAnnStartPicker`/`showAnnEndPicker` 연결. 리스트 탭과 동일 패턴.
+- D-DAY 미표시: `<AnniversaryItem date={item.date} />` — `date` prop 누락이 원인. `AnniversaryItem`은 date 있어야 D-DAY 계산.
+
+### 인물 탭 개선 설계 결정
+- `last-contact-asc` 정렬: `lastLogDateMap`(이미 훅에서 제공) 활용. 기록 없는 인물 = 맨 앞.
+- `overdueFilter`: `contactInterval` 설정 인물만 대상. persist 불필요 → 로컬 state.
+- 태그 동적 추출: 하드코딩 제거. `allPersons` useMemo로 집계.
+- TabPreferencesProvider: `sortOrder` 타입 union에 `"last-contact-asc"` 추가.
+
+---
+
+## 2026-05-16 — Phase 13: 리스트 탭 고도화 v2
+
+### 커스텀 날짜 피커 버그 수정
+
+- `list.tsx`에 `setShowStartPicker(true)` 호출이 있었지만 Modal/Picker 없어서 아무 일도 안 일어남.
+- `components/MonthPickerModal.tsx` 신규 생성: `@react-native-picker/picker` 드럼롤 (연도 ±10년 / 월 1~12).
+- 시작 > 종료 or 종료 < 시작 선택 시 상대 값 자동 조정.
+- `visible` 바뀔 때 `value` 동기화는 `useEffect`로 처리.
+
+### 리스트 탭 추가 개선 계획 (구현 중)
+
+- 그룹 색상 인디케이터: `allGroups` Map → `ListEventItem groupColor` prop.
+- 요약 진행률 바 / 섹션 헤더 완료율 / 빈 상태 CTA 순서로 구현 예정.
+
+---
+
 ## 2026-05-16 — Phase 12: 캘린더 탭
 
 ### 배경

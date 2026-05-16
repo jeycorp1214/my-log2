@@ -3,7 +3,7 @@ import { db } from "@/db/client";
 import { logs } from "@/db/schema";
 import { expandRepeatInMonth } from "@/utils/repeat";
 import dayjs from "dayjs";
-import { and, asc, gte, isNotNull, isNull, lte, or } from "drizzle-orm";
+import { and, asc, eq, gte, isNotNull, isNull, lte, ne, or } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useMemo } from "react";
@@ -24,7 +24,7 @@ export function useEventFilter(start: Date, end: Date) {
       .from(logs)
       .where(
         and(
-          isNull(logs.repeatType),
+          or(isNull(logs.repeatType), eq(logs.repeatType, "none")),
           gte(logs.logDate, start),
           lte(logs.logDate, end),
         ),
@@ -40,6 +40,7 @@ export function useEventFilter(start: Date, end: Date) {
       .where(
         and(
           isNotNull(logs.repeatType),
+          ne(logs.repeatType, "none"),
           lte(logs.logDate, end),
           or(isNull(logs.repeatUntil), gte(logs.repeatUntil, start)),
         ),

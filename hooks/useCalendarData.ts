@@ -68,7 +68,8 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
 
   const { data: allPersons = [] } = useLiveQuery(db.select().from(persons));
 
-  const markedDates = useMemo((): MarkedDates => {
+  // dots 계산 — 선택 날짜와 무관하게 월/데이터 변경 시에만 재계산
+  const baseDots = useMemo((): MarkedDates => {
     const marks: MarkedDates = {};
 
     function addDot(dateStr: string, dot: { key: string; color: string }) {
@@ -83,11 +84,7 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
     }
 
     for (const log of repeatLogs) {
-      for (const occ of expandRepeatInMonth(
-        log,
-        monthStart.toDate(),
-        monthEnd.toDate(),
-      )) {
+      for (const occ of expandRepeatInMonth(log, monthStart.toDate(), monthEnd.toDate())) {
         addDot(dayjs(occ).format("YYYY-MM-DD"), DOT_REPEAT);
       }
     }
@@ -96,34 +93,50 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
     const currentMonthNum = monthStart.month() + 1;
 
     for (const ann of anniversaries) {
-      const [, mm, dd] = ann.date.split("-");
-      const annMonth = parseInt(mm, 10);
-      if (ann.isRepeat) {
-        if (annMonth === currentMonthNum) {
-          addDot(`${currentYear}-${mm}-${dd}`, DOT_ANNIVERSARY);
+      try {
+        const parts = ann.date.split("-");
+        if (parts.length < 3) continue;
+        const [, mm, dd] = parts;
+        const annMonth = parseInt(mm, 10);
+        if (ann.isRepeat) {
+          if (annMonth === currentMonthNum) {
+            addDot(`${currentYear}-${mm}-${dd}`, DOT_ANNIVERSARY);
+          }
+        } else {
+          const annYear = parseInt(parts[0], 10);
+          if (annYear === currentYear && annMonth === currentMonthNum) {
+            addDot(ann.date, DOT_ANNIVERSARY);
+          }
         }
-      } else {
-        const annYear = parseInt(ann.date.split("-")[0], 10);
-        if (annYear === currentYear && annMonth === currentMonthNum) {
-          addDot(ann.date, DOT_ANNIVERSARY);
-        }
+      } catch {
+        // 잘못된 날짜 포맷 무시
       }
     }
 
     for (const person of allPersons) {
       if (!person.birthDate) continue;
-      const [, mm, dd] = person.birthDate.split("-");
-      if (parseInt(mm, 10) === currentMonthNum) {
-        addDot(`${currentYear}-${mm}-${dd}`, DOT_ANNIVERSARY);
+      try {
+        const parts = person.birthDate.split("-");
+        if (parts.length < 3) continue;
+        const [, mm, dd] = parts;
+        if (parseInt(mm, 10) === currentMonthNum) {
+          addDot(`${currentYear}-${mm}-${dd}`, DOT_ANNIVERSARY);
+        }
+      } catch {
+        // 잘못된 날짜 포맷 무시
       }
     }
 
-    if (!marks[selectedDate]) marks[selectedDate] = { dots: [] };
-    marks[selectedDate].selected = true;
-    marks[selectedDate].selectedColor = "#4ECDC4";
-
     return marks;
-  }, [monthLogs, repeatLogs, anniversaries, allPersons, selectedDate, monthStart, monthEnd]);
+  }, [monthLogs, repeatLogs, anniversaries, allPersons, monthStart, monthEnd]);
+
+  // 선택 날짜 하이라이트 오버레이 — baseDots와 분리해 날짜 탭 시 dots 재계산 방지
+  const markedDates = useMemo((): MarkedDates => {
+    const marks = { ...baseDots };
+    if (!marks[selectedDate]) marks[selectedDate] = { dots: [] };
+    marks[selectedDate] = { ...marks[selectedDate], selected: true, selectedColor: "#4ECDC4" };
+    return marks;
+  }, [baseDots, selectedDate]);
 
   const dayItems = useMemo((): DayItem[] => {
     if (!selectedDate) return [];

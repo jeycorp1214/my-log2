@@ -30,6 +30,9 @@ export default function PersonNewScreen() {
   const [draftAnniversaries, setDraftAnniversaries] = useState<
     DraftAnniversary[]
   >([]);
+  const [contactInterval, setContactInterval] = useState<number | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
+  const [metAt, setMetAt] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!groupId && allGroups.length > 0) {
@@ -53,6 +56,9 @@ export default function PersonNewScreen() {
         mbti: mbti || undefined,
         memo: memo.trim() || undefined,
         groupId,
+        contactInterval: contactInterval ?? undefined,
+        tags: tags.length > 0 ? JSON.stringify(tags) : undefined,
+        metAt: metAt ? dayjs(metAt).format("YYYY-MM-DD") : undefined,
       })
       .returning({ id: persons.id });
 
@@ -65,6 +71,30 @@ export default function PersonNewScreen() {
         title: ann.title.trim(),
         date: dayjs(ann.date).format("YYYY-MM-DD"),
         isRepeat: ann.isRepeat,
+      });
+    }
+
+    if (metAt) {
+      await new Promise<void>((resolve) => {
+        Alert.alert(
+          "만남 기념일 추가",
+          "첫 만남 날짜를 기념일로 추가할까요?",
+          [
+            {
+              text: "추가",
+              onPress: async () => {
+                await db.insert(personAnniversaries).values({
+                  personId,
+                  title: "만남 기념일",
+                  date: dayjs(metAt).format("YYYY-MM-DD"),
+                  isRepeat: true,
+                });
+                resolve();
+              },
+            },
+            { text: "건너뛰기", style: "cancel", onPress: () => resolve() },
+          ],
+        );
       });
     }
 
@@ -95,6 +125,12 @@ export default function PersonNewScreen() {
           allGroups={allGroups}
           draftAnniversaries={draftAnniversaries}
           onAnniversariesChange={setDraftAnniversaries}
+          contactInterval={contactInterval}
+          onContactIntervalChange={setContactInterval}
+          tags={tags}
+          onTagsChange={setTags}
+          metAt={metAt}
+          onMetAtChange={setMetAt}
         />
 
         <Pressable

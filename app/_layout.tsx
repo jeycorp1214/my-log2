@@ -81,6 +81,10 @@ export default function RootLayout() {
                         options={{ presentation: "modal", title: "메모 상세" }}
                       />
                       <Stack.Screen
+                        name="todos/[id]"
+                        options={{ presentation: "modal", title: "할 일 상세" }}
+                      />
+                      <Stack.Screen
                         name="groups/new"
                         options={{ presentation: "modal", title: "그룹 추가" }}
                       />

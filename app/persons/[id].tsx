@@ -1,5 +1,7 @@
 // 인물 상세 / 수정 / 삭제 모달 화면
 import { DraftAnniversary, PersonForm } from "@/components/persons/PersonForm";
+import { PersonStatsCard } from "@/components/persons/PersonStatsCard";
+import { TimelineItem } from "@/components/persons/TimelineItem";
 import { db } from "@/db/client";
 import {
   groups,
@@ -8,7 +10,7 @@ import {
   personAnniversaries,
   persons,
 } from "@/db/schema";
-import { calcAge, dDayLabel, formatLogDate, fromNow } from "@/utils/date";
+import { calcAge, dDayLabel, formatDuration, formatLogDate, fromNow } from "@/utils/date";
 import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -57,6 +59,9 @@ export default function PersonDetailScreen() {
   const [draftAnniversaries, setDraftAnniversaries] = useState<
     DraftAnniversary[]
   >([]);
+  const [contactInterval, setContactInterval] = useState<number | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
+  const [metAt, setMetAt] = useState<Date | null>(null);
 
   useEffect(() => {
     if (person) {
@@ -65,6 +70,9 @@ export default function PersonDetailScreen() {
       setMbti(person.mbti ?? "");
       setMemo(person.memo ?? "");
       setGroupId(person.groupId);
+      setContactInterval(person.contactInterval ?? null);
+      setTags(person.tags ? JSON.parse(person.tags) : []);
+      setMetAt(person.metAt ? new Date(person.metAt) : null);
     }
   }, [person]);
 
@@ -83,6 +91,9 @@ export default function PersonDetailScreen() {
         isRepeat: a.isRepeat,
       })),
     );
+    setContactInterval(person.contactInterval ?? null);
+    setTags(person.tags ? JSON.parse(person.tags) : []);
+    setMetAt(person.metAt ? new Date(person.metAt) : null);
     setEditing(true);
   }
 
@@ -99,6 +110,9 @@ export default function PersonDetailScreen() {
         mbti: mbti || null,
         memo: memo.trim() || null,
         groupId,
+        contactInterval: contactInterval ?? null,
+        tags: tags.length > 0 ? JSON.stringify(tags) : null,
+        metAt: metAt ? dayjs(metAt).format("YYYY-MM-DD") : null,
         updatedAt: new Date(),
       })
       .where(eq(persons.id, id));
@@ -143,6 +157,27 @@ export default function PersonDetailScreen() {
   const age = person.birthDate ? calcAge(person.birthDate) : null;
   const lastLog = personLogs[0]?.log;
 
+  type TimelineEntry =
+    | { kind: "log"; sortKey: Date; log: (typeof personLogs)[0]["log"] }
+    | {
+        kind: "anniversary";
+        sortKey: Date;
+        ann: (typeof dbAnniversaries)[0];
+      };
+
+  const timelineEntries: TimelineEntry[] = [
+    ...personLogs.map((p) => ({
+      kind: "log" as const,
+      sortKey: p.log.logDate,
+      log: p.log,
+    })),
+    ...dbAnniversaries.map((a) => ({
+      kind: "anniversary" as const,
+      sortKey: new Date(a.date),
+      ann: a,
+    })),
+  ].sort((a, b) => b.sortKey.getTime() - a.sortKey.getTime());
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -169,6 +204,12 @@ export default function PersonDetailScreen() {
               allGroups={allGroups}
               draftAnniversaries={draftAnniversaries}
               onAnniversariesChange={setDraftAnniversaries}
+              contactInterval={contactInterval}
+              onContactIntervalChange={setContactInterval}
+              tags={tags}
+              onTagsChange={setTags}
+              metAt={metAt}
+              onMetAtChange={setMetAt}
             />
             <Pressable
               onPress={save}
@@ -191,14 +232,37 @@ export default function PersonDetailScreen() {
               </Pressable>
             </View>
 
-            <View className="flex-row gap-2 mb-2">
+            <View className="flex-row gap-2 mb-2 flex-wrap">
               {age !== null && (
                 <Text className="text-[#888] text-[14px]">{age}세</Text>
               )}
               {person.mbti && (
                 <Text className="text-[#888] text-[14px]">{person.mbti}</Text>
               )}
+              {person.metAt && (
+                <Text className="text-[#888] text-[14px]">
+                  함께한 지 {formatDuration(person.metAt)}
+                </Text>
+              )}
             </View>
+
+            {(() => {
+              const parsedTags: string[] = person.tags
+                ? JSON.parse(person.tags)
+                : [];
+              return parsedTags.length > 0 ? (
+                <View className="flex-row flex-wrap gap-1.5 mb-2">
+                  {parsedTags.map((tag) => (
+                    <View
+                      key={tag}
+                      className="bg-[#1a2e2c] rounded-[8px] px-2.5 py-1"
+                    >
+                      <Text className="text-app-teal text-[12px]">{tag}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null;
+            })()}
 
             {person.memo ? (
               <Text className="text-app-label text-sm leading-[22px]">
@@ -215,53 +279,50 @@ export default function PersonDetailScreen() {
               </View>
             )}
 
-            {dbAnniversaries.length > 0 && (
-              <>
-                <Text className="text-app-label text-[13px] font-semibold mt-6 mb-2 uppercase tracking-[0.5px]">
-                  기념일 ({dbAnniversaries.length})
-                </Text>
-                {dbAnniversaries.map((ann) => (
-                  <View
-                    key={ann.id}
-                    className="bg-app-surface rounded-[10px] p-3 mb-1.5 flex-row items-center justify-between"
-                  >
-                    <View>
-                      <Text className="text-white text-[14px]">
-                        {ann.title}
-                      </Text>
-                      <Text className="text-app-muted text-[12px] mt-0.5">
-                        {dayjs(ann.date).format("YYYY.MM.DD")}
-                        {ann.isRepeat ? " · 매년" : ""}
-                      </Text>
-                    </View>
-                    <Text className="text-app-teal text-[13px] font-semibold">
-                      {dDayLabel(ann.date, ann.isRepeat)}
-                    </Text>
-                  </View>
-                ))}
-              </>
-            )}
+            <PersonStatsCard
+              logDates={personLogs.map((p) => p.log.logDate)}
+            />
 
-            <Text className="text-app-label text-[13px] font-semibold mt-6 mb-2 uppercase tracking-[0.5px]">
-              함께한 기록 ({personLogs.length})
+            <Text className="text-app-label text-[13px] font-semibold mt-6 mb-3 uppercase tracking-[0.5px]">
+              타임라인 ({timelineEntries.length})
             </Text>
-            {personLogs.map(({ log }) => (
-              <Pressable
-                key={log.id}
-                onPress={() =>
-                  router.push({
-                    pathname: "/logs/[id]",
-                    params: { id: log.id },
-                  })
+            {timelineEntries.length === 0 ? (
+              <Text className="text-app-muted text-[13px]">
+                아직 기록이 없습니다.
+              </Text>
+            ) : (
+              timelineEntries.map((entry, idx) => {
+                const isLast = idx === timelineEntries.length - 1;
+                if (entry.kind === "log") {
+                  return (
+                    <TimelineItem
+                      key={`log-${entry.log.id}`}
+                      date={formatLogDate(new Date(entry.log.logDate))}
+                      type="log"
+                      title={entry.log.title}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/logs/[id]",
+                          params: { id: entry.log.id },
+                        })
+                      }
+                      isLast={isLast}
+                    />
+                  );
                 }
-                className="bg-app-surface rounded-[10px] p-3 mb-1.5"
-              >
-                <Text className="text-app-muted text-xs mb-[2px]">
-                  {formatLogDate(new Date(log.logDate))}
-                </Text>
-                <Text className="text-white text-[14px]">{log.title}</Text>
-              </Pressable>
-            ))}
+                return (
+                  <TimelineItem
+                    key={`ann-${entry.ann.id}`}
+                    date={dayjs(entry.ann.date).format("YYYY.MM.DD")}
+                    type="anniversary"
+                    title={entry.ann.title}
+                    subtitle={entry.ann.isRepeat ? "매년 반복" : undefined}
+                    dday={dDayLabel(entry.ann.date, entry.ann.isRepeat)}
+                    isLast={isLast}
+                  />
+                );
+              })
+            )}
 
             <Pressable
               onPress={deletePerson}

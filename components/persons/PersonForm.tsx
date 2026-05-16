@@ -17,6 +17,15 @@ export type DraftAnniversary = {
 
 type Group = typeof groups.$inferSelect;
 
+const CONTACT_PRESETS = [
+  { label: "안함", value: null },
+  { label: "7일", value: 7 },
+  { label: "30일", value: 30 },
+  { label: "90일", value: 90 },
+] as const;
+
+const TAG_PRESETS = ["연인", "가족", "직장동료", "오랜친구", "멘토", "온라인친구"];
+
 interface PersonFormProps {
   name: string;
   onNameChange: (v: string) => void;
@@ -31,6 +40,12 @@ interface PersonFormProps {
   allGroups: Group[];
   draftAnniversaries: DraftAnniversary[];
   onAnniversariesChange: (v: DraftAnniversary[]) => void;
+  contactInterval: number | null;
+  onContactIntervalChange: (v: number | null) => void;
+  tags: string[];
+  onTagsChange: (v: string[]) => void;
+  metAt: Date | null;
+  onMetAtChange: (v: Date | null) => void;
 }
 
 export function PersonForm({
@@ -47,7 +62,20 @@ export function PersonForm({
   allGroups,
   draftAnniversaries,
   onAnniversariesChange,
+  contactInterval,
+  onContactIntervalChange,
+  tags,
+  onTagsChange,
+  metAt,
+  onMetAtChange,
 }: PersonFormProps) {
+  function toggleTag(tag: string) {
+    if (tags.includes(tag)) {
+      onTagsChange(tags.filter((t) => t !== tag));
+    } else {
+      onTagsChange([...tags, tag]);
+    }
+  }
   function addAnniversary() {
     onAnniversariesChange([
       ...draftAnniversaries,
@@ -123,6 +151,51 @@ export function PersonForm({
             </Text>
           </Pressable>
         ))}
+      </View>
+
+      <Text className="text-app-label text-[13px] mt-4">연락 주기</Text>
+      <View className="flex-row gap-2 mt-1 flex-wrap">
+        {CONTACT_PRESETS.map((preset) => {
+          const active = contactInterval === preset.value;
+          return (
+            <Pressable
+              key={preset.label}
+              onPress={() => onContactIntervalChange(preset.value)}
+              className={`rounded-[20px] px-3 py-1.5 ${active ? "bg-app-teal" : "bg-app-surface"}`}
+            >
+              <Text
+                className={`text-[13px] ${active ? "text-[#111] font-semibold" : "text-app-label"}`}
+              >
+                {preset.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <Text className="text-app-label text-[13px] mt-4">관계 태그</Text>
+      <View className="flex-row flex-wrap gap-2 mt-1">
+        {TAG_PRESETS.map((tag) => {
+          const active = tags.includes(tag);
+          return (
+            <Pressable
+              key={tag}
+              onPress={() => toggleTag(tag)}
+              className={`rounded-[20px] px-3 py-1.5 ${active ? "bg-app-teal" : "bg-app-surface"}`}
+            >
+              <Text
+                className={`text-[13px] ${active ? "text-[#111] font-semibold" : "text-app-label"}`}
+              >
+                {tag}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <Text className="text-app-label text-[13px] mt-4">첫 만남 날짜</Text>
+      <View className="mt-1">
+        <BirthDateInput value={metAt} onChange={onMetAtChange} />
       </View>
 
       <Text className="text-app-label text-[13px] mt-5">기념일</Text>
