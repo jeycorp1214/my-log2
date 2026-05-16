@@ -1,6 +1,6 @@
 // 홈 대시보드 최근 기록 아이템 — 그룹 컬러 도트 + 상대 날짜 + 완료 취소선
-import { RotateCw } from "lucide-react-native";
 import dayjs from "dayjs";
+import { RotateCw } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 
 interface Props {
@@ -17,10 +17,12 @@ interface Props {
 function relativeDateLabel(date: Date): string {
   const today = dayjs().startOf("day");
   const d = dayjs(date).startOf("day");
-  const diff = today.diff(d, "day");
+  const diff = today.diff(d, "day"); // 양수=과거, 음수=미래
   if (diff === 0) return "오늘";
   if (diff === 1) return "어제";
-  if (diff <= 6) return `${diff}일 전`;
+  if (diff > 1 && diff <= 3) return `${diff}일 전`;
+  if (diff === -1) return "내일";
+  if (diff < -1 && diff >= -3) return `${Math.abs(diff)}일 후`;
   return dayjs(date).format("M월 D일");
 }
 
@@ -62,15 +64,11 @@ export function HomeLogItem({
           >
             {title}
           </Text>
-          {hasRepeat && (
-            <RotateCw size={11} color="#4ECDC4" />
-          )}
+          {hasRepeat && <RotateCw size={11} color="#4ECDC4" />}
         </View>
         <Text className="text-app-muted text-[12px]">
           {relativeDateLabel(logDate)}
-          {groupEmoji
-            ? `  ·  ${groupEmoji} ${groupName}`
-            : `  ·  ${groupName}`}
+          {groupEmoji ? `  ·  ${groupEmoji} ${groupName}` : `  ·  ${groupName}`}
         </Text>
       </View>
 
