@@ -80,6 +80,11 @@ export default function ListScreen() {
     db.select().from(groups).orderBy(groups.sortOrder),
   );
 
+  const groupColorMap = useMemo(
+    () => new Map(allGroups.map((g) => [g.id, g.color])),
+    [allGroups],
+  );
+
   const { data: linkedLogRows = [] } = useLiveQuery(
     db.selectDistinct({ logId: logPersons.logId }).from(logPersons),
   );
@@ -161,14 +166,22 @@ export default function ListScreen() {
           ? b.date.getTime() - a.date.getTime()
           : a.date.getTime() - b.date.getTime(),
       )
-      .map(({ date, data }) => ({
-        title: formatMonthYear(date),
-        data: [...data].sort((a, b) =>
+      .map(({ date, data }) => {
+        const sorted = [...data].sort((a, b) =>
           sortOrder === "newest"
             ? getItemDate(b) - getItemDate(a)
             : getItemDate(a) - getItemDate(b),
-        ),
-      }));
+        );
+        const regularInSection = sorted.filter(
+          (i) => !("type" in i && i.type === "anniversary") && !(i as EventItem).isRepeat,
+        ) as EventItem[];
+        return {
+          title: formatMonthYear(date),
+          data: sorted,
+          sectionTotal: regularInSection.length,
+          sectionDone: regularInSection.filter((i) => !!i.log.checkedAt).length,
+        };
+      });
   }, [filtered, showAnniversaries, anniversaryBoardItems, sortOrder]);
 
   const regularItems = filtered.filter((i) => !i.isRepeat);
@@ -259,11 +272,26 @@ export default function ListScreen() {
         </View>
       )}
 
-      {/* 요약 */}
-      <View className="flex-row items-center px-5 py-2.5 border-b border-[#1e1e1e]">
-        <Text className="text-app-muted text-[13px]">
-          총 {totalCount}개 · 완료 {doneCount}개
-        </Text>
+      {/* 요약 + 진행률 바 */}
+      <View className="px-5 py-2.5 border-b border-[#1e1e1e] gap-1.5">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-app-muted text-[13px]">
+            총 {totalCount}개 · 완료 {doneCount}개
+          </Text>
+          {totalCount > 0 && (
+            <Text className="text-app-teal text-[13px] font-semibold">
+              {Math.round((doneCount / totalCount) * 100)}%
+            </Text>
+          )}
+        </View>
+        {totalCount > 0 && (
+          <View className="h-1 bg-[#2a2a2a] rounded-full overflow-hidden">
+            <View
+              className="h-full bg-app-teal rounded-full"
+              style={{ width: `${(doneCount / totalCount) * 100}%` }}
+            />
+          </View>
+        )}
       </View>
 
       {/* 월별 섹션 리스트 */}
@@ -275,10 +303,15 @@ export default function ListScreen() {
             : ((item as EventItem).key ?? String(idx))
         }
         renderSectionHeader={({ section }) => (
-          <View className="bg-[#111] px-5 py-2">
+          <View className="bg-[#111] px-5 py-2 flex-row items-center justify-between">
             <Text className="text-app-dim text-[13px] font-semibold">
               {section.title}
             </Text>
+            {section.sectionTotal > 0 && (
+              <Text className="text-[#555] text-[11px]">
+                {section.sectionDone}/{section.sectionTotal}
+              </Text>
+            )}
           </View>
         )}
         renderItem={({ item }) => {
@@ -302,6 +335,11 @@ export default function ListScreen() {
           return (
             <ListEventItem
               item={eventItem}
+              groupColor={
+                eventItem.log.groupId
+                  ? groupColorMap.get(eventItem.log.groupId)
+                  : undefined
+              }
               onToggleCheck={toggleCheck}
               onPress={() =>
                 router.push({
@@ -313,9 +351,28 @@ export default function ListScreen() {
           );
         }}
         ListEmptyComponent={
-          <Text className="text-app-muted text-center mt-16 text-[14px]">
-            해당 기간에 기록이 없습니다.
-          </Text>
+          <View className="items-center mt-16 gap-3">
+            <Text className="text-app-muted text-[14px]">
+              해당 기간에 기록이 없습니다.
+            </Text>
+            {filterBadge > 0 && (
+              <Pressable
+                onPress={() => {
+                  setCompletionFilter("all");
+                  setTypeFilter("all");
+                  setSortOrder("oldest");
+                  setGroupFilter("all");
+                  setPersonFilter("all");
+                  setShowAnniversaries(false);
+                }}
+                className="bg-[#222] rounded-full px-4 py-2"
+              >
+                <Text className="text-app-teal text-[13px]">
+                  필터 초기화
+                </Text>
+              </Pressable>
+            )}
+          </View>
         }
         contentContainerStyle={{ paddingBottom: 96 }}
         stickySectionHeadersEnabled

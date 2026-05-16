@@ -235,6 +235,22 @@ db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: c
 
 ---
 
+## 2026-05-16 — Phase 13: 리스트 탭 고도화 v2
+
+### 커스텀 날짜 피커 버그 수정
+
+- `list.tsx`에 `setShowStartPicker(true)` 호출이 있었지만 Modal/Picker 없어서 아무 일도 안 일어남.
+- `components/MonthPickerModal.tsx` 신규 생성: `@react-native-picker/picker` 드럼롤 (연도 ±10년 / 월 1~12).
+- 시작 > 종료 or 종료 < 시작 선택 시 상대 값 자동 조정.
+- `visible` 바뀔 때 `value` 동기화는 `useEffect`로 처리.
+
+### 리스트 탭 추가 개선 계획 (구현 중)
+
+- 그룹 색상 인디케이터: `allGroups` Map → `ListEventItem groupColor` prop.
+- 요약 진행률 바 / 섹션 헤더 완료율 / 빈 상태 CTA 순서로 구현 예정.
+
+---
+
 ## 2026-05-16 — Phase 12: 캘린더 탭
 
 ### 배경

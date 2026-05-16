@@ -488,3 +488,25 @@
 - 기념일 D-Day: `dDayLabel()` 기존 유틸 재활용
 - 반복 로그 스타일: `opacity-60` or 점선 처리로 가상 occurrence 구분
 - 성능: 월 단위 쿼리 (`logDate >= monthStart AND logDate < nextMonthStart`)
+
+---
+
+# Phase 13 체크리스트 — 리스트 탭 고도화 v2
+
+## 버그 수정
+
+- [x] `list.tsx`: 커스텀 날짜 피커 미구현 버그 수정 — `MonthPickerModal` 컴포넌트 신규 생성 + start/end 연결
+
+## UX 개선
+
+- [x] `ListEventItem.tsx`: 좌측 그룹 색상 인디케이터 세로 바 추가 (`groupColor` prop)
+- [x] `list.tsx`: 요약 영역 진행률 바 추가 (완료/전체 비율 시각화)
+- [x] `list.tsx`: 섹션 헤더에 월별 완료율 표시 ("N개 중 M개 완료")
+- [x] `list.tsx`: 빈 상태 — 필터 적용 시 "필터 초기화" CTA 버튼 추가
+
+## 설계 결정 메모
+
+- 그룹 색상: `allGroups`(이미 query 중) → `Map<id, color>` → `ListEventItem` prop 전달. 훅/쿼리 추가 없음.
+- 진행률 바: 반복 항목 제외 (체크 개념 없음). 기존 `doneCount/totalCount` 재활용.
+- 섹션 완료율: `sections` useMemo에서 각 섹션별 regularCount/doneCount 계산.
+- 빈 상태 CTA: `filterBadge > 0`일 때만 "필터 초기화" 버튼 노출.
