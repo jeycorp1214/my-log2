@@ -411,7 +411,7 @@ export default function PersonsScreen() {
   return (
     <View className="flex-1 bg-app-bg">
       <TabsHeader
-        title="프로필"
+        title={tabMode === "persons" ? "프로필" : "히스토리"}
         cakeOnPress={() => {
           setTabMode((m) => (m === "persons" ? "anniversary" : "persons"));
           setNameQuery("");
