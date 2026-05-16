@@ -1,5 +1,6 @@
 // 노트 탭 — 메모(체크리스트) | 할 일(아이젠하워 매트릭스) 서브탭
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
+import { FilterBottomSheet, FilterChipGroup } from "@/components/FilterBottomSheet";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { db } from "@/db/client";
 import { memos, todos, type Quadrant } from "@/db/schema";
@@ -14,7 +15,6 @@ import {
   Alert,
   FlatList,
   Keyboard,
-  Modal,
   Pressable,
   Text,
   View,
@@ -379,142 +379,72 @@ export default function NoteScreen() {
       )}
 
       {/* 메모 필터 바텀 시트 */}
-      <Modal
-        visible={showFilterSheet}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowFilterSheet(false)}
-      >
-        <Pressable className="flex-1 bg-black/50 justify-end" onPress={() => setShowFilterSheet(false)}>
+      <FilterBottomSheet visible={showFilterSheet} onClose={() => setShowFilterSheet(false)}>
+        <FilterChipGroup
+          label="완료 상태"
+          options={[{ value: "all", label: "전체" }, { value: "undone", label: "미완료" }, { value: "done", label: "완료" }]}
+          value={completionFilter}
+          onChange={setCompletionFilter}
+        />
+        <FilterChipGroup
+          label="정렬"
+          options={[{ value: "newest", label: "최신순" }, { value: "oldest", label: "오래된순" }]}
+          value={sortOrder}
+          onChange={setSortOrder}
+        />
+        <FilterChipGroup
+          label="날짜 표시"
+          options={[{ value: false, label: "숨김" }, { value: true, label: "표시" }]}
+          value={showDate}
+          onChange={setShowDate}
+          className="mb-6"
+        />
+        {memoDoneCount > 0 && (
           <Pressable
-            className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10"
-            onPress={(e) => e.stopPropagation()}
+            onPress={deleteCheckedMemos}
+            className="flex-row items-center justify-center gap-2 rounded-[10px] py-3"
+            style={{ backgroundColor: "#2a1a1a" }}
           >
-            <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
-
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              완료 상태
+            <Trash2 size={15} color="#ff6b6b" />
+            <Text style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}>
+              완료 항목 {memoDoneCount}개 삭제
             </Text>
-            <View className="flex-row gap-2 mb-5">
-              {(["all", "undone", "done"] as const).map((v) => {
-                const label = v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setCompletionFilter(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: completionFilter === v ? "#4ecdc4" : "#2a2a2a" }}
-                  >
-                    <Text className="text-[13px] font-semibold" style={{ color: completionFilter === v ? "#111" : "#888" }}>
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              정렬
-            </Text>
-            <View className="flex-row gap-2 mb-6">
-              {(["newest", "oldest"] as const).map((v) => {
-                const label = v === "newest" ? "최신순" : "오래된순";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setSortOrder(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{ backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a" }}
-                  >
-                    <Text className="text-[13px] font-semibold" style={{ color: sortOrder === v ? "#111" : "#888" }}>
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              날짜 표시
-            </Text>
-            <View className="flex-row gap-2 mb-6">
-              {([false, true] as const).map((v) => (
-                <Pressable
-                  key={String(v)}
-                  onPress={() => setShowDate(v)}
-                  className="flex-1 rounded-[10px] py-2.5 items-center"
-                  style={{ backgroundColor: showDate === v ? "#4ecdc4" : "#2a2a2a" }}
-                >
-                  <Text className="text-[13px] font-semibold" style={{ color: showDate === v ? "#111" : "#888" }}>
-                    {v ? "표시" : "숨김"}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {memoDoneCount > 0 && (
-              <Pressable
-                onPress={deleteCheckedMemos}
-                className="flex-row items-center justify-center gap-2 rounded-[10px] py-3"
-                style={{ backgroundColor: "#2a1a1a" }}
-              >
-                <Trash2 size={15} color="#ff6b6b" />
-                <Text style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}>
-                  완료 항목 {memoDoneCount}개 삭제
-                </Text>
-              </Pressable>
-            )}
           </Pressable>
-        </Pressable>
-      </Modal>
+        )}
+      </FilterBottomSheet>
 
       {/* 할 일 필터 바텀 시트 */}
-      <Modal
-        visible={showTodoFilterSheet}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowTodoFilterSheet(false)}
-      >
-        <Pressable className="flex-1 bg-black/50 justify-end" onPress={() => setShowTodoFilterSheet(false)}>
-          <Pressable
-            className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10"
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
-
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-3">
-              전체 현황
-            </Text>
-            <View className="flex-row flex-wrap gap-2 mb-5">
-              {QUADRANTS.map((q) => (
-                <View
-                  key={q.key}
-                  className="flex-row items-center gap-1.5 rounded-[8px] px-3 py-2"
-                  style={{ backgroundColor: `${q.color}18` }}
-                >
-                  <Text style={{ color: q.color, fontSize: 12, fontWeight: "700" }}>{q.label}</Text>
-                  <Text style={{ color: "#666", fontSize: 12 }}>
-                    {todoCounts[q.key].done}/{todoCounts[q.key].total}
-                  </Text>
-                </View>
-              ))}
+      <FilterBottomSheet visible={showTodoFilterSheet} onClose={() => setShowTodoFilterSheet(false)}>
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-3">
+          전체 현황
+        </Text>
+        <View className="flex-row flex-wrap gap-2 mb-5">
+          {QUADRANTS.map((q) => (
+            <View
+              key={q.key}
+              className="flex-row items-center gap-1.5 rounded-[8px] px-3 py-2"
+              style={{ backgroundColor: `${q.color}18` }}
+            >
+              <Text style={{ color: q.color, fontSize: 12, fontWeight: "700" }}>{q.label}</Text>
+              <Text style={{ color: "#666", fontSize: 12 }}>
+                {todoCounts[q.key].done}/{todoCounts[q.key].total}
+              </Text>
             </View>
-
-            {todoDoneCount > 0 && (
-              <Pressable
-                onPress={deleteCheckedTodos}
-                className="flex-row items-center justify-center gap-2 rounded-[10px] py-3"
-                style={{ backgroundColor: "#2a1a1a" }}
-              >
-                <Trash2 size={15} color="#ff6b6b" />
-                <Text style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}>
-                  완료 항목 {todoDoneCount}개 삭제
-                </Text>
-              </Pressable>
-            )}
+          ))}
+        </View>
+        {todoDoneCount > 0 && (
+          <Pressable
+            onPress={deleteCheckedTodos}
+            className="flex-row items-center justify-center gap-2 rounded-[10px] py-3"
+            style={{ backgroundColor: "#2a1a1a" }}
+          >
+            <Trash2 size={15} color="#ff6b6b" />
+            <Text style={{ color: "#ff6b6b", fontSize: 13, fontWeight: "600" }}>
+              완료 항목 {todoDoneCount}개 삭제
+            </Text>
           </Pressable>
-        </Pressable>
-      </Modal>
+        )}
+      </FilterBottomSheet>
     </View>
   );
 }

@@ -1,4 +1,5 @@
 // 리스트 탭 — 기간 필터링된 로그를 월별 섹션으로 표시 + 체크 완료 관리
+import { FilterBottomSheet, FilterChipGroup } from "@/components/FilterBottomSheet";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { ListEventItem } from "@/components/logs/ListEventItem";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
@@ -20,7 +21,6 @@ import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   FlatList,
-  Modal,
   Pressable,
   ScrollView,
   SectionList,
@@ -399,204 +399,73 @@ export default function ListScreen() {
       />
 
       {/* 필터 바텀 시트 */}
-      <Modal
-        visible={showFilterSheet}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowFilterSheet(false)}
-      >
-        <Pressable
-          className="flex-1 bg-black/50 justify-end"
-          onPress={() => setShowFilterSheet(false)}
-        >
-          <Pressable className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10">
-            <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
+      <FilterBottomSheet visible={showFilterSheet} onClose={() => setShowFilterSheet(false)}>
+        <FilterChipGroup
+          label="완료 상태"
+          options={[{ value: "all", label: "전체" }, { value: "done", label: "완료" }, { value: "undone", label: "미완료" }]}
+          value={completionFilter}
+          onChange={setCompletionFilter}
+        />
+        <FilterChipGroup
+          label="기록 유형"
+          options={[{ value: "all", label: "전체" }, { value: "regular", label: "일반" }, { value: "repeat", label: "반복" }]}
+          value={typeFilter}
+          onChange={setTypeFilter}
+        />
+        <FilterChipGroup
+          label="관련 인물"
+          options={[{ value: "all", label: "전체" }, { value: "yes", label: "있음" }, { value: "no", label: "없음" }]}
+          value={personFilter}
+          onChange={setPersonFilter}
+        />
+        <FilterChipGroup
+          label="정렬"
+          options={[{ value: "oldest", label: "오래된순" }, { value: "newest", label: "최신순" }]}
+          value={sortOrder}
+          onChange={setSortOrder}
+        />
 
-            {/* 완료 상태 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              완료 상태
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {(["all", "done", "undone"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "done" ? "완료" : "미완료";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setCompletionFilter(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor:
-                        completionFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
-                  >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{
-                        color: completionFilter === v ? "#111" : "#888",
-                      }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 기록 유형 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              기록 유형
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {(["all", "regular", "repeat"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "regular" ? "일반" : "반복";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setTypeFilter(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor: typeFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
-                  >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{ color: typeFilter === v ? "#111" : "#888" }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 그룹 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              그룹
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-5"
-              contentContainerStyle={{ gap: 8 }}
-            >
-              <Pressable
-                onPress={() => setGroupFilter("all")}
-                className="rounded-[10px] px-4 py-2.5"
-                style={{
-                  backgroundColor:
-                    groupFilter === "all" ? "#4ecdc4" : "#2a2a2a",
-                }}
-              >
-                <Text
-                  className="text-[13px] font-semibold"
-                  style={{ color: groupFilter === "all" ? "#111" : "#888" }}
-                >
-                  전체
-                </Text>
-              </Pressable>
-              {allGroups.map((g) => (
-                <Pressable
-                  key={g.id}
-                  onPress={() => setGroupFilter(g.id)}
-                  className="rounded-[10px] px-4 py-2.5"
-                  style={{
-                    backgroundColor:
-                      groupFilter === g.id ? "#4ecdc4" : "#2a2a2a",
-                  }}
-                >
-                  <Text
-                    className="text-[13px] font-semibold"
-                    style={{ color: groupFilter === g.id ? "#111" : "#888" }}
-                  >
-                    {g.emoji ? `${g.emoji} ${g.name}` : g.name}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-
-            {/* 관련 인물 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              관련 인물
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {(["all", "yes", "no"] as const).map((v) => {
-                const label =
-                  v === "all" ? "전체" : v === "yes" ? "있음" : "없음";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setPersonFilter(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor:
-                        personFilter === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
-                  >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{ color: personFilter === v ? "#111" : "#888" }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 정렬 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              정렬
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {(["oldest", "newest"] as const).map((v) => {
-                const label = v === "oldest" ? "오래된순" : "최신순";
-                return (
-                  <Pressable
-                    key={v}
-                    onPress={() => setSortOrder(v)}
-                    className="flex-1 rounded-[10px] py-2.5 items-center"
-                    style={{
-                      backgroundColor: sortOrder === v ? "#4ecdc4" : "#2a2a2a",
-                    }}
-                  >
-                    <Text
-                      className="text-[13px] font-semibold"
-                      style={{ color: sortOrder === v ? "#111" : "#888" }}
-                    >
-                      {label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* 기념일 표시 */}
-            <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-              기념일
-            </Text>
-            <Pressable
-              onPress={() => setShowAnniversaries(!showAnniversaries)}
-              className="flex-row items-center justify-between rounded-[10px] px-4 py-3"
-              style={{ backgroundColor: "#2a2a2a" }}
-            >
-              <Text className="text-[13px]" style={{ color: "#ccc" }}>
-                기념일 함께 표시
-              </Text>
-              <View
-                className="w-12 h-6 rounded-full justify-center"
-                style={{ backgroundColor: showAnniversaries ? "#7c3aed" : "#444" }}
-              >
-                <View
-                  className="w-5 h-5 rounded-full bg-white"
-                  style={showAnniversaries ? { marginLeft: "auto", marginRight: 2 } : { marginLeft: 2 }}
-                />
-              </View>
-            </Pressable>
+        {/* 그룹 — horizontal scroll이라 커스텀 유지 */}
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+          그룹
+        </Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-5" contentContainerStyle={{ gap: 8 }}>
+          <Pressable
+            onPress={() => setGroupFilter("all")}
+            className="rounded-[10px] px-4 py-2.5"
+            style={{ backgroundColor: groupFilter === "all" ? "#4ecdc4" : "#2a2a2a" }}
+          >
+            <Text className="text-[13px] font-semibold" style={{ color: groupFilter === "all" ? "#111" : "#888" }}>전체</Text>
           </Pressable>
+          {allGroups.map((g) => (
+            <Pressable
+              key={g.id}
+              onPress={() => setGroupFilter(g.id)}
+              className="rounded-[10px] px-4 py-2.5"
+              style={{ backgroundColor: groupFilter === g.id ? "#4ecdc4" : "#2a2a2a" }}
+            >
+              <Text className="text-[13px] font-semibold" style={{ color: groupFilter === g.id ? "#111" : "#888" }}>
+                {g.emoji ? `${g.emoji} ${g.name}` : g.name}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        {/* 기념일 — 토글이라 커스텀 유지 */}
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+          기념일
+        </Text>
+        <Pressable
+          onPress={() => setShowAnniversaries(!showAnniversaries)}
+          className="flex-row items-center justify-between rounded-[10px] px-4 py-3"
+          style={{ backgroundColor: "#2a2a2a" }}
+        >
+          <Text className="text-[13px]" style={{ color: "#ccc" }}>기념일 함께 표시</Text>
+          <View className="w-12 h-6 rounded-full justify-center" style={{ backgroundColor: showAnniversaries ? "#7c3aed" : "#444" }}>
+            <View className="w-5 h-5 rounded-full bg-white" style={showAnniversaries ? { marginLeft: "auto", marginRight: 2 } : { marginLeft: 2 }} />
+          </View>
         </Pressable>
-      </Modal>
+      </FilterBottomSheet>
     </View>
   );
 }

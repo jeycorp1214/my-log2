@@ -585,12 +585,12 @@
 
 ## P1 — 코드 중복 (중간)
 
-- [ ] **#5** 필터 바텀시트 공통 컴포넌트화 — `memo.tsx` / `persons.tsx` / `list.tsx` 동일 패턴 반복
+- [x] **#5** `FilterBottomSheet` + `FilterChipGroup` 컴포넌트 신규 — `memo.tsx` / `list.tsx` 교체 완료
 
 ## P2 — 성능 (중간)
 
-- [ ] **#6** `persons.tsx`: `ScrollView` → `FlatList` 교체 — 인물 많을수록 성능 저하
-- [ ] **#7** `useCalendarData.ts`: `markedDates` useMemo 최적화 — 날짜 탭마다 전체 재계산
+- [ ] **#6** `persons.tsx`: `ScrollView` → SectionList 교체 — 접기/펼치기 + 핀고정 혼재로 리스크 큼, 스킵
+- [x] **#7** `useCalendarData.ts`: `baseDots` / `markedDates` 분리 — 날짜 탭 시 dots 재계산 제거
 
 ## 설계 결정 메모
 
