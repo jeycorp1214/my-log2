@@ -2,9 +2,8 @@
 import type { persons } from "@/db/schema";
 import { calcAge, fromNow } from "@/utils/date";
 import { parseTags } from "@/utils/person";
-import dayjs from "dayjs";
 import type { InferSelectModel } from "drizzle-orm";
-import { Pin } from "lucide-react-native";
+import { StarIcon } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 
 const AVATAR_COLORS = [
@@ -38,58 +37,36 @@ interface Props {
 
 export function PersonCard({
   person,
-  groupColor,
   logCount,
   lastLogDate,
   onPress,
   onPinPress,
 }: Props) {
   const age = person.birthDate ? calcAge(person.birthDate) : null;
-
-  const daysSinceLastLog = lastLogDate
-    ? dayjs().startOf("day").diff(dayjs(lastLogDate).startOf("day"), "day")
-    : null;
-
-  const isOverdue =
-    person.contactInterval != null &&
-    (daysSinceLastLog == null || daysSinceLastLog >= person.contactInterval);
-
-  const barColor =
-    person.contactInterval == null
-      ? null
-      : isOverdue
-        ? "#FF6B6B"
-        : daysSinceLastLog != null &&
-            daysSinceLastLog >= person.contactInterval * 0.75
-          ? "#FFA94D"
-          : "#4ecdc4";
-
-  const barWidth =
-    person.contactInterval != null
-      ? Math.min(
-          ((daysSinceLastLog ?? person.contactInterval) /
-            person.contactInterval) *
-            100,
-          100,
-        )
-      : 0;
-
   const initial = person.name.charAt(0);
   const bgColor = avatarColor(person.name);
   const parsedTags = parseTags(person.tags);
 
+  const metaLine = [
+    age != null ? `${age}세` : null,
+    person.mbti || null,
+    lastLogDate
+      ? fromNow(lastLogDate)
+      : person.contactInterval != null
+        ? ""
+        : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <Pressable
       onPress={onPress}
-      className="bg-app-surface rounded-[14px] overflow-hidden mb-2"
+      className="bg-app-surface rounded-[14px] mb-2"
       style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
     >
-      <View className="flex-row">
-        <View
-          className="w-1 self-stretch"
-          style={{ backgroundColor: groupColor }}
-        />
-        <View className="justify-center pl-[12px] pr-[4px] py-[14px]">
+      <View className="flex-row px-4 gap-3">
+        <View className="justify-center px-[12px] pr-[4px] py-[14px]">
           <View
             style={{
               width: 40,
@@ -105,58 +82,50 @@ export function PersonCard({
             </Text>
           </View>
         </View>
-        <View className="flex-1 p-[14px] gap-1">
+
+        <View className="flex-1 px-[10px] py-[14px] gap-1">
+          {/* 1줄: 이름 + 태그 + 핀 */}
           <View className="flex-row items-center justify-between">
-            <Text
-              className="text-white text-base font-semibold flex-1 mr-2"
-              numberOfLines={1}
-            >
-              {person.name}
-            </Text>
-            <View className="flex-row items-center gap-1.5">
-              {lastLogDate ? (
-                <Text className="text-[#666] text-[11px]">
-                  {fromNow(lastLogDate)}
-                </Text>
-              ) : person.contactInterval != null ? (
-                <Text className="text-[#555] text-[11px]">기록 없음</Text>
-              ) : null}
-              {onPinPress && (
-                <Pressable onPress={onPinPress} hitSlop={8}>
-                  <Pin
-                    size={14}
-                    color={person.isPinned ? "#4ecdc4" : "#444"}
-                    fill={person.isPinned ? "#4ecdc4" : "none"}
-                  />
-                </Pressable>
-              )}
-            </View>
-          </View>
-          <View className="flex-row gap-2">
-            {age !== null && (
-              <Text className="text-[#888] text-[13px]">{age}세</Text>
-            )}
-            {person.mbti && (
-              <Text className="text-[#888] text-[13px]">{person.mbti}</Text>
-            )}
-          </View>
-          {person.memo ? (
-            <Text className="text-app-muted text-[13px]" numberOfLines={1}>
-              {person.memo}
-            </Text>
-          ) : null}
-          {parsedTags.length > 0 && (
-            <View className="flex-row flex-wrap gap-1 mt-0.5">
+            <View className="flex-1 gap-2 flex-row flex-wrap items-center  ">
+              <Text
+                className="text-white text-base font-semibold"
+                style={{ flexShrink: 1 }}
+                numberOfLines={1}
+              >
+                {person.name}
+              </Text>
               {parsedTags.map((tag) => (
                 <View
                   key={tag}
-                  className="bg-[#1a2e2c] rounded-[6px] px-2 py-0.5"
+                  className="bg-[#1a2e2c] rounded-[6px] px-1.5 py-0.5"
                 >
                   <Text className="text-app-teal text-[11px]">{tag}</Text>
                 </View>
               ))}
             </View>
+            {onPinPress && (
+              <Pressable onPress={onPinPress} hitSlop={8}>
+                <StarIcon
+                  size={20}
+                  color={person.isPinned ? "#4ecdc4" : "#444"}
+                  fill={person.isPinned ? "#4ecdc4" : "none"}
+                />
+              </Pressable>
+            )}
+          </View>
+
+          {/* 2줄: 나이 · MBTI · 마지막 연락 */}
+          {metaLine.length > 0 && (
+            <Text className="text-[#888] text-[13px]">{metaLine}</Text>
           )}
+
+          {/* 3줄: 메모 */}
+          {person.memo ? (
+            <Text className="text-app-muted text-[13px]" numberOfLines={1}>
+              {person.memo}
+            </Text>
+          ) : null}
+
           {logCount !== undefined && logCount > 0 && (
             <Text className="text-app-teal text-[12px] mt-0.5">
               관련 기록 {logCount}개 →
@@ -164,16 +133,6 @@ export function PersonCard({
           )}
         </View>
       </View>
-
-      {/* 연락 주기 진행률 바 */}
-      {barColor != null && (
-        <View className="h-[2px] bg-[#1e1e1e]">
-          <View
-            className="h-full"
-            style={{ width: `${barWidth}%`, backgroundColor: barColor }}
-          />
-        </View>
-      )}
     </Pressable>
   );
 }

@@ -310,7 +310,7 @@ export default function PersonsScreen() {
     if (pinnedPersons.length > 0) {
       result.push({
         id: "__pinned__",
-        titleText: "📌 고정",
+        titleText: "📌 즐겨찾기",
         collapsible: false,
         memberCount: pinnedPersons.length,
         data: pinnedPersons,
@@ -323,10 +323,10 @@ export default function PersonsScreen() {
       result.push({
         id: group.id,
         titleText: `${group.emoji ?? ""} ${group.name}`.trim(),
-        color: group.color,
-        collapsible: true,
-        memberCount: members.length,
-        data: collapsed ? [] : members,
+        // color: group.color,
+        collapsible: true, // 그룹은 항상 접을 수 있게
+        memberCount: members.length, // 접힌 상태에서도 멤버 수는 보여줌
+        data: collapsed ? [] : members, // 접힌 상태면 빈 배열로
       });
     }
 
