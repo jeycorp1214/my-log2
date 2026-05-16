@@ -63,6 +63,8 @@ export type HomePrefs = {
   showOverduePersons: boolean;
   showPinnedMemos: boolean;
   showTodoStatus: boolean;
+  showMiniHeatmap: boolean;
+  showCategoryRatio: boolean;
   showRecentLogs: boolean;
 };
 
@@ -100,6 +102,8 @@ const DEFAULT_PREFS: AllTabPrefs = {
     showOverduePersons: false,
     showPinnedMemos: false,
     showTodoStatus: false,
+    showMiniHeatmap: false,
+    showCategoryRatio: false,
     showRecentLogs: true,
   },
 };

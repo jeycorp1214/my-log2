@@ -1,5 +1,7 @@
 // 홈 탭 — 대시보드형: 이번달 요약 + 스트릭 + 임박 기념일 + 최근 기록
 import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { CategoryRatioWidget } from "@/components/home/CategoryRatioWidget";
+import { MiniHeatmapWidget } from "@/components/home/MiniHeatmapWidget";
 import { OverduePersonsWidget } from "@/components/home/OverduePersonsWidget";
 import { PinnedMemosWidget } from "@/components/home/PinnedMemosWidget";
 import { TodayRepeatWidget } from "@/components/home/TodayRepeatWidget";
@@ -10,6 +12,7 @@ import { db } from "@/db/client";
 import { groups, logs } from "@/db/schema";
 import { useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
 import {
+  calcLongestGap,
   calcStreak,
   useAllLogDates,
   useCompletionRate,
@@ -30,6 +33,8 @@ const DAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 const WIDGET_LABELS: { key: keyof import("@/providers/TabPreferencesProvider").HomePrefs; label: string }[] = [
   { key: "showMonthSummary",  label: "이번 달 요약" },
   { key: "showStreak",        label: "스트릭" },
+  { key: "showMiniHeatmap",   label: "최근 12주 히트맵" },
+  { key: "showCategoryRatio", label: "카테고리 비율" },
   { key: "showUpcomingAnn",   label: "다가오는 기념일" },
   { key: "showTodayRepeat",   label: "오늘의 반복" },
   { key: "showOverduePersons",label: "연락 필요 인물" },
@@ -60,6 +65,7 @@ export default function HomeScreen() {
     () => calcStreak(logDates),
     [logDates],
   );
+  const longestGap = useMemo(() => calcLongestGap(logDates), [logDates]);
 
   // 7일 이내 임박 기념일
   const annStart = useMemo(() => today.startOf("day").toDate(), [today]);
@@ -143,22 +149,41 @@ export default function HomeScreen() {
 
         {/* 스트릭 카드 */}
         {home.showStreak && (
-        <View className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4 flex-row gap-4">
-          <View className="flex-1 items-center">
-            <Text className="text-[28px] font-bold text-white">
-              {streakCurrent}
+        <Pressable
+          className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4"
+          onPress={() => router.push("/settings/stats")}
+          style={({ pressed }) => (pressed ? { opacity: 0.8 } : undefined)}
+        >
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+              스트릭
             </Text>
-            <Text className="text-app-muted text-[12px] mt-0.5">현재 스트릭</Text>
+            <Text className="text-[#555] text-[11px]">통계 →</Text>
           </View>
-          <View className="w-px bg-[#2a2a2a]" />
-          <View className="flex-1 items-center">
-            <Text className="text-[28px] font-bold text-white">
-              {streakBest}
-            </Text>
-            <Text className="text-app-muted text-[12px] mt-0.5">최장 스트릭</Text>
+          <View className="flex-row gap-4">
+            <View className="flex-1 items-center">
+              <Text className="text-[26px] font-bold text-white">{streakCurrent}</Text>
+              <Text className="text-app-muted text-[11px] mt-0.5">현재</Text>
+            </View>
+            <View className="w-px bg-[#2a2a2a]" />
+            <View className="flex-1 items-center">
+              <Text className="text-[26px] font-bold text-white">{streakBest}</Text>
+              <Text className="text-app-muted text-[11px] mt-0.5">최장</Text>
+            </View>
+            <View className="w-px bg-[#2a2a2a]" />
+            <View className="flex-1 items-center">
+              <Text className="text-[26px] font-bold text-white">{longestGap}</Text>
+              <Text className="text-app-muted text-[11px] mt-0.5">최장 공백</Text>
+            </View>
           </View>
-        </View>
+        </Pressable>
         )}
+
+        {/* 새 위젯: 미니 히트맵 */}
+        {home.showMiniHeatmap && <MiniHeatmapWidget />}
+
+        {/* 새 위젯: 카테고리 비율 */}
+        {home.showCategoryRatio && <CategoryRatioWidget />}
 
         {/* 새 위젯: 오늘의 반복 */}
         {home.showTodayRepeat && <TodayRepeatWidget />}
