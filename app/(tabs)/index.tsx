@@ -1,16 +1,16 @@
 // 홈 탭 — 대시보드형: 이번달 요약 + 스트릭 + 임박 기념일 + 최근 기록
 import { FloatingActionButton } from "@/components/FloatingActionButton";
 import TabsHeader from "@/components/layout/TabsHeader";
-import { LogCard } from "@/components/logs/LogCard";
+import { HomeLogItem } from "@/components/logs/HomeLogItem";
 import { db } from "@/db/client";
-import { logs } from "@/db/schema";
+import { groups, logs } from "@/db/schema";
 import { useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
 import {
   calcStreak,
   useAllLogDates,
   useCompletionRate,
 } from "@/hooks/stats/use-stats";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
@@ -57,9 +57,23 @@ export default function HomeScreen() {
     [anniversaryBoardItems],
   );
 
-  // 최근 기록 5개
+  // 최근 기록 5개 (그룹 정보 join)
   const { data: recentLogs = [] } = useLiveQuery(
-    db.select().from(logs).orderBy(desc(logs.logDate)).limit(5),
+    db
+      .select({
+        id: logs.id,
+        title: logs.title,
+        logDate: logs.logDate,
+        checkedAt: logs.checkedAt,
+        repeatType: logs.repeatType,
+        groupColor: groups.color,
+        groupEmoji: groups.emoji,
+        groupName: groups.name,
+      })
+      .from(logs)
+      .leftJoin(groups, eq(logs.groupId, groups.id))
+      .orderBy(desc(logs.logDate))
+      .limit(5),
   );
 
   return (
@@ -178,9 +192,15 @@ export default function HomeScreen() {
           ) : (
             <View className="gap-2">
               {recentLogs.map((log) => (
-                <LogCard
+                <HomeLogItem
                   key={log.id}
-                  log={log}
+                  title={log.title}
+                  logDate={new Date(log.logDate)}
+                  checkedAt={log.checkedAt ? new Date(log.checkedAt) : null}
+                  repeatType={log.repeatType ?? null}
+                  groupColor={log.groupColor ?? "#4ECDC4"}
+                  groupEmoji={log.groupEmoji ?? null}
+                  groupName={log.groupName ?? ""}
                   onPress={() =>
                     router.push({
                       pathname: "/logs/[id]",
