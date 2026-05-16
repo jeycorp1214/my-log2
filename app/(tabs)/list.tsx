@@ -14,6 +14,7 @@ import {
   type AnniversaryBoardItem,
   useAnniversariesInMonth,
 } from "@/hooks/persons/use-anniversaries-in-month";
+import { useIsFocused } from "@/hooks/use-is-focused";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { formatMonthYear } from "@/utils/date";
 import { cn } from "@/utils/utils";
@@ -58,6 +59,7 @@ const PRESETS: PresetConfig[] = [
 
 export default function ListScreen() {
   const router = useRouter();
+  const isFocused = useIsFocused();
 
   const { prefs, setListPrefs } = useTabPreferences();
   const preset = prefs.list.preset as Preset;
@@ -133,7 +135,7 @@ export default function ListScreen() {
   }, [preset, customStart, customEnd]);
 
   const allItems = useEventFilter(start, end);
-  const { anniversaryBoardItems } = useAnniversariesInMonth(start, end);
+  const { anniversaryBoardItems } = useAnniversariesInMonth(start, end, isFocused);
 
   const filtered = useMemo(() => {
     let items = allItems;

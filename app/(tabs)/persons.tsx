@@ -12,6 +12,7 @@ import {
   useAnniversariesInMonth,
 } from "@/hooks/persons/use-anniversaries-in-month";
 import { usePersonsWithGroups } from "@/hooks/persons/use-persons-with-groups";
+import { useIsFocused } from "@/hooks/use-is-focused";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
 import { formatLogDate } from "@/utils/date";
 import { parseTags } from "@/utils/person";
@@ -96,6 +97,7 @@ function sortPersons<T extends Person>(
 
 export default function PersonsScreen() {
   const router = useRouter();
+  const isFocused = useIsFocused();
   const { allPersons, groupedPersons, ungrouped, lastLogDateMap } =
     usePersonsWithGroups();
 
@@ -176,7 +178,7 @@ export default function PersonsScreen() {
     return { annStart: annCustomStart, annEnd: annCustomEnd };
   }, [annPreset, annCustomStart, annCustomEnd]);
 
-  const { anniversaryBoardItems } = useAnniversariesInMonth(annStart, annEnd);
+  const { anniversaryBoardItems } = useAnniversariesInMonth(annStart, annEnd, isFocused);
 
   const personGroupMap = useMemo(
     () => new Map(allPersons.map((p) => [p.id, p.groupId])),

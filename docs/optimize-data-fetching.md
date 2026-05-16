@@ -70,9 +70,11 @@
 
 ### Phase 4: MED — useFocusEffect 가드
 
-- [ ] **M9** Home Tab — 비용 큰 쿼리(`useAllLogDates`, `useAnniversariesInMonth`) `useFocusEffect` 가드 적용
-- [ ] **M9** Persons Tab — `usePersonsWithGroups` 포커스 시만 활성화
-- [ ] **M9** List Tab — `useEventFilter` 포커스 시만 활성화
+- [x] **M9** `hooks/use-is-focused.ts` 신규 생성 — `useFocusEffect` 기반 `useIsFocused()` 유틸
+- [x] **M9** `hooks/persons/use-anniversaries-in-month.ts` — `enabled` 파라미터 추가, 미포커스 시 useMemo 조기 반환
+- [x] **M9** Home, List, Persons 탭 — `useIsFocused()` + `enabled` 인자 전달
+  - DB 구독은 유지 (drizzle useLiveQuery 제한), JS 연산만 포커스 시 실행
+  - 3개 탭 동시 마운트 시 anniversary 연산 1개만 실행
 
 ### Phase 5: MED — ScrollView → FlatList 가상화
 
@@ -93,7 +95,7 @@
 | Phase 1: HIGH SQL 집계 | ✅ 완료 | 2026-05-17 |
 | Phase 2: MED 메모이제이션 | ✅ 완료 | 2026-05-17 |
 | Phase 3: HIGH List 무한스크롤 | ✅ 완료 | 2026-05-17 |
-| Phase 4: MED useFocusEffect | 🔲 대기 | - |
+| Phase 4: MED useFocusEffect | ✅ 완료 | 2026-05-17 |
 | Phase 5: MED ScrollView→FlatList | 🔲 대기 | - |
 | Phase 6: LOW 기타 | 🔲 대기 | - |
 

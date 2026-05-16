@@ -14,7 +14,7 @@ export type AnniversaryBoardItem = {
   type: "anniversary";
 };
 
-export function useAnniversariesInMonth(start: Date, end: Date) {
+export function useAnniversariesInMonth(start: Date, end: Date, enabled = true) {
   const { data: annWithPersons = [] } = useLiveQuery(
     db
       .select({
@@ -37,6 +37,7 @@ export function useAnniversariesInMonth(start: Date, end: Date) {
   );
 
   return useMemo(() => {
+    if (!enabled) return { anniversaryDates: [], anniversaryBoardItems: [] };
     const startYear = dayjs(start).year();
     const endYear = dayjs(end).year();
     const rangeYears = endYear - startYear;
@@ -93,5 +94,5 @@ export function useAnniversariesInMonth(start: Date, end: Date) {
     }
 
     return { anniversaryDates: dates, anniversaryBoardItems: boardItems };
-  }, [annWithPersons, birthPersons, start.getTime(), end.getTime()]);
+  }, [annWithPersons, birthPersons, start.getTime(), end.getTime(), enabled]);
 }

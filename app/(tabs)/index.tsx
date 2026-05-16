@@ -11,6 +11,7 @@ import { HomeLogItem } from "@/components/logs/HomeLogItem";
 import { db } from "@/db/client";
 import { groups, logs } from "@/db/schema";
 import { useAnniversariesInMonth } from "@/hooks/persons/use-anniversaries-in-month";
+import { useIsFocused } from "@/hooks/use-is-focused";
 import {
   calcLongestGap,
   calcStreak,
@@ -45,6 +46,7 @@ const WIDGET_LABELS: { key: keyof import("@/providers/TabPreferencesProvider").H
 
 export default function HomeScreen() {
   const router = useRouter();
+  const isFocused = useIsFocused();
   const { prefs, setHomePrefs } = useTabPreferences();
   const home = prefs.home;
   const [showWidgetSheet, setShowWidgetSheet] = useState(false);
@@ -73,7 +75,7 @@ export default function HomeScreen() {
     () => today.add(7, "day").endOf("day").toDate(),
     [today],
   );
-  const { anniversaryBoardItems } = useAnniversariesInMonth(annStart, annEnd);
+  const { anniversaryBoardItems } = useAnniversariesInMonth(annStart, annEnd, isFocused);
   const upcomingAnn = useMemo(
     () =>
       [...anniversaryBoardItems].sort(
