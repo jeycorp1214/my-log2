@@ -285,6 +285,7 @@ export default function ListScreen() {
     <View className="flex-1 bg-app-bg">
       <TabsHeader
         title="리스트"
+        calendarOnPress={() => router.push("/(tabs)/calendar")}
         searchOnPress={toggleSearch}
         searchActive={showSearch}
         slidersOnPress={() => setShowFilterSheet(true)}

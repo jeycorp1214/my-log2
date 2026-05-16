@@ -38,17 +38,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="persons"
-        options={{
-          title: "프로필",
-          tabBarIcon: ({ color }) => <Users size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="calendar"
         options={{
           title: "캘린더",
           tabBarIcon: ({ color }) => <CalendarDays size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="persons"
+        options={{
+          title: "프로필",
+          tabBarIcon: ({ color }) => <Users size={24} color={color} />,
         }}
       />
       <Tabs.Screen
