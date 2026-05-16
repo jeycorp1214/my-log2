@@ -6,9 +6,9 @@ import { useMemo } from "react";
 
 import { db } from "@/db/client";
 import { logs, personAnniversaries, persons } from "@/db/schema";
-import type { InferSelectModel } from "drizzle-orm";
 import { dDayLabel } from "@/utils/date";
 import { expandRepeatInMonth } from "@/utils/repeat";
+import type { InferSelectModel } from "drizzle-orm";
 
 type Log = InferSelectModel<typeof logs>;
 
@@ -33,12 +33,22 @@ export type DayItem = LogDayItem | RepeatDayItem | AnniversaryDayItem;
 
 type MarkedDates = Record<
   string,
-  { dots: { key: string; color: string }[]; selected?: boolean; selectedColor?: string }
+  {
+    dots: { key: string; color: string }[];
+    selected?: boolean;
+    selectedColor?: string;
+  }
 >;
 
 export function useCalendarData(currentMonthStr: string, selectedDate: string) {
-  const monthStart = useMemo(() => dayjs(currentMonthStr).startOf("month"), [currentMonthStr]);
-  const monthEnd = useMemo(() => dayjs(currentMonthStr).endOf("month"), [currentMonthStr]);
+  const monthStart = useMemo(
+    () => dayjs(currentMonthStr).startOf("month"),
+    [currentMonthStr],
+  );
+  const monthEnd = useMemo(
+    () => dayjs(currentMonthStr).endOf("month"),
+    [currentMonthStr],
+  );
   const monthStartMs = monthStart.valueOf();
   const monthEndMs = monthEnd.valueOf();
 
@@ -64,7 +74,10 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
           isNotNull(logs.repeatType),
           ne(logs.repeatType, "none"),
           lt(logs.logDate, monthEnd.add(1, "day").startOf("day").toDate()),
-          or(isNull(logs.repeatUntil), gte(logs.repeatUntil, monthStart.toDate())),
+          or(
+            isNull(logs.repeatUntil),
+            gte(logs.repeatUntil, monthStart.toDate()),
+          ),
         ),
       ),
     [monthStartMs, monthEndMs],
@@ -74,23 +87,32 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
   const currentMonthPad = monthStart.format("MM");
 
   const { data: anniversaries = [] } = useLiveQuery(
-    db.select().from(personAnniversaries).where(
-      or(
-        and(
-          eq(personAnniversaries.isRepeat, true),
-          sql`strftime('%m', ${personAnniversaries.date}) = ${currentMonthPad}`,
-        ),
-        and(
-          eq(personAnniversaries.isRepeat, false),
-          sql`strftime('%Y-%m', ${personAnniversaries.date}) = ${currentYearMonth}`,
+    db
+      .select()
+      .from(personAnniversaries)
+      .where(
+        or(
+          and(
+            eq(personAnniversaries.isRepeat, true),
+            sql`strftime('%m', ${personAnniversaries.date}) = ${currentMonthPad}`,
+          ),
+          and(
+            eq(personAnniversaries.isRepeat, false),
+            sql`strftime('%Y-%m', ${personAnniversaries.date}) = ${currentYearMonth}`,
+          ),
         ),
       ),
-    ),
     [monthStartMs],
   );
 
   const { data: allPersons = [] } = useLiveQuery(
-    db.select({ id: persons.id, name: persons.name, birthDate: persons.birthDate }).from(persons),
+    db
+      .select({
+        id: persons.id,
+        name: persons.name,
+        birthDate: persons.birthDate,
+      })
+      .from(persons),
   );
 
   // dots 계산 — 선택 날짜와 무관하게 월/데이터 변경 시에만 재계산
@@ -109,7 +131,11 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
     }
 
     for (const log of repeatLogs) {
-      for (const occ of expandRepeatInMonth(log, monthStart.toDate(), monthEnd.toDate())) {
+      for (const occ of expandRepeatInMonth(
+        log,
+        monthStart.toDate(),
+        monthEnd.toDate(),
+      )) {
         addDot(dayjs(occ).format("YYYY-MM-DD"), DOT_REPEAT);
       }
     }
@@ -159,21 +185,30 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
   const markedDates = useMemo((): MarkedDates => {
     const marks = { ...baseDots };
     if (!marks[selectedDate]) marks[selectedDate] = { dots: [] };
-    marks[selectedDate] = { ...marks[selectedDate], selected: true, selectedColor: "#4ECDC4" };
+    marks[selectedDate] = {
+      ...marks[selectedDate],
+      selected: true,
+      selectedColor: "#4ECDC4",
+    };
     return marks;
   }, [baseDots, selectedDate]);
 
-  const dayItems = useMemo((): DayItem[] => {
-    if (!selectedDate) return [];
-    const items: DayItem[] = [];
-    const [, selMm, selDd] = selectedDate.split("-");
-    const selMonth = parseInt(selMm, 10);
-    const selDay = parseInt(selDd, 10);
+  // 월 전체 날짜별 아이템 맵 — selectedDate 변경 시 재계산 없음
+  const monthItemsByDate = useMemo((): Record<string, DayItem[]> => {
+    const result: Record<string, DayItem[]> = {};
+    const currentMonthNum = monthStart.month() + 1;
+    const currentYear = monthStart.year();
+
+    const addItem = (dateStr: string, item: DayItem) => {
+      if (!result[dateStr]) result[dateStr] = [];
+      result[dateStr].push(item);
+    };
 
     for (const log of monthLogs) {
-      if (dayjs(log.logDate).format("YYYY-MM-DD") === selectedDate) {
-        items.push({ type: "log", data: log });
-      }
+      addItem(dayjs(log.logDate).format("YYYY-MM-DD"), {
+        type: "log",
+        data: log,
+      });
     }
 
     for (const log of repeatLogs) {
@@ -182,56 +217,79 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
         monthStart.toDate(),
         monthEnd.toDate(),
       )) {
-        if (dayjs(occ).format("YYYY-MM-DD") !== selectedDate) continue;
-        const alreadyAsLog = items.some(
-          (i) => i.type === "log" && i.data.id === log.id,
+        const dateStr = dayjs(occ).format("YYYY-MM-DD");
+        const isAlreadyLog = (result[dateStr] ?? []).some(
+          (i) => i.type === "log" && (i as LogDayItem).data.id === log.id,
         );
-        if (!alreadyAsLog) {
-          items.push({ type: "repeat", data: log, virtualDate: selectedDate });
+        if (!isAlreadyLog) {
+          addItem(dateStr, { type: "repeat", data: log, virtualDate: dateStr });
         }
       }
     }
 
     for (const ann of anniversaries) {
-      const [, annMm, annDd] = ann.date.split("-");
-      const matches = ann.isRepeat
-        ? parseInt(annMm, 10) === selMonth && parseInt(annDd, 10) === selDay
-        : ann.date === selectedDate;
-      if (!matches) continue;
-      const person = allPersons.find((p) => p.id === ann.personId);
-      if (!person) continue;
-      items.push({
-        type: "anniversary",
-        id: ann.id,
-        personId: ann.personId,
-        personName: person.name,
-        title: ann.title,
-        date: ann.date,
-        isRepeat: ann.isRepeat,
-        dDay: dDayLabel(ann.date, ann.isRepeat),
-        isBirthday: false,
-      });
+      try {
+        const parts = ann.date.split("-");
+        if (parts.length < 3) continue;
+        const [annYearStr, mm, dd] = parts;
+        const annMonth = parseInt(mm, 10);
+        let dateStr: string;
+        if (ann.isRepeat) {
+          if (annMonth !== currentMonthNum) continue;
+          dateStr = `${currentYear}-${mm}-${dd}`;
+        } else {
+          if (
+            parseInt(annYearStr, 10) !== currentYear ||
+            annMonth !== currentMonthNum
+          )
+            continue;
+          dateStr = ann.date;
+        }
+        const person = allPersons.find((p) => p.id === ann.personId);
+        if (!person) continue;
+        addItem(dateStr, {
+          type: "anniversary",
+          id: ann.id,
+          personId: ann.personId,
+          personName: person.name,
+          title: ann.title,
+          date: ann.date,
+          isRepeat: ann.isRepeat,
+          dDay: dDayLabel(ann.date, ann.isRepeat),
+          isBirthday: false,
+        });
+      } catch {}
     }
 
     for (const person of allPersons) {
       if (!person.birthDate) continue;
-      const [, bMm, bDd] = person.birthDate.split("-");
-      if (parseInt(bMm, 10) !== selMonth || parseInt(bDd, 10) !== selDay) continue;
-      items.push({
-        type: "anniversary",
-        id: `birth-${person.id}`,
-        personId: person.id,
-        personName: person.name,
-        title: "생일",
-        date: person.birthDate,
-        isRepeat: true,
-        dDay: dDayLabel(person.birthDate, true),
-        isBirthday: true,
-      });
+      try {
+        const parts = person.birthDate.split("-");
+        if (parts.length < 3) continue;
+        const [, mm, dd] = parts;
+        if (parseInt(mm, 10) !== currentMonthNum) continue;
+        const dateStr = `${currentYear}-${mm}-${dd}`;
+        addItem(dateStr, {
+          type: "anniversary",
+          id: `birth-${person.id}`,
+          personId: person.id,
+          personName: person.name,
+          title: "생일",
+          date: person.birthDate,
+          isRepeat: true,
+          dDay: dDayLabel(person.birthDate, true),
+          isBirthday: true,
+        });
+      } catch {}
     }
 
-    return items;
-  }, [selectedDate, monthLogs, repeatLogs, anniversaries, allPersons, monthStart, monthEnd]);
+    return result;
+  }, [monthLogs, repeatLogs, anniversaries, allPersons, monthStart, monthEnd]);
 
-  return { markedDates, dayItems };
+  const dayItems = useMemo(
+    () => monthItemsByDate[selectedDate] ?? [],
+    [monthItemsByDate, selectedDate],
+  );
+
+  return { markedDates, dayItems, monthItemsByDate };
 }
