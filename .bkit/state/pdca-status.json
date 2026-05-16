@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-16T00:23:28.573Z",
+  "lastUpdated": "2026-05-16T00:33:59.145Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -52,9 +52,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-16T00:16:23.231Z"
+        "lastUpdated": "2026-05-16T00:33:59.145Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/index.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/list.tsx"
     },
     "db": {
       "phase": "do",
@@ -91,9 +91,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T14:11:18.589Z",
-        "lastUpdated": "2026-05-15T23:38:34.129Z"
+        "lastUpdated": "2026-05-16T00:33:36.435Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/utils/date.ts"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/components/MonthPickerModal.tsx"
     },
     "providers": {
       "phase": "do",
@@ -182,7 +182,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-16T00:23:28.573Z"
+    "lastActivity": "2026-05-16T00:33:59.145Z"
   },
   "history": [
     {
@@ -1280,6 +1280,24 @@
     {
       "timestamp": "2026-05-16T00:23:28.573Z",
       "feature": "logs",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:33:36.436Z",
+      "feature": "kwak-app",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:33:53.423Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:33:59.145Z",
+      "feature": "(tabs)",
       "phase": "do",
       "action": "updated"
     }

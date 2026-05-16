@@ -1,6 +1,7 @@
 // 리스트 탭 — 기간 필터링된 로그를 월별 섹션으로 표시 + 체크 완료 관리
 import TabsHeader from "@/components/layout/TabsHeader";
 import { ListEventItem } from "@/components/logs/ListEventItem";
+import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { db } from "@/db/client";
 import { groups, logPersons, logs } from "@/db/schema";
@@ -318,6 +319,26 @@ export default function ListScreen() {
         }
         contentContainerStyle={{ paddingBottom: 96 }}
         stickySectionHeadersEnabled
+      />
+
+      {/* 커스텀 기간 월 선택 피커 */}
+      <MonthPickerModal
+        visible={showStartPicker}
+        value={customStart}
+        onChange={(date) => {
+          setCustomStart(date);
+          if (date > customEnd) setCustomEnd(date);
+        }}
+        onClose={() => setShowStartPicker(false)}
+      />
+      <MonthPickerModal
+        visible={showEndPicker}
+        value={customEnd}
+        onChange={(date) => {
+          setCustomEnd(date);
+          if (date < customStart) setCustomStart(date);
+        }}
+        onClose={() => setShowEndPicker(false)}
       />
 
       {/* 필터 바텀 시트 */}
