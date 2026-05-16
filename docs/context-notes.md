@@ -318,3 +318,34 @@ db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: c
 ### calendar-test.tsx 보존
 
 삭제하지 않음. 설정 > 개발자 옵션에 그대로 유지. 라이브러리 탐색/디버그 용도.
+
+---
+
+## 2026-05-16 — 검색 기능 확장 (search-expansion)
+
+### 구현 범위
+- logs + persons → todos + memos까지 검색 확장.
+- 섹션 순서: 기록 → 인물 → 메모 → 할 일 (앱 메인 사용 흐름 반영).
+
+### 결정 사항
+- **todos 라우팅**: 개별 상세 페이지 없음. 탭 시 `(tabs)/memo`로 이동.
+- **memos 라우팅**: `memos/[id]` 경로 이동.
+- **logPersons COUNT**: drizzle `sql\`count()\`` 집계로 JOIN COUNT. 결과에 `logCount` 필드.
+- **필터 칩 기본값**: "전체". 선택 필터 "전체"면 sections 전부 표시.
+- **인물 카드 관련 기록 수**: PersonCard 하단 표시, 탭 시 `persons/[id]` 이동.
+
+---
+
+## 2026-05-17 — Phase 15-16 결정 사항
+
+### Phase 15 노트 탭 개선
+- 스와이프 액션: reanimated v4 호환 문제로 제거. 버튼 UI 유지.
+- `pinnedAt` 정렬: `pinnedAt DESC NULLS LAST, createdAt DESC` — 핀 먼저, 그 안에서 최신순.
+- `dueDate`: `text("due_date")` YYYY-MM-DD (birthDate 동일 패턴).
+- `todos/[id].tsx`: 할 일 상세 화면 + `note` 컬럼 (부가 설명).
+
+### Phase 16 버그 수정
+- `persons.tags` JSON.parse → `parseTags()` util 중앙화 필요 (크래시 방지).
+- `use-event-filter.ts`: `or(isNull, eq('none'))` + `ne('none')` 패턴으로 로그 누락 수정.
+- `ensureGroupsColumns()`: `sort_order` 누락 시 화이트스크린 방지용 안전망.
+- `FilterBottomSheet` + `FilterChipGroup` 공통화: `memo.tsx`/`list.tsx` 교체 완료.
