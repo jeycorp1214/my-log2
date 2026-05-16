@@ -35,7 +35,13 @@ import {
 } from "react-native";
 
 type TabMode = "persons" | "anniversary";
-type AnnPreset = "this-week" | "this-month" | "recent-3m" | "custom";
+type AnnPreset =
+  | "this-week"
+  | "this-month"
+  | "recent-3m"
+  | "recent-6m"
+  | "recent-1y"
+  | "custom";
 type SortOrder = "name-asc" | "age-asc" | "last-contact-asc";
 type MbtiFilter = "all" | "yes" | "no";
 type OverdueFilter = "all" | "overdue";
@@ -57,6 +63,8 @@ const ANN_PRESETS: { key: AnnPreset; label: string }[] = [
   { key: "this-week", label: "이번 주" },
   { key: "this-month", label: "이번 달" },
   { key: "recent-3m", label: "최근 3개월" },
+  { key: "recent-6m", label: "최근 6개월" },
+  { key: "recent-1y", label: "최근 1년" },
   { key: "custom", label: "직접 선택" },
 ];
 
@@ -155,6 +163,16 @@ export default function PersonsScreen() {
     if (annPreset === "recent-3m")
       return {
         annStart: now.subtract(3, "month").toDate(),
+        annEnd: now.toDate(),
+      };
+    if (annPreset === "recent-6m")
+      return {
+        annStart: now.subtract(6, "month").toDate(),
+        annEnd: now.toDate(),
+      };
+    if (annPreset === "recent-1y")
+      return {
+        annStart: now.subtract(1, "year").toDate(),
         annEnd: now.toDate(),
       };
     return { annStart: annCustomStart, annEnd: annCustomEnd };

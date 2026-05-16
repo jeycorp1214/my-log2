@@ -33,7 +33,13 @@ export type CalendarPrefs = {
 };
 
 export type ListPrefs = {
-  preset: "this-week" | "this-month" | "recent-3m" | "custom";
+  preset:
+    | "this-week"
+    | "this-month"
+    | "recent-3m"
+    | "recent-6m"
+    | "recent-1y"
+    | "custom";
   completionFilter: "all" | "done" | "undone";
   typeFilter: "all" | "regular" | "repeat";
   sortOrder: "oldest" | "newest";

@@ -1,10 +1,13 @@
 // 리스트 탭 — 기간 필터링된 로그를 월별 섹션으로 표시 + 체크 완료 관리
-import { FilterBottomSheet, FilterChipGroup } from "@/components/FilterBottomSheet";
+import {
+  FilterBottomSheet,
+  FilterChipGroup,
+} from "@/components/FilterBottomSheet";
 import TabsHeader from "@/components/layout/TabsHeader";
-import { SearchBar } from "@/components/ui/SearchBar";
 import { ListEventItem } from "@/components/logs/ListEventItem";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
+import { SearchBar } from "@/components/ui/SearchBar";
 import { db } from "@/db/client";
 import { groups, logPersons, logs } from "@/db/schema";
 import { type EventItem, useEventFilter } from "@/hooks/logs/use-event-filter";
@@ -29,7 +32,13 @@ import {
   View,
 } from "react-native";
 
-type Preset = "this-week" | "this-month" | "recent-3m" | "custom";
+type Preset =
+  | "this-week"
+  | "this-month"
+  | "recent-3m"
+  | "recent-6m"
+  | "recent-1y"
+  | "custom";
 type CompletionFilter = "all" | "done" | "undone";
 type TypeFilter = "all" | "regular" | "repeat";
 type PersonFilter = "all" | "yes" | "no";
@@ -42,6 +51,8 @@ const PRESETS: PresetConfig[] = [
   { key: "this-week", label: "이번 주" },
   { key: "this-month", label: "이번 달" },
   { key: "recent-3m", label: "최근 3개월" },
+  { key: "recent-6m", label: "최근 6개월" },
+  { key: "recent-1y", label: "최근 1년" },
   { key: "custom", label: "직접 선택" },
 ];
 
@@ -109,7 +120,20 @@ export default function ListScreen() {
         end: now.endOf("month").toDate(),
       };
     if (preset === "recent-3m")
-      return { start: now.subtract(3, "month").toDate(), end: now.toDate() };
+      return {
+        start: now.subtract(3, "month").toDate(),
+        end: now.toDate(),
+      };
+    if (preset === "recent-6m")
+      return {
+        start: now.subtract(6, "month").toDate(),
+        end: now.toDate(),
+      };
+    if (preset === "recent-1y")
+      return {
+        start: now.subtract(1, "year").toDate(),
+        end: now.toDate(),
+      };
     return { start: customStart, end: customEnd };
   }, [preset, customStart, customEnd]);
 
@@ -185,7 +209,9 @@ export default function ListScreen() {
             : getItemDate(a) - getItemDate(b),
         );
         const regularInSection = sorted.filter(
-          (i) => !("type" in i && i.type === "anniversary") && !(i as EventItem).isRepeat,
+          (i) =>
+            !("type" in i && i.type === "anniversary") &&
+            !(i as EventItem).isRepeat,
         ) as EventItem[];
         return {
           title: formatMonthYear(date),
@@ -399,9 +425,7 @@ export default function ListScreen() {
                 }}
                 className="bg-[#222] rounded-full px-4 py-2"
               >
-                <Text className="text-app-teal text-[13px]">
-                  필터 초기화
-                </Text>
+                <Text className="text-app-teal text-[13px]">필터 초기화</Text>
               </Pressable>
             )}
           </View>
@@ -431,28 +455,46 @@ export default function ListScreen() {
       />
 
       {/* 필터 바텀 시트 */}
-      <FilterBottomSheet visible={showFilterSheet} onClose={() => setShowFilterSheet(false)}>
+      <FilterBottomSheet
+        visible={showFilterSheet}
+        onClose={() => setShowFilterSheet(false)}
+      >
         <FilterChipGroup
           label="완료 상태"
-          options={[{ value: "all", label: "전체" }, { value: "done", label: "완료" }, { value: "undone", label: "미완료" }]}
+          options={[
+            { value: "all", label: "전체" },
+            { value: "done", label: "완료" },
+            { value: "undone", label: "미완료" },
+          ]}
           value={completionFilter}
           onChange={setCompletionFilter}
         />
         <FilterChipGroup
           label="기록 유형"
-          options={[{ value: "all", label: "전체" }, { value: "regular", label: "일반" }, { value: "repeat", label: "반복" }]}
+          options={[
+            { value: "all", label: "전체" },
+            { value: "regular", label: "일반" },
+            { value: "repeat", label: "반복" },
+          ]}
           value={typeFilter}
           onChange={setTypeFilter}
         />
         <FilterChipGroup
           label="관련 인물"
-          options={[{ value: "all", label: "전체" }, { value: "yes", label: "있음" }, { value: "no", label: "없음" }]}
+          options={[
+            { value: "all", label: "전체" },
+            { value: "yes", label: "있음" },
+            { value: "no", label: "없음" },
+          ]}
           value={personFilter}
           onChange={setPersonFilter}
         />
         <FilterChipGroup
           label="정렬"
-          options={[{ value: "oldest", label: "오래된순" }, { value: "newest", label: "최신순" }]}
+          options={[
+            { value: "oldest", label: "오래된순" },
+            { value: "newest", label: "최신순" },
+          ]}
           value={sortOrder}
           onChange={setSortOrder}
         />
@@ -461,22 +503,39 @@ export default function ListScreen() {
         <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
           그룹
         </Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-5" contentContainerStyle={{ gap: 8 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="mb-5"
+          contentContainerStyle={{ gap: 8 }}
+        >
           <Pressable
             onPress={() => setGroupFilter("all")}
             className="rounded-[10px] px-4 py-2.5"
-            style={{ backgroundColor: groupFilter === "all" ? "#4ecdc4" : "#2a2a2a" }}
+            style={{
+              backgroundColor: groupFilter === "all" ? "#4ecdc4" : "#2a2a2a",
+            }}
           >
-            <Text className="text-[13px] font-semibold" style={{ color: groupFilter === "all" ? "#111" : "#888" }}>전체</Text>
+            <Text
+              className="text-[13px] font-semibold"
+              style={{ color: groupFilter === "all" ? "#111" : "#888" }}
+            >
+              전체
+            </Text>
           </Pressable>
           {allGroups.map((g) => (
             <Pressable
               key={g.id}
               onPress={() => setGroupFilter(g.id)}
               className="rounded-[10px] px-4 py-2.5"
-              style={{ backgroundColor: groupFilter === g.id ? "#4ecdc4" : "#2a2a2a" }}
+              style={{
+                backgroundColor: groupFilter === g.id ? "#4ecdc4" : "#2a2a2a",
+              }}
             >
-              <Text className="text-[13px] font-semibold" style={{ color: groupFilter === g.id ? "#111" : "#888" }}>
+              <Text
+                className="text-[13px] font-semibold"
+                style={{ color: groupFilter === g.id ? "#111" : "#888" }}
+              >
                 {g.emoji ? `${g.emoji} ${g.name}` : g.name}
               </Text>
             </Pressable>
@@ -492,9 +551,21 @@ export default function ListScreen() {
           className="flex-row items-center justify-between rounded-[10px] px-4 py-3"
           style={{ backgroundColor: "#2a2a2a" }}
         >
-          <Text className="text-[13px]" style={{ color: "#ccc" }}>기념일 함께 표시</Text>
-          <View className="w-12 h-6 rounded-full justify-center" style={{ backgroundColor: showAnniversaries ? "#7c3aed" : "#444" }}>
-            <View className="w-5 h-5 rounded-full bg-white" style={showAnniversaries ? { marginLeft: "auto", marginRight: 2 } : { marginLeft: 2 }} />
+          <Text className="text-[13px]" style={{ color: "#ccc" }}>
+            기념일 함께 표시
+          </Text>
+          <View
+            className="w-12 h-6 rounded-full justify-center"
+            style={{ backgroundColor: showAnniversaries ? "#7c3aed" : "#444" }}
+          >
+            <View
+              className="w-5 h-5 rounded-full bg-white"
+              style={
+                showAnniversaries
+                  ? { marginLeft: "auto", marginRight: 2 }
+                  : { marginLeft: 2 }
+              }
+            />
           </View>
         </Pressable>
       </FilterBottomSheet>
