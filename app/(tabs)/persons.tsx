@@ -34,8 +34,9 @@ import {
 
 type TabMode = "persons" | "anniversary";
 type AnnPreset = "this-week" | "this-month" | "recent-3m" | "custom";
-type SortOrder = "name-asc" | "age-asc";
+type SortOrder = "name-asc" | "age-asc" | "last-contact-asc";
 type MbtiFilter = "all" | "yes" | "no";
+type OverdueFilter = "all" | "overdue";
 
 type Person = {
   id: string;
@@ -46,6 +47,7 @@ type Person = {
   isPinned: boolean;
   tags?: string | null;
   metAt?: string | null;
+  contactInterval?: number | null;
   createdAt: Date;
 };
 
@@ -56,9 +58,23 @@ const ANN_PRESETS: { key: AnnPreset; label: string }[] = [
   { key: "custom", label: "직접 선택" },
 ];
 
-function sortPersons<T extends Person>(list: T[], order: SortOrder): T[] {
+function sortPersons<T extends Person>(
+  list: T[],
+  order: SortOrder,
+  lastLogDateMap?: Map<string, Date>,
+): T[] {
   if (order === "name-asc")
     return [...list].sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  if (order === "last-contact-asc") {
+    return [...list].sort((a, b) => {
+      const da = lastLogDateMap?.get(a.id) ?? null;
+      const db_ = lastLogDateMap?.get(b.id) ?? null;
+      if (!da && !db_) return 0;
+      if (!da) return -1; // 기록 없음 = 연락 가장 오래됨 → 맨 앞
+      if (!db_) return 1;
+      return da.getTime() - db_.getTime();
+    });
+  }
   return [...list].sort((a, b) => {
     const da = a.birthDate ?? null;
     const db_ = b.birthDate ?? null;
@@ -95,6 +111,16 @@ export default function PersonsScreen() {
   const mbtiDetail = prefs.persons.mbtiDetail;
   const setMbtiDetail = (v: string) => setPersonsPrefs({ mbtiDetail: v });
   const [tagFilter, setTagFilter] = useState<string>("all");
+  const [overdueFilter, setOverdueFilter] = useState<OverdueFilter>("all");
+
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    for (const p of allPersons) {
+      const tags: string[] = p.tags ? JSON.parse(p.tags) : [];
+      for (const t of tags) tagSet.add(t);
+    }
+    return Array.from(tagSet).sort((a, b) => a.localeCompare(b, "ko"));
+  }, [allPersons]);
 
   // ── 기념일 모드 상태 ───────────────────────────────────
   const [annPreset, setAnnPreset] = useState<AnnPreset>("this-month");
@@ -179,6 +205,18 @@ export default function PersonsScreen() {
     });
   }
 
+  function applyOverdueFilter<T extends Person>(list: T[]): T[] {
+    if (overdueFilter === "all") return list;
+    return list.filter((p) => {
+      if (p.contactInterval == null) return false;
+      const lastDate = lastLogDateMap.get(p.id) ?? null;
+      const daysSince = lastDate
+        ? dayjs().startOf("day").diff(dayjs(lastDate).startOf("day"), "day")
+        : null;
+      return daysSince == null || daysSince >= p.contactInterval;
+    });
+  }
+
   const sortedGroupedPersons = useMemo(
     () =>
       groupedPersons
@@ -187,24 +225,28 @@ export default function PersonsScreen() {
         )
         .map(({ group, members }) => ({
           group,
-          members: applyTagFilter(
-            applyMbtiFilter(
-              sortPersons(members as Person[], sortOrder),
+          members: applyOverdueFilter(
+            applyTagFilter(
+              applyMbtiFilter(
+                sortPersons(members as Person[], sortOrder, lastLogDateMap),
+              ),
             ),
           ) as typeof members,
         }))
         .filter(({ members }) => members.length > 0),
-    [groupedPersons, sortOrder, groupFilter, mbtiFilter, mbtiDetail, tagFilter],
+    [groupedPersons, sortOrder, groupFilter, mbtiFilter, mbtiDetail, tagFilter, overdueFilter, lastLogDateMap],
   );
 
   const sortedUngrouped = useMemo(() => {
     if (groupFilter !== "all") return [];
-    return applyTagFilter(
-      applyMbtiFilter(
-        sortPersons(ungrouped as Person[], sortOrder),
+    return applyOverdueFilter(
+      applyTagFilter(
+        applyMbtiFilter(
+          sortPersons(ungrouped as Person[], sortOrder, lastLogDateMap),
+        ),
       ),
     ) as typeof ungrouped;
-  }, [ungrouped, sortOrder, groupFilter, mbtiFilter, mbtiDetail, tagFilter]);
+  }, [ungrouped, sortOrder, groupFilter, mbtiFilter, mbtiDetail, tagFilter, overdueFilter, lastLogDateMap]);
 
   const pinnedPersons = useMemo(
     () => allPersons.filter((p) => p.isPinned),
@@ -239,6 +281,10 @@ export default function PersonsScreen() {
     Keyboard.dismiss();
   }
 
+  const visiblePersonCount =
+    sortedGroupedPersons.reduce((sum, { members }) => sum + members.length, 0) +
+    sortedUngrouped.length;
+
   const filterBadge =
     tabMode === "persons"
       ? [
@@ -246,6 +292,7 @@ export default function PersonsScreen() {
           groupFilter !== "all",
           mbtiFilter !== "all",
           tagFilter !== "all",
+          overdueFilter !== "all",
         ].filter(Boolean).length
       : annGroupFilter !== "all"
         ? 1
@@ -267,6 +314,15 @@ export default function PersonsScreen() {
       {/* ── 인물 모드 ── */}
       {tabMode === "persons" && (
         <>
+          {/* 요약 바 */}
+          <View className="flex-row items-center px-5 py-2.5 border-b border-[#1e1e1e]">
+            <Text className="text-app-muted text-[13px]">
+              총 {allPersons.length}명
+              {visiblePersonCount !== allPersons.length &&
+                ` · 표시 ${visiblePersonCount}명`}
+            </Text>
+          </View>
+
           <ScrollView
             className="flex-1"
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}
@@ -646,45 +702,79 @@ export default function PersonsScreen() {
                   )}
                   {mbtiFilter !== "yes" && <View className="mb-5" />}
 
+                  {allTags.length > 0 && (
+                    <>
+                      <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                        관계 태그
+                      </Text>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        className="mb-5"
+                        contentContainerStyle={{ gap: 8 }}
+                      >
+                        {["all", ...allTags].map((tag) => (
+                          <Pressable
+                            key={tag}
+                            onPress={() => setTagFilter(tag)}
+                            className="rounded-[10px] px-4 py-2.5"
+                            style={{
+                              backgroundColor:
+                                tagFilter === tag ? "#4ecdc4" : "#2a2a2a",
+                            }}
+                          >
+                            <Text
+                              className="text-[13px] font-semibold"
+                              style={{
+                                color: tagFilter === tag ? "#111" : "#888",
+                              }}
+                            >
+                              {tag === "all" ? "전체" : tag}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </ScrollView>
+                    </>
+                  )}
+
                   <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-                    관계 태그
+                    연락 주기
                   </Text>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    className="mb-5"
-                    contentContainerStyle={{ gap: 8 }}
-                  >
-                    {["all", "연인", "가족", "직장동료", "오랜친구", "멘토", "온라인친구"].map(
-                      (tag) => (
+                  <View className="flex-row gap-2 mb-5">
+                    {(["all", "overdue"] as const).map((v) => {
+                      const label = v === "all" ? "전체" : "연락 필요";
+                      return (
                         <Pressable
-                          key={tag}
-                          onPress={() => setTagFilter(tag)}
-                          className="rounded-[10px] px-4 py-2.5"
+                          key={v}
+                          onPress={() => setOverdueFilter(v)}
+                          className="flex-1 rounded-[10px] py-2.5 items-center"
                           style={{
                             backgroundColor:
-                              tagFilter === tag ? "#4ecdc4" : "#2a2a2a",
+                              overdueFilter === v ? "#4ecdc4" : "#2a2a2a",
                           }}
                         >
                           <Text
                             className="text-[13px] font-semibold"
                             style={{
-                              color: tagFilter === tag ? "#111" : "#888",
+                              color: overdueFilter === v ? "#111" : "#888",
                             }}
                           >
-                            {tag === "all" ? "전체" : tag}
+                            {label}
                           </Text>
                         </Pressable>
-                      ),
-                    )}
-                  </ScrollView>
+                      );
+                    })}
+                  </View>
 
                   <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
                     정렬
                   </Text>
                   <View className="flex-row gap-2">
-                    {(["name-asc", "age-asc"] as const).map((v) => {
-                      const label = v === "name-asc" ? "이름순" : "나이순";
+                    {(["name-asc", "age-asc", "last-contact-asc"] as const).map((v) => {
+                      const label =
+                        v === "name-asc" ? "이름순"
+                        : v === "age-asc" ? "나이순"
+                        : "연락순";
                       return (
                         <Pressable
                           key={v}

@@ -235,6 +235,20 @@ db.select({ groupId: groups.id, name: groups.name, color: groups.color, count: c
 
 ---
 
+## 2026-05-16 — Phase 14: 인물 탭 고도화
+
+### 버그 수정
+- 기념일 모드 커스텀 피커: `MonthPickerModal` import + `showAnnStartPicker`/`showAnnEndPicker` 연결. 리스트 탭과 동일 패턴.
+- D-DAY 미표시: `<AnniversaryItem date={item.date} />` — `date` prop 누락이 원인. `AnniversaryItem`은 date 있어야 D-DAY 계산.
+
+### 인물 탭 개선 설계 결정
+- `last-contact-asc` 정렬: `lastLogDateMap`(이미 훅에서 제공) 활용. 기록 없는 인물 = 맨 앞.
+- `overdueFilter`: `contactInterval` 설정 인물만 대상. persist 불필요 → 로컬 state.
+- 태그 동적 추출: 하드코딩 제거. `allPersons` useMemo로 집계.
+- TabPreferencesProvider: `sortOrder` 타입 union에 `"last-contact-asc"` 추가.
+
+---
+
 ## 2026-05-16 — Phase 13: 리스트 탭 고도화 v2
 
 ### 커스텀 날짜 피커 버그 수정

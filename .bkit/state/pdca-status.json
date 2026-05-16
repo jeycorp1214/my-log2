@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-05-16T00:46:48.587Z",
+  "lastUpdated": "2026-05-16T00:54:45.845Z",
   "activeFeatures": [
     "settings",
     "calendar",
@@ -52,7 +52,7 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-12T12:04:50.990Z",
-        "lastUpdated": "2026-05-16T00:46:48.586Z"
+        "lastUpdated": "2026-05-16T00:54:45.845Z"
       },
       "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/app/(tabs)/persons.tsx"
     },
@@ -104,9 +104,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-05-15T14:11:33.941Z",
-        "lastUpdated": "2026-05-15T14:11:33.941Z"
+        "lastUpdated": "2026-05-16T00:53:25.013Z"
       },
-      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/providers/PinLockProvider.tsx"
+      "lastFile": "/Users/kwak.dev/cartaxLab/kwak-app/kwak-app/providers/TabPreferencesProvider.tsx"
     },
     "backup.ts": {
       "phase": "do",
@@ -182,7 +182,7 @@
   "session": {
     "startedAt": "2026-05-07T13:38:53.355Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-05-16T00:46:48.587Z"
+    "lastActivity": "2026-05-16T00:54:45.845Z"
   },
   "history": [
     {
@@ -1369,6 +1369,60 @@
     },
     {
       "timestamp": "2026-05-16T00:46:48.587Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:53:25.013Z",
+      "feature": "providers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:53:30.996Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:53:38.808Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:53:44.485Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:53:57.228Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:54:04.752Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:54:11.481Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:54:28.996Z",
+      "feature": "(tabs)",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-05-16T00:54:45.845Z",
       "feature": "(tabs)",
       "phase": "do",
       "action": "updated"

@@ -27,7 +27,7 @@ export type ListPrefs = {
 };
 
 export type PersonsPrefs = {
-  sortOrder: "name-asc" | "age-asc";
+  sortOrder: "name-asc" | "age-asc" | "last-contact-asc";
   groupFilter: string;
   mbtiFilter: "all" | "yes" | "no";
   mbtiDetail: string;
