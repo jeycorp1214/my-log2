@@ -149,13 +149,25 @@ export default function ListScreen() {
       }
     }
 
+    const getItemDate = (item: SectionData): number =>
+      "type" in item && item.type === "anniversary"
+        ? item.date.getTime()
+        : (item as EventItem).displayDate.getTime();
+
     return Array.from(map.values())
       .sort((a, b) =>
         sortOrder === "newest"
           ? b.date.getTime() - a.date.getTime()
           : a.date.getTime() - b.date.getTime(),
       )
-      .map(({ date, data }) => ({ title: formatMonthYear(date), data }));
+      .map(({ date, data }) => ({
+        title: formatMonthYear(date),
+        data: [...data].sort((a, b) =>
+          sortOrder === "newest"
+            ? getItemDate(b) - getItemDate(a)
+            : getItemDate(a) - getItemDate(b),
+        ),
+      }));
   }, [filtered, showAnniversaries, anniversaryBoardItems, sortOrder]);
 
   const regularItems = filtered.filter((i) => !i.isRepeat);
