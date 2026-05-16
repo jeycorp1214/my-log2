@@ -4,7 +4,7 @@ import "dayjs/locale/ko";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, Pressable, ScrollView, Text, View } from "react-native";
-import { Calendar } from "react-native-calendars";
+import { Calendar, LocaleConfig } from "react-native-calendars";
 
 import { AnniversaryCard } from "@/components/calendar/AnniversaryCard";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
@@ -18,6 +18,15 @@ import { cn } from "@/utils/utils";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 
 dayjs.locale("ko");
+
+LocaleConfig.locales["ko"] = {
+  monthNames: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+  monthNamesShort: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+  dayNames: ["일요일","월요일","화요일","수요일","목요일","금요일","토요일"],
+  dayNamesShort: ["일","월","화","수","목","금","토"],
+  today: "오늘",
+};
+LocaleConfig.defaultLocale = "ko";
 
 const TODAY = dayjs().format("YYYY-MM-DD");
 
@@ -61,7 +70,20 @@ export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(TODAY);
   const [groupFilter, setGroupFilter] = useState<string>("all");
 
-  const { markedDates, dayItems } = useCalendarData(currentMonth, selectedDate);
+  const { markedDates: rawMarkedDates, dayItems } = useCalendarData(currentMonth, selectedDate);
+
+  // 오늘 날짜에 흰 점 추가 — 선택·미선택 무관하게 구분 표시
+  const markedDates = useMemo(() => {
+    const result = { ...rawMarkedDates };
+    const todayEntry = result[TODAY] ?? { dots: [] };
+    if (!todayEntry.dots.some((d) => d.key === "today")) {
+      result[TODAY] = {
+        ...todayEntry,
+        dots: [{ key: "today", color: "#ffffff" }, ...todayEntry.dots],
+      };
+    }
+    return result;
+  }, [rawMarkedDates]);
 
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
@@ -121,6 +143,11 @@ export default function CalendarScreen() {
           onMonthChange={(month) => setCurrentMonth(month.dateString)}
           theme={CALENDAR_THEME}
           enableSwipeMonths
+          renderHeader={(date) => (
+            <Text style={{ color: "#ffffff", fontSize: 15, fontWeight: "600" }}>
+              {dayjs(date).format("YYYY년 M월")}
+            </Text>
+          )}
         />
       </View>
 
