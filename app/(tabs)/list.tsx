@@ -1,6 +1,7 @@
 // 리스트 탭 — 기간 필터링된 로그를 월별 섹션으로 표시 + 체크 완료 관리
 import { FilterBottomSheet, FilterChipGroup } from "@/components/FilterBottomSheet";
 import TabsHeader from "@/components/layout/TabsHeader";
+import { SearchBar } from "@/components/ui/SearchBar";
 import { ListEventItem } from "@/components/logs/ListEventItem";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
@@ -75,6 +76,8 @@ export default function ListScreen() {
   const setShowAnniversaries = (v: boolean) =>
     setListPrefs({ showAnniversaries: v });
   const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
@@ -127,6 +130,14 @@ export default function ListScreen() {
       items = items.filter((i) => linkedLogIdSet.has(i.log.id));
     if (personFilter === "no")
       items = items.filter((i) => !linkedLogIdSet.has(i.log.id));
+    if (searchQuery.trim().length > 0) {
+      const q = searchQuery.trim().toLowerCase();
+      items = items.filter(
+        (i) =>
+          i.log.title?.toLowerCase().includes(q) ||
+          i.log.memo?.toLowerCase().includes(q),
+      );
+    }
     return sortOrder === "newest" ? [...items].reverse() : items;
   }, [
     allItems,
@@ -136,6 +147,7 @@ export default function ListScreen() {
     personFilter,
     sortOrder,
     linkedLogIdSet,
+    searchQuery,
   ]);
 
   const sections = useMemo(() => {
@@ -197,6 +209,15 @@ export default function ListScreen() {
     showAnniversaries,
   ].filter(Boolean).length;
 
+  function toggleSearch() {
+    if (showSearch) {
+      setShowSearch(false);
+      setSearchQuery("");
+    } else {
+      setShowSearch(true);
+    }
+  }
+
   async function toggleCheck(id: string, current: Date | null) {
     await db
       .update(logs)
@@ -208,9 +229,20 @@ export default function ListScreen() {
     <View className="flex-1 bg-app-bg">
       <TabsHeader
         title="리스트"
+        searchOnPress={toggleSearch}
+        searchActive={showSearch}
         slidersOnPress={() => setShowFilterSheet(true)}
         slidersActive={filterBadge > 0}
       />
+
+      {/* 로컬 검색 바 */}
+      {showSearch && (
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="제목 또는 메모 검색..."
+        />
+      )}
 
       {/* 기간 프리셋 칩 */}
       <View className="h-11">

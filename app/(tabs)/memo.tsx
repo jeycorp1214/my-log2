@@ -2,6 +2,7 @@
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import { FilterBottomSheet, FilterChipGroup } from "@/components/FilterBottomSheet";
 import TabsHeader from "@/components/layout/TabsHeader";
+import { SearchBar } from "@/components/ui/SearchBar";
 import { db } from "@/db/client";
 import { memos, todos, type Quadrant } from "@/db/schema";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
@@ -43,6 +44,8 @@ const QUADRANTS: QuadrantConfig[] = [
 export default function NoteScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<NoteTab>("memo");
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // ── 메모 상태 ──
   const [quickContent, setQuickContent] = useState("");
@@ -66,6 +69,10 @@ export default function NoteScreen() {
     if (completionFilter === "done") return !!m.checkedAt;
     if (completionFilter === "undone") return !m.checkedAt;
     return true;
+  }).filter((m) => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return true;
+    return m.content?.toLowerCase().includes(q);
   });
   const memoDoneCount = allMemos.filter((m) => !!m.checkedAt).length;
 
@@ -78,7 +85,11 @@ export default function NoteScreen() {
     db.select().from(todos).orderBy(asc(todos.createdAt)),
   );
   const quadrantTodos = allTodos
-    .filter((t) => t.quadrant === selectedQuadrant)
+    .filter((t) => {
+      const q = searchQuery.trim().toLowerCase();
+      if (q) return t.title?.toLowerCase().includes(q);
+      return t.quadrant === selectedQuadrant;
+    })
     .sort((a, b) => {
       if (!a.checkedAt && b.checkedAt) return -1;
       if (a.checkedAt && !b.checkedAt) return 1;
@@ -170,11 +181,22 @@ export default function NoteScreen() {
 
   const memoFilterBadge = [completionFilter !== "all", sortOrder !== "newest", showDate].filter(Boolean).length;
 
+  function toggleSearch() {
+    if (showSearch) {
+      setShowSearch(false);
+      setSearchQuery("");
+    } else {
+      setShowSearch(true);
+    }
+  }
+
   // ── 렌더 ──
   return (
     <View className="flex-1 bg-app-bg">
       <TabsHeader
         title="노트"
+        searchOnPress={toggleSearch}
+        searchActive={showSearch}
         slidersOnPress={
           activeTab === "memo"
             ? () => setShowFilterSheet(true)
@@ -201,6 +223,15 @@ export default function NoteScreen() {
           </Pressable>
         ))}
       </View>
+
+      {/* 로컬 검색 바 */}
+      {showSearch && (
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder={activeTab === "memo" ? "메모 내용 검색..." : "할 일 제목 검색..."}
+        />
+      )}
 
       {activeTab === "memo" ? (
         // ────────────── 메모 탭 ──────────────

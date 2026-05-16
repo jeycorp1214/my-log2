@@ -2,16 +2,20 @@
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { useMemo, useState } from "react";
+import { FlatList, Pressable, ScrollView, Text, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 
 import { AnniversaryCard } from "@/components/calendar/AnniversaryCard";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { LogCard } from "@/components/logs/LogCard";
+import { db } from "@/db/client";
+import { groups } from "@/db/schema";
 import { useCalendarData } from "@/hooks/useCalendarData";
 import type { DayItem } from "@/hooks/useCalendarData";
+import { cn } from "@/utils/utils";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 
 dayjs.locale("ko");
 
@@ -55,14 +59,58 @@ export default function CalendarScreen() {
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(TODAY);
   const [selectedDate, setSelectedDate] = useState(TODAY);
+  const [groupFilter, setGroupFilter] = useState<string>("all");
 
   const { markedDates, dayItems } = useCalendarData(currentMonth, selectedDate);
+
+  const { data: allGroups = [] } = useLiveQuery(
+    db.select().from(groups).orderBy(groups.sortOrder),
+  );
+
+  const filteredDayItems = useMemo(() => {
+    if (groupFilter === "all") return dayItems;
+    return dayItems.filter((item) => {
+      if (item.type === "log" || item.type === "repeat")
+        return item.data.groupId === groupFilter;
+      return true;
+    });
+  }, [dayItems, groupFilter]);
 
   const selectedLabel = dayjs(selectedDate).format("M월 D일 (ddd)");
 
   return (
     <View className="flex-1 bg-app-bg">
       <TabsHeader title="캘린더" searchOnPress />
+
+      {/* 그룹 필터 칩 */}
+      {allGroups.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingBottom: 8 }}
+          style={{ flexGrow: 0 }}
+        >
+          <Pressable
+            onPress={() => setGroupFilter("all")}
+            className={cn("rounded-full px-4 py-1.5", groupFilter === "all" ? "bg-app-teal" : "bg-[#222]")}
+          >
+            <Text className={cn("text-[13px] font-semibold", groupFilter === "all" ? "text-[#111]" : "text-[#888]")}>
+              전체
+            </Text>
+          </Pressable>
+          {allGroups.map((g) => (
+            <Pressable
+              key={g.id}
+              onPress={() => setGroupFilter(g.id)}
+              className={cn("rounded-full px-4 py-1.5", groupFilter === g.id ? "bg-app-teal" : "bg-[#222]")}
+            >
+              <Text className={cn("text-[13px] font-semibold", groupFilter === g.id ? "text-[#111]" : "text-[#888]")}>
+                {g.emoji ? `${g.emoji} ${g.name}` : g.name}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
 
       <View className="mx-4 rounded-[12px] overflow-hidden">
         <Calendar
@@ -80,13 +128,13 @@ export default function CalendarScreen() {
         <Text className="flex-1 text-app-label text-[10px] uppercase tracking-widest">
           {selectedLabel}
         </Text>
-        {dayItems.length > 0 && (
-          <Text className="text-app-muted text-xs">{dayItems.length}개</Text>
+        {filteredDayItems.length > 0 && (
+          <Text className="text-app-muted text-xs">{filteredDayItems.length}개</Text>
         )}
       </View>
 
       <FlatList
-        data={dayItems}
+        data={filteredDayItems}
         keyExtractor={itemKey}
         contentContainerStyle={{
           paddingHorizontal: 16,

@@ -1,6 +1,7 @@
 // 인물 목록 탭 — 인물 리스트 / 기념일 리스트 모드 전환 + 필터/정렬
 import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
+import { SearchBar } from "@/components/ui/SearchBar";
 import { MonthPickerModal } from "@/components/MonthPickerModal";
 import { AnniversaryItem } from "@/components/persons/AnniversaryItem";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
@@ -93,6 +94,8 @@ export default function PersonsScreen() {
   const [tabMode, setTabMode] = useState<TabMode>("persons");
   const [quickName, setQuickName] = useState("");
   const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [nameQuery, setNameQuery] = useState("");
 
   const { data: allGroups = [] } = useLiveQuery(
     db.select().from(groups).orderBy(groups.sortOrder),
@@ -297,6 +300,21 @@ export default function PersonsScreen() {
     }
   }
 
+  function toggleSearch() {
+    if (showSearch) {
+      setShowSearch(false);
+      setNameQuery("");
+    } else {
+      setShowSearch(true);
+    }
+  }
+
+  const searchedPersons = useMemo(() => {
+    const q = nameQuery.trim().toLowerCase();
+    if (!q) return allPersons;
+    return allPersons.filter((p) => p.name.toLowerCase().includes(q));
+  }, [allPersons, nameQuery]);
+
   const filterBadge =
     tabMode === "persons"
       ? [
@@ -314,10 +332,13 @@ export default function PersonsScreen() {
     <View className="flex-1 bg-app-bg">
       <TabsHeader
         title="인물"
-        searchOnPress={tabMode === "persons"}
-        cakeOnPress={() =>
-          setTabMode((m) => (m === "persons" ? "anniversary" : "persons"))
-        }
+        searchOnPress={tabMode === "persons" ? toggleSearch : undefined}
+        searchActive={showSearch}
+        cakeOnPress={() => {
+          setTabMode((m) => (m === "persons" ? "anniversary" : "persons"));
+          setShowSearch(false);
+          setNameQuery("");
+        }}
         cakeActive={tabMode === "anniversary"}
         slidersOnPress={() => setShowFilterSheet(true)}
         slidersActive={filterBadge > 0}
@@ -326,6 +347,47 @@ export default function PersonsScreen() {
       {/* ── 인물 모드 ── */}
       {tabMode === "persons" && (
         <>
+          {/* 로컬 검색 바 */}
+          {showSearch && (
+            <SearchBar
+              value={nameQuery}
+              onChange={setNameQuery}
+              placeholder="이름 검색..."
+            />
+          )}
+
+          {/* 검색 중: 플랫 결과 리스트 */}
+          {showSearch && (
+            <FlatList
+              data={searchedPersons}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}
+              ListEmptyComponent={
+                <Text className="text-app-muted text-center mt-12 text-[14px]">
+                  일치하는 인물이 없습니다.
+                </Text>
+              }
+              renderItem={({ item }) => {
+                const grp = allGroups.find((g) => g.id === item.groupId);
+                return (
+                  <PersonCard
+                    key={item.id}
+                    person={item}
+                    groupColor={grp?.color ?? "#555"}
+                    lastLogDate={lastLogDateMap.get(item.id)}
+                    onPress={() =>
+                      router.push({ pathname: "/persons/[id]", params: { id: item.id } })
+                    }
+                    onPinPress={() => togglePin(item.id, item.isPinned)}
+                  />
+                );
+              }}
+            />
+          )}
+
+          {/* 검색 중이 아닐 때만 기존 그룹 뷰 표시 */}
+          {!showSearch && (
+          <>
           {/* 요약 바 */}
           <View className="flex-row items-center justify-between px-5 py-2.5 border-b border-[#1e1e1e]">
             <Text className="text-app-muted text-[13px]">
@@ -499,6 +561,8 @@ export default function PersonsScreen() {
             onChange={setQuickName}
             onSubmit={handleQuickAdd}
           />
+          </>
+          )}
         </>
       )}
 

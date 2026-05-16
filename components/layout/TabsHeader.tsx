@@ -9,10 +9,11 @@ interface TabsHeaderProps {
   title: string;
   CustomRight?: React.ReactNode;
   cakeOnPress?: () => void;
-  searchOnPress?: boolean;
+  searchOnPress?: boolean | (() => void);
   slidersOnPress?: () => void;
   cakeActive?: boolean;
   slidersActive?: boolean;
+  searchActive?: boolean;
 }
 
 export default function TabsHeader({
@@ -23,6 +24,7 @@ export default function TabsHeader({
   CustomRight,
   cakeActive = false,
   slidersActive = false,
+  searchActive = false,
 }: TabsHeaderProps) {
   return (
     <HStack className="flex-row items-center justify-between px-5 pt-14 pb-3">
@@ -35,8 +37,15 @@ export default function TabsHeader({
           </Pressable>
         )}
         {searchOnPress && (
-          <Pressable className="p-2" onPress={() => router.push("/search")}>
-            <Search size={22} color="#888" />
+          <Pressable
+            className="p-2"
+            onPress={() =>
+              typeof searchOnPress === "function"
+                ? searchOnPress()
+                : router.push("/search")
+            }
+          >
+            <Search size={22} color={searchActive ? "#4ecdc4" : "#888"} />
           </Pressable>
         )}
         {slidersOnPress && (
