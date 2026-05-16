@@ -118,15 +118,6 @@ export async function applyImport(backup: BackupData): Promise<void> {
 async function importData(backup: BackupData): Promise<void> {
   const d = backup.data;
 
-  // 외래키 제약 순서대로 삭제
-  await db.delete(logPersons);
-  await db.delete(personAnniversaries);
-  await db.delete(logs);
-  await db.delete(persons);
-  await db.delete(groups);
-  await db.delete(todos);
-  await db.delete(memos);
-
   // timestamp_ms 컬럼 복원 — JSON에서 number/string 모두 처리
   function toDate(v: unknown): Date | null {
     if (!v) return null;
@@ -134,69 +125,80 @@ async function importData(backup: BackupData): Promise<void> {
     return new Date(v as string | number);
   }
 
-  if (d.groups.length > 0) {
-    await db.insert(groups).values(
-      d.groups.map((g) => ({
-        ...g,
-        createdAt: toDate(g.createdAt)!,
-        updatedAt: toDate(g.updatedAt)!,
-      })),
-    );
-  }
+  await db.transaction(async (tx) => {
+    // 외래키 제약 순서대로 삭제
+    await tx.delete(logPersons);
+    await tx.delete(personAnniversaries);
+    await tx.delete(logs);
+    await tx.delete(persons);
+    await tx.delete(groups);
+    await tx.delete(todos);
+    await tx.delete(memos);
 
-  if (d.persons.length > 0) {
-    await db.insert(persons).values(
-      d.persons.map((p) => ({
-        ...p,
-        createdAt: toDate(p.createdAt)!,
-        updatedAt: toDate(p.updatedAt)!,
-      })),
-    );
-  }
+    if (d.groups.length > 0) {
+      await tx.insert(groups).values(
+        d.groups.map((g) => ({
+          ...g,
+          createdAt: toDate(g.createdAt)!,
+          updatedAt: toDate(g.updatedAt)!,
+        })),
+      );
+    }
 
-  if (d.logs.length > 0) {
-    await db.insert(logs).values(
-      d.logs.map((l) => ({
-        ...l,
-        logDate: toDate(l.logDate)!,
-        repeatUntil: toDate(l.repeatUntil),
-        checkedAt: toDate(l.checkedAt),
-        createdAt: toDate(l.createdAt)!,
-        updatedAt: toDate(l.updatedAt)!,
-      })),
-    );
-  }
+    if (d.persons.length > 0) {
+      await tx.insert(persons).values(
+        d.persons.map((p) => ({
+          ...p,
+          createdAt: toDate(p.createdAt)!,
+          updatedAt: toDate(p.updatedAt)!,
+        })),
+      );
+    }
 
-  if (d.logPersons?.length > 0) await db.insert(logPersons).values(d.logPersons);
+    if (d.logs.length > 0) {
+      await tx.insert(logs).values(
+        d.logs.map((l) => ({
+          ...l,
+          logDate: toDate(l.logDate)!,
+          repeatUntil: toDate(l.repeatUntil),
+          checkedAt: toDate(l.checkedAt),
+          createdAt: toDate(l.createdAt)!,
+          updatedAt: toDate(l.updatedAt)!,
+        })),
+      );
+    }
 
-  if (d.personAnniversaries?.length > 0) {
-    await db.insert(personAnniversaries).values(
-      d.personAnniversaries.map((a) => ({
-        ...a,
-        createdAt: toDate(a.createdAt)!,
-      })),
-    );
-  }
+    if (d.logPersons?.length > 0) await tx.insert(logPersons).values(d.logPersons);
 
-  if (d.todos?.length > 0) {
-    await db.insert(todos).values(
-      d.todos.map((t) => ({
-        ...t,
-        checkedAt: toDate(t.checkedAt),
-        createdAt: toDate(t.createdAt)!,
-        updatedAt: toDate(t.updatedAt)!,
-      })),
-    );
-  }
+    if (d.personAnniversaries?.length > 0) {
+      await tx.insert(personAnniversaries).values(
+        d.personAnniversaries.map((a) => ({
+          ...a,
+          createdAt: toDate(a.createdAt)!,
+        })),
+      );
+    }
 
-  if (d.memos?.length > 0) {
-    await db.insert(memos).values(
-      d.memos.map((m) => ({
-        ...m,
-        checkedAt: toDate(m.checkedAt),
-        createdAt: toDate(m.createdAt)!,
-        updatedAt: toDate(m.updatedAt)!,
-      })),
-    );
-  }
+    if (d.todos?.length > 0) {
+      await tx.insert(todos).values(
+        d.todos.map((t) => ({
+          ...t,
+          checkedAt: toDate(t.checkedAt),
+          createdAt: toDate(t.createdAt)!,
+          updatedAt: toDate(t.updatedAt)!,
+        })),
+      );
+    }
+
+    if (d.memos?.length > 0) {
+      await tx.insert(memos).values(
+        d.memos.map((m) => ({
+          ...m,
+          checkedAt: toDate(m.checkedAt),
+          createdAt: toDate(m.createdAt)!,
+          updatedAt: toDate(m.updatedAt)!,
+        })),
+      );
+    }
+  });
 }

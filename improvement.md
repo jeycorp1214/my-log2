@@ -227,7 +227,7 @@ npm uninstall expo-notifications
 
 | 코드 | 항목 | 파일 | 작업량 |
 |------|------|------|--------|
-| C1 | importData 트랜잭션 | `services/backup.ts` | 소 |
+| ✅ C1 | importData 트랜잭션 | `services/backup.ts` | 소 |
 | C2 | 백업 버전 마이그레이션 경로 | `services/backup.ts` | 중 |
 | H1 | expandRepeatInMonth O(n) 스킵 | `utils/repeat.ts` | 소 |
 | H2 | useCalendarData 쿼리 최적화 | `hooks/useCalendarData.ts` | 소 |
