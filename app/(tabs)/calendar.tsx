@@ -204,6 +204,12 @@ export default function CalendarScreen() {
               title={item.title}
               dDay={item.dDay}
               isBirthday={item.isBirthday}
+              onPress={() =>
+                router.push({
+                  pathname: "/persons/[id]",
+                  params: { id: item.personId },
+                })
+              }
             />
           );
         }}

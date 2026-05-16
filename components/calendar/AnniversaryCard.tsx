@@ -1,12 +1,13 @@
 // 기념일 D-Day 카드 컴포넌트 — 프로필명, 제목, D-Day 표시
 import { Cake, Star } from "lucide-react-native";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 interface Props {
   personName: string;
   title: string;
   dDay: string;
   isBirthday: boolean;
+  onPress?: () => void;
 }
 
 export function AnniversaryCard({
@@ -14,8 +15,10 @@ export function AnniversaryCard({
   title,
   dDay,
   isBirthday,
+  onPress,
 }: Props) {
   return (
+    <Pressable onPress={onPress} android_ripple={{ color: "#2a1a40" }}>
     <View className="bg-app-surface rounded-[14px] p-[14px] flex-row items-center gap-3">
       <View
         className="w-8 h-8 rounded-full items-center justify-center"
@@ -37,5 +40,6 @@ export function AnniversaryCard({
       </View>
       <Text className="text-[#f97316] text-xs font-semibold">{dDay}</Text>
     </View>
+    </Pressable>
   );
 }

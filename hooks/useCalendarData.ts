@@ -21,6 +21,7 @@ export type RepeatDayItem = { type: "repeat"; data: Log; virtualDate: string };
 export type AnniversaryDayItem = {
   type: "anniversary";
   id: string;
+  personId: string;
   personName: string;
   title: string;
   date: string;
@@ -202,6 +203,7 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
       items.push({
         type: "anniversary",
         id: ann.id,
+        personId: ann.personId,
         personName: person.name,
         title: ann.title,
         date: ann.date,
@@ -218,6 +220,7 @@ export function useCalendarData(currentMonthStr: string, selectedDate: string) {
       items.push({
         type: "anniversary",
         id: `birth-${person.id}`,
+        personId: person.id,
         personName: person.name,
         title: "생일",
         date: person.birthDate,
