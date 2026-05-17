@@ -2,7 +2,6 @@
 import { CalendarPickerModal } from "@/components/CalendarPickerModal";
 import { formatLogDate } from "@/utils/date";
 import { cn } from "@/utils/utils";
-import dayjs from "dayjs";
 import { Calendar } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
@@ -43,7 +42,7 @@ export function DateInput({
           className="flex-1 bg-[#1a1a1a] rounded-[8px] px-2 py-1.5"
         >
           <Text className={cn("text-[13px]", value ? "text-[#ccc]" : "text-[#555]")}>
-            {value ? dayjs(value).format("YYYY.MM.DD") : placeholder}
+            {value ? formatLogDate(value) : placeholder}
           </Text>
         </Pressable>
         <CalendarPickerModal

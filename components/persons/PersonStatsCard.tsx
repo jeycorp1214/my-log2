@@ -1,4 +1,5 @@
 // 프로필 상세 화면의 통계 요약 카드
+import { formatLogDate } from "@/utils/date";
 import dayjs from "dayjs";
 import { Text, View } from "react-native";
 
@@ -39,7 +40,7 @@ export function PersonStatsCard({ logDates }: StatsCardProps) {
   if (logDates.length === 0) return null;
 
   const sorted = [...logDates].sort((a, b) => a.getTime() - b.getTime());
-  const firstDate = dayjs(sorted[0]).format("YYYY.MM.DD");
+  const firstDate = formatLogDate(sorted[0]);
   const mostFreqMonth = getMostFrequentMonth(logDates);
   const avgInterval = getAvgInterval(logDates);
 
