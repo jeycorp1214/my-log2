@@ -39,7 +39,7 @@ export default function GroupsScreen() {
     Keyboard.dismiss();
   }
 
-  async function deleteGroup(id: string, isSystem: boolean) {
+  async function deleteGroup(id: number, isSystem: boolean) {
     if (isSystem) {
       Alert.alert("삭제 불가", "시스템 그룹은 삭제할 수 없습니다.");
       return;

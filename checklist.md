@@ -597,3 +597,30 @@
 - #2 편집 기준: `useCalendarData.ts`의 `ne(logs.repeatType, 'none')` 패턴 동일 적용
 - #3 groups 안전망: `sortOrder` 컬럼만 추가하면 됨 (seed에서 DEFAULT 처리)
 - #5 공통화 범위: 완료 상태 / 정렬 / 유형 필터 칩 + 삭제 버튼 → `FilterBottomSheet` 컴포넌트
+
+---
+
+# UUID → Integer Autoincrement 마이그레이션
+
+## 스키마 & 마이그레이션
+- [x] `db/schema.ts` — 모든 PK `text("id").$defaultFn(randomUUID)` → `integer("id").primaryKey({ autoIncrement: true })`
+- [x] `db/schema.ts` — FK 컬럼 `text` → `integer` (groupId, personId, logId)
+- [x] `db/generate-id.ts` 삭제
+- [x] `db/generate-id.native.ts` 삭제
+- [x] `drizzle/` 기존 파일 전부 삭제
+- [x] `npx drizzle-kit generate` — 단일 초기 마이그레이션 재생성
+
+## 컴포넌트 타입
+- [x] `components/persons/PersonForm.tsx` — `DraftAnniversary.id: string | number`, `groupId: number | null`, `draftId` 파라미터 타입
+- [x] `components/logs/LogForm.tsx` — `groupId: number | null`, `selectedPersonIds: number[]`, `onTogglePerson: (id: number)`
+
+## 화면
+- [x] `app/persons/[id].tsx` — `Number(id)` 파싱, `groupId` state → `number | null`
+- [x] `app/persons/new.tsx` — `groupId` state → `number | null`
+- [x] `app/logs/[id].tsx` — `Number(id)` 파싱, `groupId/selectedPersonIds` 타입
+- [x] `app/logs/new.tsx` — `groupId/selectedPersonIds` 타입
+
+## 검증
+- [x] `npx tsc --noEmit` — 타입 에러 0개
+- [ ] 앱 → 설정 → 테이블 초기화 (DROP + 재생성)
+- [ ] 프로필/기록 생성·조회·수정·삭제 정상 동작

@@ -24,7 +24,7 @@ export default function RepeatsScreen() {
     db.select().from(logs).where(isNotNull(logs.repeatType)),
   );
 
-  async function clearRepeat(id: string) {
+  async function clearRepeat(id: number) {
     Alert.alert("반복 해제", "이 기록의 반복 설정을 해제할까요?", [
       { text: "취소", style: "cancel" },
       {

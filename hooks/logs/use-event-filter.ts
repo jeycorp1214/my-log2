@@ -56,7 +56,7 @@ export function useEventFilter(start: Date, end: Date) {
 
     const all: EventItem[] = [
       ...regularLogs.map((log) => ({
-        key: log.id,
+        key: String(log.id),
         log,
         isRepeat: false,
         displayDate: new Date(log.logDate),

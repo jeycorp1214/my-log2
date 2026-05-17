@@ -80,11 +80,11 @@ export function TodoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
     Keyboard.dismiss();
   }
 
-  async function toggleTodo(id: string, current: Date | null) {
+  async function toggleTodo(id: number, current: Date | null) {
     await db.update(todos).set({ checkedAt: current ? null : new Date(), updatedAt: new Date() }).where(eq(todos.id, id));
   }
 
-  async function deleteTodo(id: string) {
+  async function deleteTodo(id: number) {
     await db.delete(todos).where(eq(todos.id, id));
   }
 
@@ -148,7 +148,7 @@ export function TodoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
       {/* 선택 사분면 항목 */}
       <FlatList
         data={quadrantTodos}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.id)}
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 96 }}
         renderItem={({ item }) => {

@@ -12,7 +12,7 @@ import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
 export type DraftAnniversary = {
-  id: string;
+  id: string | number;
   title: string;
   date: Date | null;
   isRepeat: boolean;
@@ -47,8 +47,8 @@ interface PersonFormProps {
   onMbtiChange: (v: string) => void;
   memo: string;
   onMemoChange: (v: string) => void;
-  groupId: string;
-  onGroupIdChange: (v: string) => void;
+  groupId: number | null;
+  onGroupIdChange: (v: number) => void;
   allGroups: Group[];
   draftAnniversaries: DraftAnniversary[];
   onAnniversariesChange: (v: DraftAnniversary[]) => void;
@@ -141,12 +141,12 @@ export function PersonForm({
     ]);
   }
 
-  function removeAnniversary(draftId: string) {
+  function removeAnniversary(draftId: string | number) {
     onAnniversariesChange(draftAnniversaries.filter((a) => a.id !== draftId));
   }
 
   function updateAnniversary<K extends keyof Omit<DraftAnniversary, "id">>(
-    draftId: string,
+    draftId: string | number,
     field: K,
     value: DraftAnniversary[K],
   ) {

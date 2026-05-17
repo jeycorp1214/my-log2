@@ -20,8 +20,8 @@ export type LogDayItem = { type: "log"; data: Log };
 export type RepeatDayItem = { type: "repeat"; data: Log; virtualDate: string };
 export type AnniversaryDayItem = {
   type: "anniversary";
-  id: string;
-  personId: string;
+  id: string | number;
+  personId: string | number;
   personName: string;
   title: string;
   date: string;

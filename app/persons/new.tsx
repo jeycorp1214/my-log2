@@ -17,7 +17,7 @@ export default function PersonNewScreen() {
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [mbti, setMbti] = useState("");
   const [memo, setMemo] = useState("");
-  const [groupId, setGroupId] = useState("");
+  const [groupId, setGroupId] = useState<number | null>(null);
   const [draftAnniversaries, setDraftAnniversaries] = useState<
     DraftAnniversary[]
   >([]);
@@ -36,6 +36,7 @@ export default function PersonNewScreen() {
       Alert.alert("이름을 입력해 주세요.");
       return;
     }
+    if (groupId === null) return;
 
     const result = await db
       .insert(persons)

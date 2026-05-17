@@ -14,7 +14,8 @@ import {
 
 export default function MemoDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id: idParam } = useLocalSearchParams<{ id: string }>();
+  const id = Number(idParam);
 
   const { data: rows = [] } = useLiveQuery(
     db.select().from(memos).where(eq(memos.id, id)),

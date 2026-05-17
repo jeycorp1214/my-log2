@@ -47,11 +47,11 @@ type MbtiFilter = "all" | "yes" | "no";
 type OverdueFilter = "all" | "overdue";
 
 type Person = {
-  id: string;
+  id: number;
   name: string;
   birthDate?: string | null;
   mbti?: string | null;
-  groupId: string;
+  groupId: number;
   isPinned: boolean;
   tags?: string | null;
   metAt?: string | null;
@@ -71,7 +71,7 @@ const ANN_PRESETS: { key: AnnPreset; label: string }[] = [
 function sortPersons<T extends Person>(
   list: T[],
   order: SortOrder,
-  lastLogDateMap?: Map<string, Date>,
+  lastLogDateMap?: Map<number, Date>,
 ): T[] {
   if (order === "name-asc")
     return [...list].sort((a, b) => a.name.localeCompare(b.name, "ko"));
@@ -118,7 +118,7 @@ export default function PersonsScreen() {
   const { prefs, setPersonsPrefs } = useTabPreferences();
   const sortOrder = prefs.persons.sortOrder as SortOrder;
   const setSortOrder = (v: SortOrder) => setPersonsPrefs({ sortOrder: v });
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<number | string>>(
     new Set(),
   );
   const groupFilter = prefs.persons.groupFilter;
@@ -192,7 +192,7 @@ export default function PersonsScreen() {
     let items = anniversaryBoardItems;
     if (annGroupFilter !== "all")
       items = items.filter(
-        (item) => personGroupMap.get(item.personId) === annGroupFilter,
+        (item) => String(personGroupMap.get(item.personId)) === annGroupFilter,
       );
     return [...items].sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [anniversaryBoardItems, annGroupFilter, personGroupMap]);
@@ -246,7 +246,7 @@ export default function PersonsScreen() {
     () =>
       groupedPersons
         .filter(
-          ({ group }) => groupFilter === "all" || group.id === groupFilter,
+          ({ group }) => groupFilter === "all" || String(group.id) === groupFilter,
         )
         .map(({ group, members }) => ({
           group,
@@ -298,7 +298,7 @@ export default function PersonsScreen() {
 
   const personSections = useMemo(() => {
     const result = [] as {
-      id: string;
+      id: string | number;
       titleText: string;
       color?: string;
       collapsible: boolean;
@@ -344,14 +344,14 @@ export default function PersonsScreen() {
     return result;
   }, [pinnedPersons, sortedGroupedPersons, sortedUngrouped, collapsedGroups]);
 
-  async function togglePin(personId: string, current: boolean) {
+  async function togglePin(personId: number, current: boolean) {
     await db
       .update(persons)
       .set({ isPinned: !current, updatedAt: new Date() })
       .where(eq(persons.id, personId));
   }
 
-  function toggleCollapse(id: string) {
+  function toggleCollapse(id: number | string) {
     setCollapsedGroups((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -435,7 +435,7 @@ export default function PersonsScreen() {
           {nameQuery.trim() !== "" && (
             <FlatList
               data={searchedPersons}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => String(item.id)}
               contentContainerStyle={{
                 paddingHorizontal: 16,
                 paddingBottom: 96,
@@ -487,7 +487,7 @@ export default function PersonsScreen() {
 
               <SectionList
                 sections={personSections}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => String(item.id)}
                 contentContainerStyle={{
                   paddingHorizontal: 16,
                   paddingBottom: 96,
@@ -772,17 +772,17 @@ export default function PersonsScreen() {
                     {allGroups.map((g) => (
                       <Pressable
                         key={g.id}
-                        onPress={() => setGroupFilter(g.id)}
+                        onPress={() => setGroupFilter(String(g.id))}
                         className="rounded-[10px] px-4 py-2.5"
                         style={{
                           backgroundColor:
-                            groupFilter === g.id ? "#4ecdc4" : "#2a2a2a",
+                            groupFilter === String(g.id) ? "#4ecdc4" : "#2a2a2a",
                         }}
                       >
                         <Text
                           className="text-[13px] font-semibold"
                           style={{
-                            color: groupFilter === g.id ? "#111" : "#888",
+                            color: groupFilter === String(g.id) ? "#111" : "#888",
                           }}
                         >
                           {g.emoji ? `${g.emoji} ${g.name}` : g.name}
@@ -963,17 +963,17 @@ export default function PersonsScreen() {
                     {allGroups.map((g) => (
                       <Pressable
                         key={g.id}
-                        onPress={() => setAnnGroupFilter(g.id)}
+                        onPress={() => setAnnGroupFilter(String(g.id))}
                         className="rounded-[10px] px-4 py-2.5"
                         style={{
                           backgroundColor:
-                            annGroupFilter === g.id ? "#4ecdc4" : "#2a2a2a",
+                            annGroupFilter === String(g.id) ? "#4ecdc4" : "#2a2a2a",
                         }}
                       >
                         <Text
                           className="text-[13px] font-semibold"
                           style={{
-                            color: annGroupFilter === g.id ? "#111" : "#888",
+                            color: annGroupFilter === String(g.id) ? "#111" : "#888",
                           }}
                         >
                           {g.emoji ? `${g.emoji} ${g.name}` : g.name}

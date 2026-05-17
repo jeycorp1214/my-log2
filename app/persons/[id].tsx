@@ -33,7 +33,8 @@ import {
 
 export default function PersonDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id: idParam } = useLocalSearchParams<{ id: string }>();
+  const id = Number(idParam);
 
   const { data: personList = [] } = useLiveQuery(
     db.select().from(persons).where(eq(persons.id, id)),
@@ -60,7 +61,7 @@ export default function PersonDetailScreen() {
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [mbti, setMbti] = useState("");
   const [memo, setMemo] = useState("");
-  const [groupId, setGroupId] = useState("");
+  const [groupId, setGroupId] = useState<number | null>(null);
   const [draftAnniversaries, setDraftAnniversaries] = useState<
     DraftAnniversary[]
   >([]);
@@ -114,7 +115,7 @@ export default function PersonDetailScreen() {
         birthDate: birthDate ? dayjs(birthDate).format("YYYY-MM-DD") : null,
         mbti: mbti || null,
         memo: memo.trim() || null,
-        groupId,
+        groupId: groupId!,
         contactInterval: contactInterval ?? null,
         tags: tags.length > 0 ? JSON.stringify(tags) : null,
         metAt: metAt ? dayjs(metAt).format("YYYY-MM-DD") : null,

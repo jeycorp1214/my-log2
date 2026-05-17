@@ -7,7 +7,7 @@ import { Pressable, Text, View } from "react-native";
 type Props = {
   item: EventItem;
   groupColor?: string;
-  onToggleCheck: (id: string, current: Date | null) => void;
+  onToggleCheck: (id: number, current: Date | null) => void;
   onPress: () => void;
 };
 

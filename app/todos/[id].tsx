@@ -25,7 +25,8 @@ const QUADRANTS: { key: Quadrant; label: string; color: string }[] = [
 
 export default function TodoDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id: idParam } = useLocalSearchParams<{ id: string }>();
+  const id = Number(idParam);
 
   const { data: rows = [] } = useLiveQuery(
     db.select().from(todos).where(eq(todos.id, id)),

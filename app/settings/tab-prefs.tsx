@@ -102,7 +102,7 @@ export default function TabPrefsScreen() {
 
   const groupChipsAll = [
     { value: "all", label: "전체" },
-    ...allGroups.map((g) => ({ value: g.id, label: g.name })),
+    ...allGroups.map((g) => ({ value: String(g.id), label: g.name })),
   ];
 
   return (

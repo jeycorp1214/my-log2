@@ -266,9 +266,9 @@ export default function SearchScreen() {
         <SectionList
           sections={sections}
           keyExtractor={(item, idx) => {
-            if (item._type === "log") return item.log.id;
-            if (item._type === "person") return item.person.id;
-            if (item._type === "memo") return item.memo.id;
+            if (item._type === "log") return String(item.log.id);
+            if (item._type === "person") return String(item.person.id);
+            if (item._type === "memo") return String(item.memo.id);
             return `${item.todo.id}-${idx}`;
           }}
           renderSectionHeader={({ section }) => (

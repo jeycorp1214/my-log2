@@ -70,15 +70,15 @@ export function MemoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
     Keyboard.dismiss();
   }
 
-  async function toggleCheck(id: string, current: Date | null) {
+  async function toggleCheck(id: number, current: Date | null) {
     await db.update(memos).set({ checkedAt: current ? null : new Date(), updatedAt: new Date() }).where(eq(memos.id, id));
   }
 
-  async function togglePin(id: string, current: Date | null) {
+  async function togglePin(id: number, current: Date | null) {
     await db.update(memos).set({ pinnedAt: current ? null : new Date(), updatedAt: new Date() }).where(eq(memos.id, id));
   }
 
-  async function deleteMemo(id: string, isChecked: boolean) {
+  async function deleteMemo(id: number, isChecked: boolean) {
     if (isChecked) {
       await db.delete(memos).where(eq(memos.id, id));
       return;
@@ -113,7 +113,7 @@ export function MemoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
 
       <FlatList
         data={filteredMemos}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.id)}
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 96 }}
         renderItem={({ item }) => {

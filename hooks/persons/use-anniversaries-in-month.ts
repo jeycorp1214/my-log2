@@ -9,7 +9,7 @@ import { useMemo } from "react";
 export type AnniversaryBoardItem = {
   date: Date;
   displayTitle: string;
-  personId: string;
+  personId: number;
   isRepeat: false;
   type: "anniversary";
 };
@@ -51,7 +51,7 @@ export function useAnniversariesInMonth(start: Date, end: Date, enabled = true) 
     const dates: Date[] = [];
     const boardItems: AnniversaryBoardItem[] = [];
 
-    function add(date: Date, displayTitle: string, personId: string) {
+    function add(date: Date, displayTitle: string, personId: number) {
       dates.push(date);
       boardItems.push({ date, displayTitle, personId, isRepeat: false, type: "anniversary" });
     }

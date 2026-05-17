@@ -19,10 +19,11 @@ type EditingMode = "none" | "edit" | "copy";
 
 export default function LogDetailScreen() {
   const router = useRouter();
-  const { id, occurrenceDate } = useLocalSearchParams<{
+  const { id: idParam, occurrenceDate } = useLocalSearchParams<{
     id: string;
     occurrenceDate?: string;
   }>();
+  const id = Number(idParam);
 
   const { data: logList = [] } = useLiveQuery(
     db.select().from(logs).where(eq(logs.id, id)),
@@ -50,8 +51,8 @@ export default function LogDetailScreen() {
   const [memo, setMemo] = useState("");
   const [repeatType, setRepeatType] = useState("none");
   const [repeatUntil, setRepeatUntil] = useState<Date | null>(null);
-  const [groupId, setGroupId] = useState("");
-  const [selectedPersonIds, setSelectedPersonIds] = useState<string[]>([]);
+  const [groupId, setGroupId] = useState<number | null>(null);
+  const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (log) {
@@ -68,7 +69,7 @@ export default function LogDetailScreen() {
     setSelectedPersonIds(linkedPersons.map((lp) => lp.person.id));
   }, [linkedPersons]);
 
-  function togglePerson(pid: string) {
+  function togglePerson(pid: number) {
     setSelectedPersonIds((prev) =>
       prev.includes(pid) ? prev.filter((id) => id !== pid) : [...prev, pid],
     );
@@ -109,7 +110,7 @@ export default function LogDetailScreen() {
           memo: memo.trim() || undefined,
           repeatType: undefined,
           repeatUntil: undefined,
-          groupId,
+          groupId: groupId!,
         })
         .returning({ id: logs.id });
 
@@ -131,7 +132,7 @@ export default function LogDetailScreen() {
           memo: memo.trim() || null,
           repeatType: repeatType !== "none" ? repeatType : null,
           repeatUntil: repeatType !== "none" ? repeatUntil : null,
-          groupId,
+          groupId: groupId!,
           updatedAt: new Date(),
         })
         .where(eq(logs.id, id));

@@ -17,7 +17,7 @@ export function usePersonsWithGroups() {
   );
 
   const lastLogDateMap = useMemo(() => {
-    const map = new Map<string, Date>();
+    const map = new Map<number, Date>();
     for (const row of lastContactRows) {
       if (row.lastDate) map.set(row.personId, row.lastDate as Date);
     }

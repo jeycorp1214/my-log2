@@ -168,7 +168,7 @@ export default function ListScreen() {
     if (typeFilter === "regular") items = items.filter((i) => !i.isRepeat);
     if (typeFilter === "repeat") items = items.filter((i) => i.isRepeat);
     if (groupFilter !== "all")
-      items = items.filter((i) => i.log.groupId === groupFilter);
+      items = items.filter((i) => String(i.log.groupId) === groupFilter);
     if (personFilter === "yes")
       items = items.filter((i) => linkedLogIdSet.has(i.log.id));
     if (personFilter === "no")
@@ -274,7 +274,7 @@ export default function ListScreen() {
     }
   }
 
-  async function toggleCheck(id: string, current: Date | null) {
+  async function toggleCheck(id: number, current: Date | null) {
     await db
       .update(logs)
       .set({ checkedAt: current ? null : new Date(), updatedAt: new Date() })
@@ -541,15 +541,15 @@ export default function ListScreen() {
           {allGroups.map((g) => (
             <Pressable
               key={g.id}
-              onPress={() => setGroupFilter(g.id)}
+              onPress={() => setGroupFilter(String(g.id))}
               className="rounded-[10px] px-4 py-2.5"
               style={{
-                backgroundColor: groupFilter === g.id ? "#4ecdc4" : "#2a2a2a",
+                backgroundColor: groupFilter === String(g.id) ? "#4ecdc4" : "#2a2a2a",
               }}
             >
               <Text
                 className="text-[13px] font-semibold"
-                style={{ color: groupFilter === g.id ? "#111" : "#888" }}
+                style={{ color: groupFilter === String(g.id) ? "#111" : "#888" }}
               >
                 {g.emoji ? `${g.emoji} ${g.name}` : g.name}
               </Text>

@@ -20,12 +20,12 @@ interface LogFormProps {
   onRepeatTypeChange: (v: string) => void;
   repeatUntil: Date | null;
   onRepeatUntilChange: (v: Date | null) => void;
-  groupId: string;
-  onGroupIdChange: (v: string) => void;
+  groupId: number | null;
+  onGroupIdChange: (v: number) => void;
   allGroups: Group[];
   allPersons: Person[];
-  selectedPersonIds: string[];
-  onTogglePerson: (id: string) => void;
+  selectedPersonIds: number[];
+  onTogglePerson: (id: number) => void;
   showRepeat?: boolean;
 }
 

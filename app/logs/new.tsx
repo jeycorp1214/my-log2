@@ -26,8 +26,8 @@ export default function LogNewScreen() {
   const [memo, setMemo] = useState("");
   const [repeatType, setRepeatType] = useState("none");
   const [repeatUntil, setRepeatUntil] = useState<Date | null>(null);
-  const [groupId, setGroupId] = useState("");
-  const [selectedPersonIds, setSelectedPersonIds] = useState<string[]>([]);
+  const [groupId, setGroupId] = useState<number | null>(null);
+  const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (!groupId && allGroups.length > 0) {
@@ -35,7 +35,7 @@ export default function LogNewScreen() {
     }
   }, [allGroups, groupId]);
 
-  function togglePerson(pid: string) {
+  function togglePerson(pid: number) {
     setSelectedPersonIds((prev) =>
       prev.includes(pid) ? prev.filter((id) => id !== pid) : [...prev, pid],
     );
@@ -46,7 +46,7 @@ export default function LogNewScreen() {
       Alert.alert("제목을 입력해 주세요.");
       return;
     }
-    if (!groupId) return;
+    if (groupId === null) return;
 
     const [inserted] = await db
       .insert(logs)

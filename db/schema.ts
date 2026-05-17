@@ -1,11 +1,8 @@
 // 앱 전체 SQLite 스키마 정의 (groups, persons, logs, logPersons)
-import { index, int, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { randomUUID } from "./generate-id";
+import { index, int, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const groups = sqliteTable("groups", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   color: text("color").notNull(),
   emoji: text("emoji"),
@@ -21,14 +18,12 @@ export const groups = sqliteTable("groups", {
 });
 
 export const persons = sqliteTable("persons", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   birthDate: text("birth_date"),
   mbti: text("mbti"),
   memo: text("memo"),
-  groupId: text("group_id")
+  groupId: integer("group_id")
     .notNull()
     .references(() => groups.id),
   isPinned: int("is_pinned", { mode: "boolean" }).notNull().default(false),
@@ -46,16 +41,14 @@ export const persons = sqliteTable("persons", {
 export const logs = sqliteTable(
   "logs",
   {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => randomUUID()),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     title: text("title").notNull(),
     logDate: int("log_date", { mode: "timestamp_ms" }).notNull(),
     memo: text("memo"),
     repeatType: text("repeat_type"), // none|daily|weekly|monthly|yearly
     repeatInterval: int("repeat_interval"),
     repeatUntil: int("repeat_until", { mode: "timestamp_ms" }),
-    groupId: text("group_id")
+    groupId: integer("group_id")
       .notNull()
       .references(() => groups.id),
     checkedAt: int("checked_at", { mode: "timestamp_ms" }),
@@ -73,10 +66,8 @@ export const logs = sqliteTable(
 );
 
 export const personAnniversaries = sqliteTable("person_anniversaries", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
-  personId: text("person_id")
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  personId: integer("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
@@ -88,13 +79,11 @@ export const personAnniversaries = sqliteTable("person_anniversaries", {
 });
 
 export const logPersons = sqliteTable("log_persons", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
-  logId: text("log_id")
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  logId: integer("log_id")
     .notNull()
     .references(() => logs.id, { onDelete: "cascade" }),
-  personId: text("person_id")
+  personId: integer("person_id")
     .notNull()
     .references(() => persons.id, { onDelete: "cascade" }),
 });
@@ -102,9 +91,7 @@ export const logPersons = sqliteTable("log_persons", {
 export type Quadrant = "do" | "schedule" | "delegate" | "eliminate";
 
 export const todos = sqliteTable("todos", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),
   note: text("note"),
   quadrant: text("quadrant").notNull().$type<Quadrant>(),
@@ -119,9 +106,7 @@ export const todos = sqliteTable("todos", {
 });
 
 export const memos = sqliteTable("memos", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   content: text("content").notNull(),
   checkedAt: int("checked_at", { mode: "timestamp_ms" }),
   pinnedAt: int("pinned_at", { mode: "timestamp_ms" }),
