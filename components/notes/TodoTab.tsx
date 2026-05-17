@@ -8,7 +8,7 @@ import { asc, eq, isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Trash2 } from "lucide-react-native";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, FlatList, Keyboard, Pressable, Text, View } from "react-native";
 
 type QuadrantConfig = {
@@ -66,11 +66,14 @@ export function TodoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
     [allTodos],
   );
 
-  const todoDoneCount = useMemo(() => {
-    const count = allTodos.filter((t) => !!t.checkedAt).length;
-    onDoneCountChange(count);
-    return count;
-  }, [allTodos]);
+  const todoDoneCount = useMemo(
+    () => allTodos.filter((t) => !!t.checkedAt).length,
+    [allTodos],
+  );
+
+  useEffect(() => {
+    onDoneCountChange(todoDoneCount);
+  }, [todoDoneCount]);
 
   async function handleQuickAdd() {
     const title = todoInput.trim();
