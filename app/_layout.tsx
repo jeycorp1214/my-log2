@@ -53,7 +53,7 @@ export default function RootLayout() {
                           colorScheme === "dark" ? DarkTheme : DefaultTheme
                         }
                       >
-                        <Stack>
+                        <Stack screenOptions={{ headerTitleAlign: "center" }}>
                           <Stack.Screen
                             name="(tabs)"
                             options={{ headerShown: false }}
