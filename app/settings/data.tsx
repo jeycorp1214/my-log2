@@ -5,7 +5,15 @@ import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { db } from "@/db/client";
-import { groups, logPersons, logs, persons } from "@/db/schema";
+import {
+  groups,
+  logPersons,
+  logs,
+  memos,
+  personAnniversaries,
+  persons,
+  todos,
+} from "@/db/schema";
 import {
   addMonths,
   endOfMonth,
@@ -21,8 +29,13 @@ export default function DataViewerScreen() {
   const { data: allLogPersons = [] } = useLiveQuery(
     db.select().from(logPersons),
   );
+  const { data: allTodos = [] } = useLiveQuery(db.select().from(todos));
+  const { data: allMemos = [] } = useLiveQuery(db.select().from(memos));
+  const { data: allPersonAnniversaries = [] } = useLiveQuery(
+    db.select().from(personAnniversaries),
+  );
 
-  const [expanded, setExpanded] = useState<string | null>("groups");
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [viewMonth, setViewMonth] = useState(new Date()); // 데이터 뷰어에서 보는 월
 
   // viewMonth 기준 범위
@@ -87,6 +100,21 @@ export default function DataViewerScreen() {
       name: "logPersons",
       label: `🔗 기록-프로필 연결 (${allLogPersons.length})`,
       data: allLogPersons,
+    },
+    {
+      name: "todos",
+      label: `✅ 할 일 (${allTodos.length})`,
+      data: allTodos,
+    },
+    {
+      name: "memos",
+      label: `📌 메모 (${allMemos.length})`,
+      data: allMemos,
+    },
+    {
+      name: "personAnniversaries",
+      label: `🎂 기념일 (${allPersonAnniversaries.length})`,
+      data: allPersonAnniversaries,
     },
   ];
 
