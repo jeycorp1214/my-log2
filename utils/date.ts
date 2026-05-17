@@ -107,6 +107,33 @@ export function formatDuration(startDateStr: string): string {
   return `${days}일`;
 }
 
+// 4자리(MMDD)→올해, 6자리(YYMMDD, 00-50→20XX, 51-99→19XX) 날짜 단축 파싱
+export function parseDateShortcut(input: string): Date | null {
+  const digits = input.replace(/\D/g, "");
+
+  if (digits.length === 4) {
+    const mm = digits.slice(0, 2);
+    const dd = digits.slice(2, 4);
+    const dateStr = `${dayjs().year()}-${mm}-${dd}`;
+    const d = dayjs(dateStr);
+    if (d.format("YYYY-MM-DD") !== dateStr) return null;
+    return d.toDate();
+  }
+
+  if (digits.length === 6) {
+    const yy = parseInt(digits.slice(0, 2), 10);
+    const mm = digits.slice(2, 4);
+    const dd = digits.slice(4, 6);
+    const year = yy <= 50 ? 2000 + yy : 1900 + yy;
+    const dateStr = `${year}-${mm}-${dd}`;
+    const d = dayjs(dateStr);
+    if (d.format("YYYY-MM-DD") !== dateStr) return null;
+    return d.toDate();
+  }
+
+  return null;
+}
+
 // isRepeat=true → 올해(지났으면 내년) 기준 D-day, false → 절대 날짜 기준
 export function dDayLabel(dateStr: string, isRepeat: boolean): string {
   const today = dayjs().startOf("day");
