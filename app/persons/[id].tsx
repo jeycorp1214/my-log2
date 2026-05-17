@@ -323,7 +323,7 @@ export default function PersonDetailScreen() {
                 return (
                   <TimelineItem
                     key={`ann-${entry.ann.id}`}
-                    date={dayjs(entry.ann.date).format("YYYY.MM.DD")}
+                    date={formatLogDate(new Date(entry.ann.date))}
                     type="anniversary"
                     title={entry.ann.title}
                     subtitle={entry.ann.isRepeat ? "매년 반복" : undefined}
