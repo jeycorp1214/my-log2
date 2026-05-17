@@ -7,38 +7,50 @@ import {
   type ReactNode,
 } from "react";
 
-import { deleteStoredPin, getStoredPin, savePin } from "@/utils/pin";
+import {
+  deleteStoredPin,
+  getPinLength,
+  getStoredPin,
+  savePin,
+  savePinLength,
+} from "@/utils/pin";
 
 type PinLockContextValue = {
   isLocked: boolean;
   isPinEnabled: boolean;
+  pinLength: 4 | 6;
   unlock: () => void;
   enablePin: (pin: string) => Promise<void>;
   disablePin: () => Promise<void>;
   changePin: (pin: string) => Promise<void>;
   verifyPin: (pin: string) => Promise<boolean>;
+  updatePinLength: (length: 4 | 6) => Promise<void>;
 };
 
 const PinLockContext = createContext<PinLockContextValue>({
   isLocked: false,
   isPinEnabled: false,
+  pinLength: 6,
   unlock: () => {},
   enablePin: async () => {},
   disablePin: async () => {},
   changePin: async () => {},
   verifyPin: async () => false,
+  updatePinLength: async () => {},
 });
 
 export function PinLockProvider({ children }: { children: ReactNode }) {
   const [isLocked, setIsLocked] = useState(false);
   const [isPinEnabled, setIsPinEnabled] = useState(false);
+  const [pinLength, setPinLength] = useState<4 | 6>(6);
 
   useEffect(() => {
-    getStoredPin().then((pin) => {
+    Promise.all([getStoredPin(), getPinLength()]).then(([pin, length]) => {
       if (pin) {
         setIsPinEnabled(true);
         setIsLocked(true);
       }
+      setPinLength(length);
     });
   }, []);
 
@@ -65,9 +77,24 @@ export function PinLockProvider({ children }: { children: ReactNode }) {
     return stored === pin;
   }
 
+  async function updatePinLength(length: 4 | 6) {
+    await savePinLength(length);
+    setPinLength(length);
+  }
+
   return (
     <PinLockContext.Provider
-      value={{ isLocked, isPinEnabled, unlock, enablePin, disablePin, changePin, verifyPin }}
+      value={{
+        isLocked,
+        isPinEnabled,
+        pinLength,
+        unlock,
+        enablePin,
+        disablePin,
+        changePin,
+        verifyPin,
+        updatePinLength,
+      }}
     >
       {children}
     </PinLockContext.Provider>

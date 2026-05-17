@@ -1,4 +1,4 @@
-// 6자리 숫자 PIN 입력 키패드 — 점 표시 + 숫자 버튼
+// 숫자 PIN 입력 키패드 — 점 표시 + 숫자 버튼
 import { Pressable, Text, View } from "react-native";
 
 import { cn } from "@/utils/utils";
@@ -8,6 +8,7 @@ type Props = {
   onChange: (pin: string) => void;
   isError?: boolean;
   disabled?: boolean;
+  length?: 4 | 6;
 };
 
 const ROWS = [
@@ -22,6 +23,7 @@ export function PinPad({
   onChange,
   isError = false,
   disabled = false,
+  length = 6,
 }: Props) {
   function handleKey(key: string) {
     if (disabled) return;
@@ -29,16 +31,16 @@ export function PinPad({
       onChange(pin.slice(0, -1));
     } else if (key === "C") {
       onChange("");
-    } else if (pin.length < 6) {
+    } else if (pin.length < length) {
       onChange(pin + key);
     }
   }
 
   return (
     <View className="w-full items-center">
-      {/* PIN 점 6개 */}
+      {/* PIN 점 */}
       <View className="flex-row gap-5 mb-14">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length }).map((_, i) => (
           <View
             key={i}
             className={cn(

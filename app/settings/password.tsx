@@ -26,15 +26,41 @@ const STEP_TITLES: Record<Exclude<Step, null>, string> = {
 
 export default function PasswordSettingsScreen() {
   const navigation = useNavigation();
-  const { isPinEnabled, enablePin, disablePin, changePin, verifyPin } = usePinLock();
+  const {
+    isPinEnabled,
+    pinLength,
+    enablePin,
+    disablePin,
+    changePin,
+    verifyPin,
+    updatePinLength,
+  } = usePinLock();
 
   const [step, setStep] = useState<Step>(null);
   const [pin, setPin] = useState("");
   const [isError, setIsError] = useState(false);
   const tempPinRef = useRef("");
+  const pendingLengthRef = useRef<4 | 6>(6);
+
+  // 현재 스텝에서 사용할 PIN 자릿수
+  function getStepLength(s: Step): 4 | 6 {
+    switch (s) {
+      case "disable-verify":
+      case "change-verify":
+        return pinLength;
+      case "enable-new":
+      case "enable-confirm":
+      case "change-new":
+      case "change-confirm":
+        return pendingLengthRef.current;
+      default:
+        return pinLength;
+    }
+  }
 
   useEffect(() => {
-    if (pin.length !== 6) return;
+    if (step === null) return;
+    if (pin.length !== getStepLength(step)) return;
     handlePinComplete(pin);
   }, [pin]);
 
@@ -77,6 +103,7 @@ export default function PasswordSettingsScreen() {
       case "enable-confirm": {
         if (entered === tempPinRef.current) {
           await enablePin(entered);
+          await updatePinLength(pendingLengthRef.current);
           setStep(null);
           Alert.alert("완료", "비밀번호가 설정되었습니다.");
         } else {
@@ -113,6 +140,7 @@ export default function PasswordSettingsScreen() {
       case "change-confirm": {
         if (entered === tempPinRef.current) {
           await changePin(entered);
+          await updatePinLength(pendingLengthRef.current);
           setStep(null);
           Alert.alert("완료", "비밀번호가 변경되었습니다.");
         } else {
@@ -128,12 +156,26 @@ export default function PasswordSettingsScreen() {
       setPin("");
       setStep("disable-verify");
     } else {
+      pendingLengthRef.current = pinLength;
       setPin("");
       setStep("enable-new");
     }
   }
 
   function handleChangePin() {
+    pendingLengthRef.current = pinLength;
+    setPin("");
+    setStep("change-verify");
+  }
+
+  async function handleLengthSelect(newLength: 4 | 6) {
+    if (newLength === pinLength) return;
+    if (!isPinEnabled) {
+      await updatePinLength(newLength);
+      return;
+    }
+    // PIN 활성 상태: 현재 PIN 확인 후 새 자릿수로 재설정
+    pendingLengthRef.current = newLength;
     setPin("");
     setStep("change-verify");
   }
@@ -147,6 +189,7 @@ export default function PasswordSettingsScreen() {
 
   // PIN 입력 화면
   if (step !== null) {
+    const currentLength = getStepLength(step);
     return (
       <View className="flex-1 bg-app-bg">
         <View className="flex-1 items-center justify-center">
@@ -154,7 +197,9 @@ export default function PasswordSettingsScreen() {
             {STEP_TITLES[step]}
           </Text>
           <Text className="text-app-muted text-sm mb-10">
-            {isError ? "비밀번호가 일치하지 않습니다." : "6자리 숫자를 입력하세요."}
+            {isError
+              ? "비밀번호가 일치하지 않습니다."
+              : `${currentLength}자리 숫자를 입력하세요.`}
           </Text>
 
           <PinPad
@@ -162,6 +207,7 @@ export default function PasswordSettingsScreen() {
             onChange={handlePinChange}
             isError={isError}
             disabled={isError}
+            length={currentLength}
           />
         </View>
       </View>
@@ -186,6 +232,44 @@ export default function PasswordSettingsScreen() {
               trackColor={{ false: "#333", true: "#1a3a3a" }}
               thumbColor={isPinEnabled ? "#4ECDC4" : "#666"}
             />
+          </View>
+
+          <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />
+
+          {/* PIN 자릿수 선택 */}
+          <View className="flex-row items-center px-[14px] py-[16px]">
+            <View className="flex-1">
+              <Text className="text-white text-sm">PIN 자릿수</Text>
+              {isPinEnabled && (
+                <Text className="text-app-muted text-[12px] mt-0.5">
+                  변경 시 재설정 필요
+                </Text>
+              )}
+            </View>
+            <View className="flex-row gap-2">
+              {([4, 6] as const).map((len) => (
+                <Pressable
+                  key={len}
+                  onPress={() => handleLengthSelect(len)}
+                  style={{
+                    backgroundColor: pinLength === len ? "#1a3a2e" : "#2a2a2a",
+                    borderRadius: 8,
+                    paddingHorizontal: 14,
+                    paddingVertical: 6,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: pinLength === len ? "#4ECDC4" : "#666",
+                      fontSize: 13,
+                      fontWeight: "600",
+                    }}
+                  >
+                    {len}자리
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
           </View>
 
           {isPinEnabled && (
