@@ -1,11 +1,12 @@
 // 캘린더 탭 — 월별 캘린더 뷰 + 핸들 드래그로 확장/축소 + 선택 날짜 기록/기념일 패널
+import "@/utils/calendarLocale";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { FlatList, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
 import type { DateData } from "react-native-calendars";
-import { Calendar, LocaleConfig } from "react-native-calendars";
+import { Calendar } from "react-native-calendars";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
@@ -23,48 +24,6 @@ import { useCalendarData } from "@/hooks/useCalendarData";
 
 dayjs.locale("ko");
 
-LocaleConfig.locales["ko"] = {
-  monthNames: [
-    "1월",
-    "2월",
-    "3월",
-    "4월",
-    "5월",
-    "6월",
-    "7월",
-    "8월",
-    "9월",
-    "10월",
-    "11월",
-    "12월",
-  ],
-  monthNamesShort: [
-    "1월",
-    "2월",
-    "3월",
-    "4월",
-    "5월",
-    "6월",
-    "7월",
-    "8월",
-    "9월",
-    "10월",
-    "11월",
-    "12월",
-  ],
-  dayNames: [
-    "일요일",
-    "월요일",
-    "화요일",
-    "수요일",
-    "목요일",
-    "금요일",
-    "토요일",
-  ],
-  dayNamesShort: ["일", "월", "화", "수", "목", "금", "토"],
-  today: "오늘",
-};
-LocaleConfig.defaultLocale = "ko";
 
 const TODAY = dayjs().format("YYYY-MM-DD");
 
