@@ -39,9 +39,9 @@ export default function GroupsScreen() {
     Keyboard.dismiss();
   }
 
-  async function deleteGroup(id: string, isDefault: boolean) {
-    if (isDefault) {
-      Alert.alert("삭제 불가", "기본 그룹은 삭제할 수 없습니다.");
+  async function deleteGroup(id: string, isSystem: boolean) {
+    if (isSystem) {
+      Alert.alert("삭제 불가", "시스템 그룹은 삭제할 수 없습니다.");
       return;
     }
     Alert.alert("그룹 삭제", "그룹을 삭제할까요?", [
@@ -84,9 +84,9 @@ export default function GroupsScreen() {
                 <Text className="flex-1 text-white text-sm">
                   {group.emoji} {group.name}
                 </Text>
-                {!group.isDefault && (
+                {!group.isSystem && (
                   <Pressable
-                    onPress={() => deleteGroup(group.id, group.isDefault)}
+                    onPress={() => deleteGroup(group.id, group.isSystem)}
                     className="p-1"
                   >
                     <Trash2 size={16} color="#ff6b6b" />

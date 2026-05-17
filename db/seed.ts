@@ -5,10 +5,11 @@ import { groups, logPersons, logs, memos, persons, todos } from "./schema";
 
 export const DEFAULT_GROUPS = [
   {
-    name: "미설정",
-    color: "#ADB5BD", // 회색톤으로 설정하여 '없음'의 느낌을 강조
-    emoji: "⬛", // 비어있는 것보다 기본 이모지가 있는 것이 UI상 깔끔합니다
+    name: "미분류",
+    color: "#ADB5BD",
+    emoji: "⬛",
     isDefault: true,
+    isSystem: true,
     sortOrder: 0,
   },
   {

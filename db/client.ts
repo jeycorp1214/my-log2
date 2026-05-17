@@ -31,6 +31,7 @@ async function ensureColumns(
 async function ensureAllLegacyColumns() {
   await ensureColumns("groups", [
     { column: "sort_order", sql: "ALTER TABLE groups ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0" },
+    { column: "is_system", sql: "ALTER TABLE groups ADD COLUMN is_system INTEGER NOT NULL DEFAULT 0" },
   ]);
   await ensureColumns("persons", [
     { column: "is_pinned", sql: "ALTER TABLE persons ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0" },

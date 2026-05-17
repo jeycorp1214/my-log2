@@ -10,6 +10,7 @@ export const groups = sqliteTable("groups", {
   color: text("color").notNull(),
   emoji: text("emoji"),
   isDefault: int("is_default", { mode: "boolean" }).notNull().default(false),
+  isSystem: int("is_system", { mode: "boolean" }).notNull().default(false),
   sortOrder: int("sort_order").notNull().default(0),
   createdAt: int("created_at", { mode: "timestamp_ms" })
     .notNull()
