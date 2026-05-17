@@ -15,7 +15,7 @@ export function fromNow(date: Date): string {
 }
 
 export function formatLogDate(date: Date): string {
-  return dayjs(date).format("YYYY년 M월 D일");
+  return dayjs(date).format("YYYY년 M월 D일 (ddd)");
 }
 
 export function formatMonthYear(date: Date): string {
