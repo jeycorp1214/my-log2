@@ -17,7 +17,6 @@ import {
 } from "@/services/backup";
 import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { useRouter } from "expo-router";
 import { Download, Upload } from "lucide-react-native";
 import { useState } from "react";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
@@ -62,7 +61,6 @@ function SummaryTable({
 }
 
 export default function BackupScreen() {
-  const router = useRouter();
   const [isExporting, setIsExporting] = useState(false);
   const [isPicking, setIsPicking] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -151,19 +149,6 @@ export default function BackupScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <View className="px-5 pt-14 pb-3 flex-row items-center">
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => (pressed ? { opacity: 0.6 } : undefined)}
-          hitSlop={12}
-        >
-          <Text className="text-app-teal text-base">‹ 설정</Text>
-        </Pressable>
-        <Text className="flex-1 text-center text-white text-base font-semibold mr-10">
-          백업 / 복원
-        </Text>
-      </View>
-
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 48 }}
       >

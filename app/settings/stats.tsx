@@ -18,8 +18,6 @@ import {
 import { fromNow } from "@/utils/date";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
-import { useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
@@ -79,7 +77,6 @@ function PeriodChips({
 }
 
 export default function StatsScreen() {
-  const router = useRouter();
   const [period, setPeriod] = useState<Period>("year");
 
   const summary = useSummaryStats();
@@ -104,13 +101,6 @@ export default function StatsScreen() {
 
   return (
     <View className="flex-1 bg-app-bg">
-      <View className="flex-row items-center px-4 pt-14 pb-4 gap-3">
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <ChevronLeft size={24} color="#888" />
-        </Pressable>
-        <Text className="text-white text-xl font-bold">통계</Text>
-      </View>
-
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}

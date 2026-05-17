@@ -1,5 +1,5 @@
 // PIN 비밀번호 설정/변경/비활성화 화면
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Pressable, Switch, Text, View } from "react-native";
 
@@ -25,7 +25,7 @@ const STEP_TITLES: Record<Exclude<Step, null>, string> = {
 };
 
 export default function PasswordSettingsScreen() {
-  const router = useRouter();
+  const navigation = useNavigation();
   const { isPinEnabled, enablePin, disablePin, changePin, verifyPin } = usePinLock();
 
   const [step, setStep] = useState<Step>(null);
@@ -37,6 +37,21 @@ export default function PasswordSettingsScreen() {
     if (pin.length !== 6) return;
     handlePinComplete(pin);
   }, [pin]);
+
+  useEffect(() => {
+    if (step !== null) {
+      navigation.setOptions({
+        title: "",
+        headerLeft: () => (
+          <Pressable onPress={handleBack} hitSlop={12}>
+            <Text style={{ color: "#4ECDC4", fontSize: 16 }}>취소</Text>
+          </Pressable>
+        ),
+      });
+    } else {
+      navigation.setOptions({ title: "비밀번호", headerLeft: undefined });
+    }
+  }, [step]);
 
   function flashError() {
     setIsError(true);
@@ -134,16 +149,6 @@ export default function PasswordSettingsScreen() {
   if (step !== null) {
     return (
       <View className="flex-1 bg-app-bg">
-        <View className="px-5 pt-14 pb-3 flex-row items-center">
-          <Pressable
-            onPress={handleBack}
-            style={({ pressed }) => (pressed ? { opacity: 0.6 } : undefined)}
-            hitSlop={12}
-          >
-            <Text className="text-app-teal text-base">취소</Text>
-          </Pressable>
-        </View>
-
         <View className="flex-1 items-center justify-center">
           <Text className="text-white text-xl font-semibold mb-2">
             {STEP_TITLES[step]}
@@ -166,19 +171,6 @@ export default function PasswordSettingsScreen() {
   // 메인 설정 화면
   return (
     <View className="flex-1 bg-app-bg">
-      <View className="px-5 pt-14 pb-3 flex-row items-center">
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => (pressed ? { opacity: 0.6 } : undefined)}
-          hitSlop={12}
-        >
-          <Text className="text-app-teal text-base">‹ 설정</Text>
-        </Pressable>
-        <Text className="flex-1 text-center text-white text-base font-semibold mr-10">
-          비밀번호
-        </Text>
-      </View>
-
       <View className="px-4 pt-4">
         <View className="bg-app-surface rounded-[12px] overflow-hidden">
           <View className="flex-row items-center px-[14px] py-[16px]">

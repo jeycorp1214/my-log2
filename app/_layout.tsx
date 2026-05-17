@@ -1,8 +1,8 @@
 // 앱 루트 레이아웃 — Provider 조합 + Stack 네비게이터
 import {
-    DarkTheme,
-    DefaultTheme,
-    ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
 } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
@@ -128,7 +128,7 @@ export default function RootLayout() {
                           />
                           <Stack.Screen
                             name="settings/backup"
-                            options={{ headerShown: false }}
+                            options={{ title: "백업 / 복원" }}
                           />
                           <Stack.Screen
                             name="settings/tab-prefs"
@@ -140,11 +140,11 @@ export default function RootLayout() {
                           />
                           <Stack.Screen
                             name="settings/password"
-                            options={{ headerShown: false }}
+                            options={{ title: "비밀번호" }}
                           />
                           <Stack.Screen
                             name="settings/stats"
-                            options={{ headerShown: false }}
+                            options={{ title: "통계" }}
                           />
                           <Stack.Screen
                             name="search"
