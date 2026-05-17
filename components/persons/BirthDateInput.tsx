@@ -4,7 +4,39 @@ import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 import { Calendar } from "lucide-react-native";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Modal, Pressable, Text, TextInput, View } from "react-native";
+import type { DateData } from "react-native-calendars";
+import { Calendar as RNCalendar, LocaleConfig } from "react-native-calendars";
+
+LocaleConfig.locales["ko"] = {
+  monthNames: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+  monthNamesShort: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+  dayNames: ["일요일","월요일","화요일","수요일","목요일","금요일","토요일"],
+  dayNamesShort: ["일","월","화","수","목","금","토"],
+  today: "오늘",
+};
+LocaleConfig.defaultLocale = "ko";
+
+const CALENDAR_THEME = {
+  backgroundColor: "transparent",
+  calendarBackground: "transparent",
+  textSectionTitleColor: "#888888",
+  selectedDayBackgroundColor: "#4ECDC4",
+  selectedDayTextColor: "#111111",
+  todayTextColor: "#4ECDC4",
+  todayBackgroundColor: "#1a3a3a",
+  dayTextColor: "#e0e0e0",
+  textDisabledColor: "#444444",
+  dotColor: "#4ECDC4",
+  selectedDotColor: "#111111",
+  arrowColor: "#4ECDC4",
+  disabledArrowColor: "#444444",
+  monthTextColor: "#ffffff",
+  indicatorColor: "#4ECDC4",
+  textDayFontSize: 14,
+  textMonthFontSize: 15,
+  textDayHeaderFontSize: 11,
+};
 
 type Props = {
   value: Date | null;
@@ -41,6 +73,10 @@ export function BirthDateInput({ value, onChange }: Props) {
     setShowPicker(false);
   }
 
+  function handleDayPress(day: DateData) {
+    handlePickerSelect(new Date(day.dateString));
+  }
+
   const previewStr = previewDate
     ? (() => {
         const d = dayjs(previewDate);
@@ -49,6 +85,10 @@ export function BirthDateInput({ value, onChange }: Props) {
         return `${dateLabel} · 만 ${ageStr}세`;
       })()
     : null;
+
+  const pickerCurrent = value ? dayjs(value).format("YYYY-MM-DD") : dayjs().format("YYYY-MM-DD");
+
+  const selectedDateStr = value ? dayjs(value).format("YYYY-MM-DD") : undefined;
 
   return (
     <View>
@@ -95,6 +135,34 @@ export function BirthDateInput({ value, onChange }: Props) {
           8자리(YYYYMMDD)
         </Text>
       )}
+
+      <Modal
+        visible={showPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowPicker(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", paddingHorizontal: 16 }}
+          onPress={() => setShowPicker(false)}
+        >
+          <View
+            style={{ backgroundColor: "#1a1a1a", borderRadius: 16, padding: 16 }}
+            onStartShouldSetResponder={() => true}
+          >
+            <RNCalendar
+              theme={CALENDAR_THEME}
+              current={pickerCurrent}
+              onDayPress={handleDayPress}
+              markedDates={
+                selectedDateStr
+                  ? { [selectedDateStr]: { selected: true, selectedColor: "#4ECDC4" } }
+                  : {}
+              }
+            />
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
