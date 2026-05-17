@@ -6,6 +6,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
 
+export const DAYS_KO = ["일", "월", "화", "수", "목", "금", "토"] as const;
+
 export function calcAge(birthDate: string): number {
   return dayjs().diff(dayjs(birthDate), "year");
 }

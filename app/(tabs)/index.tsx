@@ -19,6 +19,7 @@ import {
 } from "@/hooks/stats/use-stats";
 import { useIsFocused } from "@/hooks/use-is-focused";
 import { useTabPreferences } from "@/providers/TabPreferencesProvider";
+import { DAYS_KO } from "@/utils/date";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { desc, eq } from "drizzle-orm";
@@ -29,7 +30,6 @@ import { Modal, Pressable, ScrollView, Switch, Text, View } from "react-native";
 
 dayjs.locale("ko");
 
-const DAYS_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
 const WIDGET_LABELS: {
   key: keyof import("@/providers/TabPreferencesProvider").HomePrefs;

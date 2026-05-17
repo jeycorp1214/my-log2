@@ -1,4 +1,5 @@
 // react-native-calendars 한국어 로케일 설정 — 앱 전역 공용
+import { DAYS_KO } from "@/utils/date";
 import { LocaleConfig } from "react-native-calendars";
 
 LocaleConfig.locales["ko"] = {
@@ -39,7 +40,7 @@ LocaleConfig.locales["ko"] = {
     "금요일",
     "토요일",
   ],
-  dayNamesShort: ["일", "월", "화", "수", "목", "금", "토"],
+  dayNamesShort: [...DAYS_KO],
   today: "오늘",
 };
 LocaleConfig.defaultLocale = "ko";

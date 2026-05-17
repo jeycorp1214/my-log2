@@ -1,7 +1,7 @@
 // 연간 기록 히트맵 화면 — GitHub 잔디 스타일
 import { db } from "@/db/client";
 import { logs } from "@/db/schema";
-import { toDateKey } from "@/utils/date";
+import { DAYS_KO, toDateKey } from "@/utils/date";
 import dayjs from "dayjs";
 import { and, gte, lte } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -14,7 +14,7 @@ import {
   View,
 } from "react-native";
 
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+const WEEKDAYS = DAYS_KO;
 const CELL = 13;
 const GAP = 2;
 const STEP = CELL + GAP;

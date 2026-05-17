@@ -1,9 +1,8 @@
 // 기념일 항목 표시 컴포넌트 — 달력/리스트 뷰에서 사용
+import { DAYS_KO } from "@/utils/date";
 import dayjs from "dayjs";
 import { Cake } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
-
-const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 function getDday(date: Date): string {
   const today = dayjs().startOf("day");
@@ -16,7 +15,7 @@ function getDday(date: Date): string {
 
 function getDateStr(date: Date): string {
   const d = dayjs(date);
-  return `${d.format("M월 D일")} (${DAYS[d.day()]})`;
+  return `${d.format("M월 D일")} (${DAYS_KO[d.day()]})`;
 }
 
 type Props = { title: string; date?: Date; groupColor?: string; onPress?: () => void };
