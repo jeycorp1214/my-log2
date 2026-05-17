@@ -11,7 +11,18 @@ import {
   personAnniversaries,
   persons,
 } from "@/db/schema";
-import { seedDefaultGroups, seedSampleData } from "@/db/seed";
+import {
+  resetLogsData,
+  resetMemosData,
+  resetPersonsData,
+  resetTodosData,
+  seedDefaultGroups,
+  seedLogsOnly,
+  seedMemosOnly,
+  seedPersonsOnly,
+  seedSampleData,
+  seedTodosOnly,
+} from "@/db/seed";
 import { useDebugMode } from "@/providers/DebugProvider";
 
 export default function SettingsScreen() {
@@ -276,17 +287,100 @@ export default function SettingsScreen() {
               개발 도구
             </Text>
 
-            <Pressable
-              onPress={insertSampleData}
-              className="bg-app-surface rounded-[12px] p-[14px] items-center mb-2"
-            >
-              <Text className="text-app-teal text-sm font-semibold">
-                샘플 데이터 삽입
-              </Text>
-              <Text className="text-app-muted text-[11px] mt-0.5">
-                프로필 50명 · 기록 30개 · 할 일 30개 · 메모 30개
-              </Text>
-            </Pressable>
+            {/* 샘플 데이터 삽입 */}
+            <View className="bg-app-surface rounded-[12px] overflow-hidden mb-2">
+              <Pressable
+                onPress={insertSampleData}
+                className="px-[14px] py-[14px] items-center"
+              >
+                <Text className="text-app-teal text-sm font-semibold">
+                  전체 샘플 삽입
+                </Text>
+                <Text className="text-app-muted text-[11px] mt-0.5">
+                  프로필 100명 · 기록 80개 · 할 일 60개 · 메모 60개
+                </Text>
+              </Pressable>
+              <View className="h-[1px] bg-[#2a2a2a]" />
+              {(
+                [
+                  { label: "프로필", fn: seedPersonsOnly },
+                  { label: "기록", fn: seedLogsOnly },
+                  { label: "할 일", fn: seedTodosOnly },
+                  { label: "메모", fn: seedMemosOnly },
+                ] as const
+              ).map((item, idx, arr) => (
+                <View key={item.label}>
+                  <View className="flex-row items-center px-[14px] py-[10px] gap-2">
+                    <Text className="flex-1 text-white text-sm">{item.label}</Text>
+                    {([10, 30, 50] as const).map((n) => (
+                      <Pressable
+                        key={n}
+                        onPress={async () => {
+                          try {
+                            await item.fn(n);
+                            Alert.alert("완료", `${item.label} ${n}개 추가됨.`);
+                          } catch (e) {
+                            Alert.alert("오류", String(e));
+                          }
+                        }}
+                        className="rounded-[6px] px-3 py-1.5"
+                        style={{ backgroundColor: "#1a3a2e" }}
+                      >
+                        <Text style={{ color: "#4ecdc4", fontSize: 12, fontWeight: "600" }}>
+                          {n}개
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                  {idx < arr.length - 1 && <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />}
+                </View>
+              ))}
+            </View>
+
+            {/* 개별 테이블 초기화 */}
+            <View className="bg-app-danger-bg rounded-[12px] overflow-hidden mb-2">
+              <View className="flex-row px-[14px] py-[10px] gap-2">
+                {(
+                  [
+                    { label: "프로필", fn: resetPersonsData, desc: "기록 연결 포함" },
+                    { label: "기록", fn: resetLogsData, desc: "연결 포함" },
+                    { label: "할 일", fn: resetTodosData, desc: "" },
+                    { label: "메모", fn: resetMemosData, desc: "" },
+                  ] as const
+                ).map((item) => (
+                  <Pressable
+                    key={item.label}
+                    onPress={() =>
+                      Alert.alert(
+                        `${item.label} 초기화`,
+                        `${item.label} 데이터를 모두 삭제합니다.${item.desc ? ` (${item.desc})` : ""} 계속하시겠습니까?`,
+                        [
+                          { text: "취소", style: "cancel" },
+                          {
+                            text: "삭제",
+                            style: "destructive",
+                            onPress: async () => {
+                              try {
+                                await item.fn();
+                                Alert.alert("완료", `${item.label} 초기화됨.`);
+                              } catch (e) {
+                                Alert.alert("오류", String(e));
+                              }
+                            },
+                          },
+                        ],
+                      )
+                    }
+                    className="flex-1 rounded-[6px] py-2 items-center"
+                    style={{ backgroundColor: "#3a1a1a" }}
+                  >
+                    <Text style={{ color: "#ff6b6b", fontSize: 12, fontWeight: "600" }}>
+                      {item.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
 
             <Pressable
               onPress={resetAllData}

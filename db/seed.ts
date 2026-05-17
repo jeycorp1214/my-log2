@@ -1,7 +1,7 @@
 // 앱 최초 실행 시 기본 그룹 3개 시드
 
 import { db } from "./client";
-import { groups, logPersons, logs, memos, persons, todos } from "./schema";
+import { groups, logPersons, logs, memos, personAnniversaries, persons, todos, type Quadrant } from "./schema";
 
 export const DEFAULT_GROUPS = [
   {
@@ -1865,4 +1865,79 @@ export async function seedSampleData() {
     { content: "윤채연 씨 도자기 공방 시작 — 작품 선물 예정" },
     { content: "강진우 씨 보안 최신 트렌드 공유해준다 했음" },
   ]);
+}
+
+// 개별 테이블 샘플 삽입 — 개발 도구 세분화용
+
+export async function seedPersonsOnly(count: number) {
+  const allGroups = await db.select().from(groups);
+  if (allGroups.length === 0) return;
+  await db.insert(persons).values(
+    Array.from({ length: count }, (_, i) => ({
+      name: `샘플 ${i + 1}호`,
+      groupId: allGroups[i % allGroups.length].id,
+    })),
+  );
+}
+
+export async function seedLogsOnly(count: number) {
+  const allGroups = await db.select().from(groups);
+  if (allGroups.length === 0) return;
+  const allPersons = await db.select().from(persons);
+  const TITLES = ["만남", "통화", "문자", "영상통화", "식사"];
+  const inserted = await db
+    .insert(logs)
+    .values(
+      Array.from({ length: count }, (_, i) => ({
+        title: `${TITLES[i % TITLES.length]} 기록 ${i + 1}`,
+        logDate: new Date(Date.now() - i * 86_400_000),
+        groupId: allGroups[i % allGroups.length].id,
+      })),
+    )
+    .returning();
+  if (allPersons.length > 0) {
+    await db.insert(logPersons).values(
+      inserted.map((l, i) => ({
+        logId: l.id,
+        personId: allPersons[i % allPersons.length].id,
+      })),
+    );
+  }
+}
+
+export async function seedTodosOnly(count: number) {
+  const QUADRANTS: Quadrant[] = ["do", "schedule", "delegate", "eliminate"];
+  await db.insert(todos).values(
+    Array.from({ length: count }, (_, i) => ({
+      title: `샘플 할 일 ${i + 1}`,
+      quadrant: QUADRANTS[i % 4],
+    })),
+  );
+}
+
+export async function seedMemosOnly(count: number) {
+  await db.insert(memos).values(
+    Array.from({ length: count }, (_, i) => ({ content: `샘플 메모 ${i + 1}` })),
+  );
+}
+
+// 개별 테이블 데이터 초기화 — FK 순서 준수
+
+export async function resetPersonsData() {
+  await db.delete(logPersons);
+  await db.delete(personAnniversaries);
+  await db.delete(persons);
+}
+
+export async function resetLogsData() {
+  await db.delete(logPersons);
+  await db.delete(logs);
+}
+
+export async function resetTodosData() {
+  await db.delete(todos);
+}
+
+export async function resetMemosData() {
+  await db.delete(memos);
 }
