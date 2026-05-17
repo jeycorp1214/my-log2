@@ -1,5 +1,6 @@
 // 프로필 폼 공유 컴포넌트 — 생성/편집에서 공통 사용
 import { DateInput } from "@/components/DateInput";
+import { FilterBottomSheet } from "@/components/FilterBottomSheet";
 import { BirthDateInput } from "@/components/persons/BirthDateInput";
 import { MbtiPicker } from "@/components/persons/MbtiPicker";
 import { db } from "@/db/client";
@@ -7,8 +8,15 @@ import { groups } from "@/db/schema";
 import { ANNIVERSARY_PRESETS, PRESET_COLORS } from "@/db/seed";
 import { cn } from "@/utils/utils";
 import { Plus, X } from "lucide-react-native";
-import { useRef, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 export type DraftAnniversary = {
   id: string;
@@ -18,6 +26,8 @@ export type DraftAnniversary = {
 };
 
 type Group = typeof groups.$inferSelect;
+
+type ActiveSheet = "group" | "tag" | "interval" | null;
 
 const CONTACT_PRESETS = [
   { label: "안함", value: null },
@@ -78,20 +88,13 @@ export function PersonForm({
   metAt,
   onMetAtChange,
 }: PersonFormProps) {
-  // 그룹 직접 입력
-  const [isAddingGroup, setIsAddingGroup] = useState(false);
-  const [groupInput, setGroupInput] = useState("");
-
-  // 태그 직접 입력
-  const [isAddingTag, setIsAddingTag] = useState(false);
-  const [customTagInput, setCustomTagInput] = useState("");
-  const tagInputRef = useRef<TextInput>(null);
-
-  // 연락 주기 직접 입력
-  const [customIntervalMode, setCustomIntervalMode] = useState(false);
-  const [customIntervalText, setCustomIntervalText] = useState("");
+  const [activeSheet, setActiveSheet] = useState<ActiveSheet>(null);
+  const [sheetInput, setSheetInput] = useState("");
 
   const customTags = tags.filter((t) => !TAG_PRESETS.includes(t));
+  const isCustomInterval =
+    contactInterval !== null &&
+    !CONTACT_PRESETS.some((p) => p.value === contactInterval);
 
   function toggleTag(tag: string) {
     if (tags.includes(tag)) {
@@ -101,43 +104,34 @@ export function PersonForm({
     }
   }
 
-  async function submitGroupCreate() {
-    const trimmed = groupInput.trim();
-    if (trimmed) {
+  function openSheet(sheet: ActiveSheet) {
+    setSheetInput("");
+    setActiveSheet(sheet);
+  }
+
+  function closeSheet() {
+    setSheetInput("");
+    setActiveSheet(null);
+  }
+
+  async function handleSheetConfirm() {
+    const trimmed = sheetInput.trim();
+    if (activeSheet === "group" && trimmed) {
       const color = PRESET_COLORS[allGroups.length % PRESET_COLORS.length];
       const result = await db
         .insert(groups)
         .values({ name: trimmed, color })
         .returning({ id: groups.id });
       onGroupIdChange(result[0].id);
-    }
-    setGroupInput("");
-    setIsAddingGroup(false);
-  }
-
-  function submitCustomTag() {
-    const trimmed = customTagInput.trim();
-    if (trimmed && !tags.includes(trimmed)) {
+    } else if (activeSheet === "tag" && trimmed && !tags.includes(trimmed)) {
       onTagsChange([...tags, trimmed]);
+    } else if (activeSheet === "interval") {
+      const num = parseInt(sheetInput, 10);
+      if (!isNaN(num) && num > 0) {
+        onContactIntervalChange(num);
+      }
     }
-    setCustomTagInput("");
-    setIsAddingTag(false);
-  }
-
-  function handlePresetIntervalSelect(value: number | null) {
-    setCustomIntervalMode(false);
-    setCustomIntervalText("");
-    onContactIntervalChange(value);
-  }
-
-  function handleCustomIntervalChange(text: string) {
-    setCustomIntervalText(text);
-    const num = parseInt(text, 10);
-    if (!isNaN(num) && num > 0) {
-      onContactIntervalChange(num);
-    } else {
-      onContactIntervalChange(null);
-    }
+    closeSheet();
   }
 
   function addAnniversary() {
@@ -169,6 +163,15 @@ export function PersonForm({
       ),
     );
   }
+
+  const sheetMeta: Record<
+    Exclude<ActiveSheet, null>,
+    { title: string; placeholder: string; keyboardType: "default" | "number-pad" }
+  > = {
+    group: { title: "새 그룹 추가", placeholder: "그룹 이름", keyboardType: "default" },
+    tag: { title: "관계 태그 추가", placeholder: "태그 이름", keyboardType: "default" },
+    interval: { title: "연락 주기 설정", placeholder: "일 수 입력", keyboardType: "number-pad" },
+  };
 
   return (
     <>
@@ -215,39 +218,23 @@ export function PersonForm({
             </Text>
           </Pressable>
         ))}
-        {isAddingGroup ? (
-          <View className="flex-row items-center bg-app-surface rounded-[20px] px-3 py-1">
-            <TextInput
-              className="text-white text-[13px] min-w-[60px] max-w-[120px]"
-              value={groupInput}
-              onChangeText={setGroupInput}
-              onSubmitEditing={submitGroupCreate}
-              onBlur={submitGroupCreate}
-              placeholder="그룹 이름"
-              placeholderTextColor="#555"
-              autoFocus
-              returnKeyType="done"
-            />
-          </View>
-        ) : (
-          <Pressable
-            onPress={() => setIsAddingGroup(true)}
-            className="flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 bg-app-surface"
-          >
-            <Plus size={12} color="#4ecdc4" />
-            <Text className="text-app-teal text-[13px]">직접 입력</Text>
-          </Pressable>
-        )}
+        <Pressable
+          onPress={() => openSheet("group")}
+          className="flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 bg-app-surface"
+        >
+          <Plus size={12} color="#4ecdc4" />
+          <Text className="text-app-teal text-[13px]">직접 입력</Text>
+        </Pressable>
       </View>
 
       <Text className="text-app-label text-[13px] mt-4">연락 주기</Text>
       <View className="flex-row gap-2 mt-1 flex-wrap">
         {CONTACT_PRESETS.map((preset) => {
-          const active = !customIntervalMode && contactInterval === preset.value;
+          const active = !isCustomInterval && contactInterval === preset.value;
           return (
             <Pressable
               key={preset.label}
-              onPress={() => handlePresetIntervalSelect(preset.value)}
+              onPress={() => onContactIntervalChange(preset.value)}
               className={`rounded-[20px] px-3 py-1.5 ${active ? "bg-app-teal" : "bg-app-surface"}`}
             >
               <Text
@@ -259,31 +246,17 @@ export function PersonForm({
           );
         })}
         <Pressable
-          onPress={() => setCustomIntervalMode(true)}
-          className={`flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 ${customIntervalMode ? "bg-app-teal" : "bg-app-surface"}`}
+          onPress={() => openSheet("interval")}
+          className={`flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 ${isCustomInterval ? "bg-app-teal" : "bg-app-surface"}`}
         >
-          {!customIntervalMode && <Plus size={12} color="#4ecdc4" />}
+          {!isCustomInterval && <Plus size={12} color="#4ecdc4" />}
           <Text
-            className={`text-[13px] ${customIntervalMode ? "text-[#111] font-semibold" : "text-app-teal"}`}
+            className={`text-[13px] ${isCustomInterval ? "text-[#111] font-semibold" : "text-app-teal"}`}
           >
-            직접 입력
+            {isCustomInterval ? `${contactInterval}일` : "직접 입력"}
           </Text>
         </Pressable>
       </View>
-      {customIntervalMode && (
-        <View className="flex-row items-center gap-2 mt-2">
-          <TextInput
-            className="bg-app-surface text-white rounded-[10px] px-3 py-2 text-sm w-24"
-            value={customIntervalText}
-            onChangeText={handleCustomIntervalChange}
-            placeholder="일 수"
-            placeholderTextColor="#555"
-            keyboardType="number-pad"
-            autoFocus
-          />
-          <Text className="text-app-label text-[13px]">일</Text>
-        </View>
-      )}
 
       <Text className="text-app-label text-[13px] mt-4">관계 태그</Text>
       <View className="flex-row flex-wrap gap-2 mt-1">
@@ -313,30 +286,13 @@ export function PersonForm({
             <X size={11} color="#111" />
           </Pressable>
         ))}
-        {isAddingTag ? (
-          <View className="flex-row items-center bg-app-surface rounded-[20px] px-3 py-1">
-            <TextInput
-              ref={tagInputRef}
-              className="text-white text-[13px] min-w-[60px] max-w-[120px]"
-              value={customTagInput}
-              onChangeText={setCustomTagInput}
-              onSubmitEditing={submitCustomTag}
-              onBlur={submitCustomTag}
-              placeholder="태그 입력"
-              placeholderTextColor="#555"
-              autoFocus
-              returnKeyType="done"
-            />
-          </View>
-        ) : (
-          <Pressable
-            onPress={() => setIsAddingTag(true)}
-            className="flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 bg-app-surface"
-          >
-            <Plus size={12} color="#4ecdc4" />
-            <Text className="text-app-teal text-[13px]">직접 입력</Text>
-          </Pressable>
-        )}
+        <Pressable
+          onPress={() => openSheet("tag")}
+          className="flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 bg-app-surface"
+        >
+          <Plus size={12} color="#4ecdc4" />
+          <Text className="text-app-teal text-[13px]">직접 입력</Text>
+        </Pressable>
       </View>
 
       <Text className="text-app-label text-[13px] mt-4">첫 만남 날짜</Text>
@@ -402,6 +358,53 @@ export function PersonForm({
         </View>
       ))}
 
+      {/* 직접 입력 바텀시트 */}
+      <FilterBottomSheet
+        visible={activeSheet !== null}
+        onClose={closeSheet}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          {activeSheet !== null && (
+            <>
+              <Text className="text-white text-[16px] font-semibold mb-4">
+                {sheetMeta[activeSheet].title}
+              </Text>
+              <TextInput
+                className="bg-[#1a1a1a] text-white rounded-[10px] px-4 py-3 text-[15px]"
+                value={sheetInput}
+                onChangeText={setSheetInput}
+                placeholder={sheetMeta[activeSheet].placeholder}
+                placeholderTextColor="#555"
+                keyboardType={sheetMeta[activeSheet].keyboardType}
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={handleSheetConfirm}
+              />
+              {activeSheet === "interval" && (
+                <Text className="text-app-muted text-[12px] mt-2">
+                  숫자만 입력하세요 (예: 14, 60)
+                </Text>
+              )}
+              <View className="flex-row gap-3 mt-5">
+                <Pressable
+                  onPress={closeSheet}
+                  className="flex-1 rounded-[10px] py-3 items-center bg-[#1a1a1a]"
+                >
+                  <Text className="text-app-label text-[14px]">취소</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleSheetConfirm}
+                  className="flex-1 rounded-[10px] py-3 items-center bg-app-teal"
+                >
+                  <Text className="text-[#111] text-[14px] font-semibold">확인</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
+        </KeyboardAvoidingView>
+      </FilterBottomSheet>
     </>
   );
 }
