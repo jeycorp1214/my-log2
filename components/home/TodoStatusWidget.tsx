@@ -62,7 +62,7 @@ export function TodoStatusWidget() {
       </View>
       <View className="flex-row flex-wrap gap-2">
         {QUADRANTS.map((q) => {
-          const { done, total } = counts[q.key];
+          const { done, total } = counts[q.key] ?? { done: 0, total: 0 };
           if (total === 0) return null;
           return (
             <View
