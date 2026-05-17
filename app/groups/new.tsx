@@ -2,12 +2,10 @@
 import { cn } from "@/utils/utils";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
@@ -38,15 +36,11 @@ export default function GroupNewScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
+    <KeyboardAwareScrollView
+      className="flex-1 bg-app-bg"
+      contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        className="flex-1 bg-app-bg"
-        contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
-        keyboardShouldPersistTaps="handled"
-      >
         <Text className="text-app-label text-[13px] mt-3">그룹 이름 *</Text>
         <TextInput
           className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
@@ -89,7 +83,6 @@ export default function GroupNewScreen() {
         <Pressable onPress={() => router.back()} className="items-center py-3">
           <Text className="text-app-muted text-[14px]">취소</Text>
         </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }

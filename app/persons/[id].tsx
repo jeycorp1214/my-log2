@@ -23,12 +23,10 @@ import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   Text,
   View,
 } from "react-native";
@@ -186,15 +184,11 @@ export default function PersonDetailScreen() {
   ].sort((a, b) => b.sortKey.getTime() - a.sortKey.getTime());
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
+    <KeyboardAwareScrollView
+      className="flex-1 bg-app-bg"
+      contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        className="flex-1 bg-app-bg"
-        contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
-        keyboardShouldPersistTaps="handled"
-      >
         {editing ? (
           <>
             <PersonForm
@@ -335,7 +329,6 @@ export default function PersonDetailScreen() {
             </Pressable>
           </>
         )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }

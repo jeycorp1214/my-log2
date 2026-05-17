@@ -5,12 +5,10 @@ import { groups, logPersons, logs, persons } from "@/db/schema";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   Text,
 } from "react-native";
 
@@ -79,15 +77,11 @@ export default function LogNewScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
+    <KeyboardAwareScrollView
+      className="flex-1 bg-app-bg"
+      contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        className="flex-1 bg-app-bg"
-        contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
-        keyboardShouldPersistTaps="handled"
-      >
         <LogForm
           title={title}
           onTitleChange={setTitle}
@@ -116,7 +110,6 @@ export default function LogNewScreen() {
         <Pressable onPress={() => router.back()} className="items-center py-3">
           <Text className="text-app-muted text-[14px]">취소</Text>
         </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }

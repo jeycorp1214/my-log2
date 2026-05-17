@@ -7,12 +7,10 @@ import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
@@ -88,15 +86,11 @@ export default function TodoDetailScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
+    <KeyboardAwareScrollView
+      className="flex-1 bg-app-bg"
+      contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        className="flex-1 bg-app-bg"
-        contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 40 }}
-        keyboardShouldPersistTaps="handled"
-      >
         {/* 제목 */}
         <View>
           <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
@@ -188,7 +182,6 @@ export default function TodoDetailScreen() {
         <Pressable onPress={deleteTodo} className="items-center py-2">
           <Text style={{ color: "#ff6b6b", fontSize: 14 }}>삭제</Text>
         </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }

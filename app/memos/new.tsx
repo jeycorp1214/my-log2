@@ -4,11 +4,9 @@ import { db } from "@/db/client";
 import { memos } from "@/db/schema";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   Text,
 } from "react-native";
 
@@ -24,15 +22,11 @@ export default function MemoNewScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
+    <KeyboardAwareScrollView
+      className="flex-1 bg-app-bg"
+      contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        className="flex-1 bg-app-bg"
-        contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
-        keyboardShouldPersistTaps="handled"
-      >
         <MemoEditor
           value={content}
           onChange={setContent}
@@ -49,7 +43,6 @@ export default function MemoNewScreen() {
         <Pressable onPress={() => router.back()} className="items-center py-3">
           <Text className="text-app-muted text-[14px]">취소</Text>
         </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }
