@@ -9,14 +9,7 @@ import { ANNIVERSARY_PRESETS, PRESET_COLORS } from "@/db/seed";
 import { cn } from "@/utils/utils";
 import { Plus, X } from "lucide-react-native";
 import { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 
 export type DraftAnniversary = {
   id: string;
@@ -363,47 +356,43 @@ export function PersonForm({
         visible={activeSheet !== null}
         onClose={closeSheet}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          {activeSheet !== null && (
-            <>
-              <Text className="text-white text-[16px] font-semibold mb-4">
-                {sheetMeta[activeSheet].title}
+        {activeSheet !== null && (
+          <>
+            <Text className="text-white text-[16px] font-semibold mb-4">
+              {sheetMeta[activeSheet].title}
+            </Text>
+            <TextInput
+              className="bg-[#1a1a1a] text-white rounded-[10px] px-4 py-3 text-[15px]"
+              value={sheetInput}
+              onChangeText={setSheetInput}
+              placeholder={sheetMeta[activeSheet].placeholder}
+              placeholderTextColor="#555"
+              keyboardType={sheetMeta[activeSheet].keyboardType}
+              autoFocus
+              returnKeyType="done"
+              onSubmitEditing={handleSheetConfirm}
+            />
+            {activeSheet === "interval" && (
+              <Text className="text-app-muted text-[12px] mt-2">
+                숫자만 입력하세요 (예: 14, 60)
               </Text>
-              <TextInput
-                className="bg-[#1a1a1a] text-white rounded-[10px] px-4 py-3 text-[15px]"
-                value={sheetInput}
-                onChangeText={setSheetInput}
-                placeholder={sheetMeta[activeSheet].placeholder}
-                placeholderTextColor="#555"
-                keyboardType={sheetMeta[activeSheet].keyboardType}
-                autoFocus
-                returnKeyType="done"
-                onSubmitEditing={handleSheetConfirm}
-              />
-              {activeSheet === "interval" && (
-                <Text className="text-app-muted text-[12px] mt-2">
-                  숫자만 입력하세요 (예: 14, 60)
-                </Text>
-              )}
-              <View className="flex-row gap-3 mt-5">
-                <Pressable
-                  onPress={closeSheet}
-                  className="flex-1 rounded-[10px] py-3 items-center bg-[#1a1a1a]"
-                >
-                  <Text className="text-app-label text-[14px]">취소</Text>
-                </Pressable>
-                <Pressable
-                  onPress={handleSheetConfirm}
-                  className="flex-1 rounded-[10px] py-3 items-center bg-app-teal"
-                >
-                  <Text className="text-[#111] text-[14px] font-semibold">확인</Text>
-                </Pressable>
-              </View>
-            </>
-          )}
-        </KeyboardAvoidingView>
+            )}
+            <View className="flex-row gap-3 mt-5">
+              <Pressable
+                onPress={closeSheet}
+                className="flex-1 rounded-[10px] py-3 items-center bg-[#1a1a1a]"
+              >
+                <Text className="text-app-label text-[14px]">취소</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleSheetConfirm}
+                className="flex-1 rounded-[10px] py-3 items-center bg-app-teal"
+              >
+                <Text className="text-[#111] text-[14px] font-semibold">확인</Text>
+              </Pressable>
+            </View>
+          </>
+        )}
       </FilterBottomSheet>
     </>
   );

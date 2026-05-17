@@ -1,5 +1,7 @@
 // 필터 바텀 시트 공통 래퍼 — Modal + 반투명 backdrop + 드래그 핸들
+import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import { Modal, Pressable, Text, View } from "react-native";
+import Reanimated, { useAnimatedStyle } from "react-native-reanimated";
 
 interface FilterBottomSheetProps {
   visible: boolean;
@@ -8,16 +10,23 @@ interface FilterBottomSheetProps {
 }
 
 export function FilterBottomSheet({ visible, onClose, children }: FilterBottomSheetProps) {
+  const { height } = useReanimatedKeyboardAnimation();
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: height.value }],
+  }));
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable className="flex-1 bg-black/50 justify-end" onPress={onClose}>
-        <Pressable
-          className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10"
-          onPress={(e) => e.stopPropagation()}
-        >
-          <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
-          {children}
-        </Pressable>
+        <Reanimated.View style={sheetStyle}>
+          <Pressable
+            className="bg-app-surface rounded-t-[20px] px-5 pt-5 pb-10"
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
+            {children}
+          </Pressable>
+        </Reanimated.View>
       </Pressable>
     </Modal>
   );
