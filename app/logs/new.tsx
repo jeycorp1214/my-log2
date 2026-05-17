@@ -14,12 +14,13 @@ import {
 
 export default function LogNewScreen() {
   const router = useRouter();
-  const { date } = useLocalSearchParams<{ date?: string }>();
+  const { date, personId } = useLocalSearchParams<{ date?: string; personId?: string }>();
 
   const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
   const { data: allPersons = [] } = useLiveQuery(db.select().from(persons));
 
   const initialDate = date ? new Date(date) : new Date();
+  const preselectedPersonId = personId ? Number(personId) : null;
 
   const [title, setTitle] = useState("");
   const [logDate, setLogDate] = useState(initialDate);
@@ -27,7 +28,9 @@ export default function LogNewScreen() {
   const [repeatType, setRepeatType] = useState("none");
   const [repeatUntil, setRepeatUntil] = useState<Date | null>(null);
   const [groupId, setGroupId] = useState<number | null>(null);
-  const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>([]);
+  const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>(
+    preselectedPersonId ? [preselectedPersonId] : [],
+  );
 
   useEffect(() => {
     if (!groupId && allGroups.length > 0) {

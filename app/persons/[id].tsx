@@ -281,9 +281,21 @@ export default function PersonDetailScreen() {
 
             <PersonStatsCard logDates={personLogs.map((p) => p.log.logDate)} />
 
-            <Text className="text-app-label text-[13px] font-semibold mt-6 mb-3 uppercase tracking-[0.5px]">
-              타임라인 ({timelineEntries.length})
-            </Text>
+            <View className="flex-row justify-between items-center mt-6 mb-3">
+              <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px]">
+                타임라인 ({timelineEntries.length})
+              </Text>
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: "/logs/new",
+                    params: { personId: String(id) },
+                  })
+                }
+              >
+                <Text className="text-app-teal text-[13px]">+ 기록 추가</Text>
+              </Pressable>
+            </View>
             {timelineEntries.length === 0 ? (
               <Text className="text-app-muted text-[13px]">
                 아직 일정이 없습니다.
