@@ -9,7 +9,7 @@ import { asc, desc, eq, isNotNull } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { Pin, Trash2 } from "lucide-react-native";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, FlatList, Keyboard, Pressable, Text, View } from "react-native";
 
 type CompletionFilter = "all" | "done" | "undone";
@@ -54,7 +54,7 @@ export function MemoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
 
   const memoDoneCount = useMemo(() => allMemos.filter((m) => !!m.checkedAt).length, [allMemos]);
 
-  useMemo(() => {
+  useEffect(() => {
     const badge = [completionFilter !== "all", sortOrder !== "newest", showDate].filter(Boolean).length;
     onFilterBadgeChange(badge);
   }, [completionFilter, sortOrder, showDate]);
