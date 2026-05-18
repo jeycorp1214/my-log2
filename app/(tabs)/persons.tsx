@@ -246,7 +246,8 @@ export default function PersonsScreen() {
     () =>
       groupedPersons
         .filter(
-          ({ group }) => groupFilter === "all" || String(group.id) === groupFilter,
+          ({ group }) =>
+            groupFilter === "all" || String(group.id) === groupFilter,
         )
         .map(({ group, members }) => ({
           group,
@@ -653,9 +654,13 @@ export default function PersonsScreen() {
           )}
 
           {/* 요약 */}
-          <View className="flex-row items-center px-5 py-2.5 border-b border-[#1e1e1e]">
+          <View className="flex-row items-center justify-between px-5 py-2.5 border-b border-[#1e1e1e]">
             <Text className="text-app-muted text-sm">
               총 {filteredAnniversaries.length}개
+            </Text>
+            <Text className="text-app-muted text-xs">
+              {dayjs(annStart).format("YY.MM.DD")} ~
+              {dayjs(annEnd).format("YY.MM.DD")}
             </Text>
           </View>
 
@@ -701,9 +706,7 @@ export default function PersonsScreen() {
                     onPress={() => setAnnGroupFilter("all")}
                     className="bg-[#222] rounded-full px-4 py-2"
                   >
-                    <Text className="text-app-teal text-sm">
-                      필터 초기화
-                    </Text>
+                    <Text className="text-app-teal text-sm">필터 초기화</Text>
                   </Pressable>
                 )}
               </View>
@@ -776,13 +779,16 @@ export default function PersonsScreen() {
                         className="rounded-[10px] px-4 py-2.5"
                         style={{
                           backgroundColor:
-                            groupFilter === String(g.id) ? "#4ecdc4" : "#2a2a2a",
+                            groupFilter === String(g.id)
+                              ? "#4ecdc4"
+                              : "#2a2a2a",
                         }}
                       >
                         <Text
                           className="text-sm font-semibold"
                           style={{
-                            color: groupFilter === String(g.id) ? "#111" : "#888",
+                            color:
+                              groupFilter === String(g.id) ? "#111" : "#888",
                           }}
                         >
                           {g.emoji ? `${g.emoji} ${g.name}` : g.name}
@@ -967,13 +973,16 @@ export default function PersonsScreen() {
                         className="rounded-[10px] px-4 py-2.5"
                         style={{
                           backgroundColor:
-                            annGroupFilter === String(g.id) ? "#4ecdc4" : "#2a2a2a",
+                            annGroupFilter === String(g.id)
+                              ? "#4ecdc4"
+                              : "#2a2a2a",
                         }}
                       >
                         <Text
                           className="text-sm font-semibold"
                           style={{
-                            color: annGroupFilter === String(g.id) ? "#111" : "#888",
+                            color:
+                              annGroupFilter === String(g.id) ? "#111" : "#888",
                           }}
                         >
                           {g.emoji ? `${g.emoji} ${g.name}` : g.name}
