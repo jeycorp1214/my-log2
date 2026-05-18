@@ -1,10 +1,13 @@
 // 캘린더 탭 — 월별 캘린더 뷰 + 핸들 드래그로 확장/축소 + 선택 날짜 기록/기념일 패널
 import "@/utils/calendarLocale";
+import { db } from "@/db/client";
+import { groups, logs } from "@/db/schema";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { FlatList, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Keyboard, Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
 import type { DateData } from "react-native-calendars";
 import { Calendar } from "react-native-calendars";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -16,7 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { AnniversaryCard } from "@/components/calendar/AnniversaryCard";
-import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { QuickInputBar } from "@/components/calendar/QuickInputBar";
 import TabsHeader from "@/components/layout/TabsHeader";
 import { LogCard } from "@/components/logs/LogCard";
 import type { DayItem } from "@/hooks/useCalendarData";
@@ -82,11 +85,13 @@ export default function CalendarScreen() {
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(TODAY);
   const [selectedDate, setSelectedDate] = useState(TODAY);
+  const [quickInput, setQuickInput] = useState("");
   const {
     markedDates: rawMarkedDates,
     dayItems,
     monthItemsByDate,
   } = useCalendarData(currentMonth, selectedDate);
+  const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -107,6 +112,22 @@ export default function CalendarScreen() {
   }, [rawMarkedDates]);
 
   const selectedLabel = dayjs(selectedDate).format("M월 D일 (ddd)");
+
+  async function handleQuickAdd() {
+    const title = quickInput.trim();
+    const defaultGroupId = allGroups[0]?.id;
+    if (!title || !defaultGroupId) {
+      router.push({ pathname: "/logs/new", params: { date: selectedDate } });
+      return;
+    }
+    await db.insert(logs).values({
+      title,
+      logDate: dayjs(selectedDate).toDate(),
+      groupId: defaultGroupId,
+    });
+    setQuickInput("");
+    Keyboard.dismiss();
+  }
 
   const renderItem = useCallback(
     ({ item }: { item: DayItem }) => {
@@ -385,13 +406,11 @@ export default function CalendarScreen() {
         </Animated.View>
       )}
 
-      <FloatingActionButton
-        onPress={() =>
-          router.push({
-            pathname: "/logs/new",
-            params: { date: selectedDate },
-          })
-        }
+      <QuickInputBar
+        placeholder="기록 추가"
+        value={quickInput}
+        onChange={setQuickInput}
+        onSubmit={handleQuickAdd}
       />
     </View>
   );
