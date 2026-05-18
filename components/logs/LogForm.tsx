@@ -89,7 +89,7 @@ export function LogForm({
       const num = parseInt(sheetInput, 10);
       if (!isNaN(num) && num > 1) {
         onRepeatIntervalChange(num);
-        if (repeatType === "none") onRepeatTypeChange("daily");
+        onRepeatTypeChange("daily");
       }
     }
     closeSheet();
