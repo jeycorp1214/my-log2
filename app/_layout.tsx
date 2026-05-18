@@ -101,6 +101,13 @@ export default function RootLayout() {
                             }}
                           />
                           <Stack.Screen
+                            name="todos/new"
+                            options={{
+                              presentation: "modal",
+                              title: "할 일 추가",
+                            }}
+                          />
+                          <Stack.Screen
                             name="todos/[id]"
                             options={{
                               presentation: "modal",

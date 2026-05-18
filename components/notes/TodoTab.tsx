@@ -77,7 +77,10 @@ export function TodoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
 
   async function handleQuickAdd() {
     const title = todoInput.trim();
-    if (!title) return;
+    if (!title) {
+      router.push({ pathname: "/todos/new", params: { quadrant: selectedQuadrant } });
+      return;
+    }
     await db.insert(todos).values({ title, quadrant: selectedQuadrant });
     setTodoInput("");
     Keyboard.dismiss();
