@@ -1,12 +1,11 @@
 // 퀵 입력바 — Reanimated로 키보드 바로 위에 고정
-import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { cn } from "@/utils/utils";
+import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { Check, Plus } from "lucide-react-native";
 import { useContext } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import Reanimated, { useAnimatedStyle } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   placeholder: string;
@@ -21,7 +20,6 @@ export function QuickInputBar({
   onChange,
   onSubmit,
 }: Props) {
-  const insets = useSafeAreaInsets();
   const hasText = value.trim().length > 0;
 
   // 탭바 높이 보정: 탭바 있을 때 input과 키보드 사이 gap 제거.
@@ -38,10 +36,7 @@ export function QuickInputBar({
 
   return (
     <Reanimated.View style={stickyStyle}>
-      <View
-        className="w-full px-4 bg-app-teal"
-        style={{ paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }}
-      >
+      <View className="w-full px-4 bg-app-teal">
         <View className="flex-row items-center gap-2 py-3">
           <TextInput
             className="flex-1 h-14 bg-app-surface rounded-full px-5 text-white text-sm"
