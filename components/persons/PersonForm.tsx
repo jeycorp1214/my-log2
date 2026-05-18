@@ -159,11 +159,27 @@ export function PersonForm({
 
   const sheetMeta: Record<
     Exclude<ActiveSheet, null>,
-    { title: string; placeholder: string; keyboardType: "default" | "number-pad" }
+    {
+      title: string;
+      placeholder: string;
+      keyboardType: "default" | "number-pad";
+    }
   > = {
-    group: { title: "새 그룹 추가", placeholder: "그룹 이름", keyboardType: "default" },
-    tag: { title: "관계 태그 추가", placeholder: "태그 이름", keyboardType: "default" },
-    interval: { title: "연락 주기 설정", placeholder: "일 수 입력", keyboardType: "number-pad" },
+    group: {
+      title: "새 그룹 추가",
+      placeholder: "그룹 이름",
+      keyboardType: "default",
+    },
+    tag: {
+      title: "관계 태그 추가",
+      placeholder: "태그 이름",
+      keyboardType: "default",
+    },
+    interval: {
+      title: "연락 주기 설정",
+      placeholder: "일 수 입력",
+      keyboardType: "number-pad",
+    },
   };
 
   return (
@@ -352,10 +368,7 @@ export function PersonForm({
       ))}
 
       {/* 직접 입력 바텀시트 */}
-      <FilterBottomSheet
-        visible={activeSheet !== null}
-        onClose={closeSheet}
-      >
+      <FilterBottomSheet visible={activeSheet !== null} onClose={closeSheet}>
         {activeSheet !== null && (
           <>
             <Text className="text-white text-[16px] font-semibold mb-4">
@@ -388,7 +401,9 @@ export function PersonForm({
                 onPress={handleSheetConfirm}
                 className="flex-1 rounded-[10px] py-3 items-center bg-app-teal"
               >
-                <Text className="text-[#111] text-[14px] font-semibold">확인</Text>
+                <Text className="text-[#111] text-[14px] font-semibold">
+                  확인
+                </Text>
               </Pressable>
             </View>
           </>

@@ -7,14 +7,8 @@ import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import {
-  Alert,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
 
 const QUADRANTS: { key: Quadrant; label: string; color: string }[] = [
   { key: "do", label: "즉시 실행", color: "#ff6b6b" },
@@ -92,97 +86,94 @@ export default function TodoDetailScreen() {
       contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
     >
-        {/* 제목 */}
-        <View>
-          <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-            제목
-          </Text>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            className="bg-app-surface text-white rounded-[10px] px-4 py-3 text-[15px]"
-            placeholderTextColor="#555"
-            placeholder="할 일 제목"
-            autoFocus
-          />
-        </View>
+      {/* 제목 */}
+      <View>
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+          제목
+        </Text>
+        <TextInput
+          value={title}
+          onChangeText={setTitle}
+          className="bg-app-surface text-white rounded-[10px] px-4 py-3 text-[15px]"
+          placeholderTextColor="#555"
+          placeholder="할 일 제목"
+          autoFocus
+        />
+      </View>
 
-        {/* 사분면 */}
-        <View>
-          <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-            분류
-          </Text>
-          <View className="flex-row gap-2 flex-wrap">
-            {QUADRANTS.map((q) => (
-              <Pressable
-                key={q.key}
-                onPress={() => setQuadrant(q.key)}
-                className="rounded-[10px] px-4 py-2.5"
+      {/* 사분면 */}
+      <View>
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+          분류
+        </Text>
+        <View className="flex-row gap-2 flex-wrap">
+          {QUADRANTS.map((q) => (
+            <Pressable
+              key={q.key}
+              onPress={() => setQuadrant(q.key)}
+              className="rounded-[10px] px-4 py-2.5"
+              style={{
+                backgroundColor:
+                  quadrant === q.key ? `${q.color}22` : "#1e1e1e",
+                borderWidth: quadrant === q.key ? 1.5 : 0.5,
+                borderColor: quadrant === q.key ? q.color : "#2a2a2a",
+              }}
+            >
+              <Text
                 style={{
-                  backgroundColor:
-                    quadrant === q.key ? `${q.color}22` : "#1e1e1e",
-                  borderWidth: quadrant === q.key ? 1.5 : 0.5,
-                  borderColor: quadrant === q.key ? q.color : "#2a2a2a",
+                  color: quadrant === q.key ? q.color : "#666",
+                  fontSize: 13,
+                  fontWeight: "600",
                 }}
               >
-                <Text
-                  style={{
-                    color: quadrant === q.key ? q.color : "#666",
-                    fontSize: 13,
-                    fontWeight: "600",
-                  }}
-                >
-                  {q.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
+                {q.label}
+              </Text>
+            </Pressable>
+          ))}
         </View>
+      </View>
 
-        {/* 기한 */}
-        <View>
-          <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-            기한
-          </Text>
-          <DateInput
-            value={dueDate}
-            onChange={setDueDate}
-            onClear={() => setDueDate(null)}
-            placeholder="기한 없음"
-            variant="field"
-          />
-        </View>
+      {/* 기한 */}
+      <View>
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+          기한
+        </Text>
+        <DateInput
+          value={dueDate}
+          onChange={setDueDate}
+          onClear={() => setDueDate(null)}
+          placeholder="기한 없음"
+          variant="field"
+        />
+      </View>
 
-        {/* 노트 */}
-        <View>
-          <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
-            노트
-          </Text>
-          <TextInput
-            value={note}
-            onChangeText={setNote}
-            className="bg-app-surface text-white rounded-[10px] px-4 py-3 text-[14px]"
-            placeholderTextColor="#555"
-            placeholder="추가 메모 (선택)"
-            multiline
-            style={{ minHeight: 100, textAlignVertical: "top" }}
-          />
-        </View>
+      {/* 노트 */}
+      <View>
+        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+          노트
+        </Text>
+        <TextInput
+          value={note}
+          onChangeText={setNote}
+          className="bg-app-surface text-white rounded-[10px] px-4 py-3 text-[14px]"
+          placeholderTextColor="#555"
+          placeholder="추가 메모 (선택)"
+          multiline
+          style={{ minHeight: 100, textAlignVertical: "top" }}
+        />
+      </View>
 
-        <Pressable
-          onPress={save}
-          className="bg-app-teal rounded-[12px] p-4 items-center mt-2"
-          style={{ opacity: isDirty ? 1 : 0.4 }}
-          disabled={!isDirty}
-        >
-          <Text className="text-[#111] text-base font-bold">저장</Text>
-        </Pressable>
-        <Pressable onPress={() => router.back()} className="items-center py-2">
-          <Text className="text-app-muted text-[14px]">취소</Text>
-        </Pressable>
-        <Pressable onPress={deleteTodo} className="items-center py-2">
-          <Text style={{ color: "#ff6b6b", fontSize: 14 }}>삭제</Text>
-        </Pressable>
+      <Pressable
+        onPress={save}
+        className="bg-app-teal rounded-[12px] p-4 items-center mt-2"
+        style={{ opacity: isDirty ? 1 : 0.4 }}
+        disabled={!isDirty}
+      >
+        <Text className="text-[#111] text-base font-bold">저장</Text>
+      </Pressable>
+      <Pressable onPress={deleteTodo} className="items-center py-2">
+        <Text style={{ color: "#ff6b6b", fontSize: 14 }}>삭제</Text>
+      </Pressable>
     </KeyboardAwareScrollView>
   );
 }
