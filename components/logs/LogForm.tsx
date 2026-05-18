@@ -49,6 +49,7 @@ export function LogForm({
   showRepeat = true,
 }: LogFormProps) {
   const [showRepeatUntilPicker, setShowRepeatUntilPicker] = useState(false);
+  const [personSearch, setPersonSearch] = useState("");
 
   return (
     <>
@@ -159,8 +160,24 @@ export function LogForm({
       </View>
 
       <Text className="text-app-label text-sm mt-3">관련 프로필</Text>
+      {allPersons.length > 8 && (
+        <TextInput
+          className="bg-app-surface text-white rounded-[10px] px-3 py-2 text-sm mt-1"
+          value={personSearch}
+          onChangeText={setPersonSearch}
+          placeholder="프로필 검색"
+          placeholderTextColor="#555"
+        />
+      )}
       <View className="flex-row flex-wrap gap-2 mt-1">
-        {allPersons.map((p) => (
+        {[
+          ...allPersons.filter((p) => selectedPersonIds.includes(p.id)),
+          ...allPersons
+            .filter((p) => !selectedPersonIds.includes(p.id))
+            .filter((p) =>
+              personSearch.trim() ? p.name.includes(personSearch.trim()) : true,
+            ),
+        ].map((p) => (
           <Pressable
             key={p.id}
             onPress={() => onTogglePerson(p.id)}
