@@ -209,6 +209,7 @@ export default function CalendarScreen() {
           }}
           style={{
             height: EXPANDED_CELL_HEIGHT,
+            width: "100%",
             padding: 3,
             backgroundColor: isSelected ? "#1a3a3a" : "transparent",
             borderRadius: 6,
