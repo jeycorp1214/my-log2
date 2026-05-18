@@ -9,7 +9,7 @@ import type { InferSelectModel } from "drizzle-orm";
 import { count, desc, eq, like, or, sql } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
-import { Search, X } from "lucide-react-native";
+import { ChevronLeft, Search, X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -185,6 +185,9 @@ export default function SearchScreen() {
     >
       {/* 검색 헤더 */}
       <View className="flex-row items-center gap-3 px-4 pt-14 pb-3">
+        <Pressable onPress={() => router.back()} hitSlop={8}>
+          <ChevronLeft size={22} color="#fff" />
+        </Pressable>
         <View className="flex-1 flex-row items-center gap-2 bg-app-surface rounded-[12px] px-3 h-12">
           <Search size={16} color="#666" />
           <TextInput
@@ -203,9 +206,6 @@ export default function SearchScreen() {
             </Pressable>
           )}
         </View>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <Text className="text-app-teal text-[14px]">닫기</Text>
-        </Pressable>
       </View>
 
       {/* 필터 칩 */}
