@@ -49,7 +49,7 @@ export function TimelineItem({
 
       {/* 내용 */}
       <View className="flex-1 pb-3">
-        <Text className="text-app-muted text-[11px] mt-[10px] mb-1">
+        <Text className="text-app-muted text-xs mt-[10px] mb-1">
           {date}
         </Text>
         <Pressable
@@ -61,20 +61,20 @@ export function TimelineItem({
         >
           <View className="flex-row items-center justify-between">
             <Text
-              className={`text-[14px] flex-1 ${
+              className={`text-sm flex-1 ${
                 type === "anniversary" ? "text-app-teal" : "text-white"
               }`}
             >
               {title}
             </Text>
             {dday && (
-              <Text className="text-app-teal text-[13px] font-semibold ml-2">
+              <Text className="text-app-teal text-sm font-semibold ml-2">
                 {dday}
               </Text>
             )}
           </View>
           {subtitle && (
-            <Text className="text-app-muted text-[12px] mt-0.5">
+            <Text className="text-app-muted text-xs mt-0.5">
               {subtitle}
             </Text>
           )}

@@ -1,4 +1,4 @@
-// 로그 상세 / 편집 / 삭제 모달 화면
+﻿// 로그 상세 / 편집 / 삭제 모달 화면
 import { LogForm } from "@/components/logs/LogForm";
 import { db } from "@/db/client";
 import { groups, logPersons, logs, persons } from "@/db/schema";
@@ -179,7 +179,7 @@ export default function LogDetailScreen() {
           <>
             {isCopyMode && (
               <View className="bg-app-teal-dark rounded-[10px] px-3 py-2 mb-1">
-                <Text className="text-app-teal text-[13px]">
+                <Text className="text-app-teal text-sm">
                   이 날짜만 별도 기록으로 저장됩니다
                 </Text>
               </View>
@@ -217,31 +217,31 @@ export default function LogDetailScreen() {
               onPress={() => setEditingMode("none")}
               className="items-center py-3"
             >
-              <Text className="text-app-muted text-[14px]">취소</Text>
+              <Text className="text-app-muted text-sm">취소</Text>
             </Pressable>
           </>
         ) : (
           <>
             {isOccurrenceView && (
               <View className="bg-app-teal-dark rounded-[10px] px-3 py-2 mb-1">
-                <Text className="text-app-teal text-[13px]">
+                <Text className="text-app-teal text-sm">
                   🔄 반복 기록 — {formatLogDate(occurrenceDateObj!)}
                 </Text>
               </View>
             )}
 
             <View className="flex-row items-start justify-between">
-              <Text className="flex-1 text-white text-[22px] font-bold mr-3">
+              <Text className="flex-1 text-white text-xl font-bold mr-3">
                 {log.title}
               </Text>
               <Pressable
                 onPress={handleEditPress}
                 className="bg-app-surface rounded-lg px-3 py-1.5"
               >
-                <Text className="text-app-teal text-[14px]">편집</Text>
+                <Text className="text-app-teal text-sm">편집</Text>
               </Pressable>
             </View>
-            <Text className="text-app-muted text-[13px]">
+            <Text className="text-app-muted text-sm">
               {formatLogDate(displayDate)}
             </Text>
             {log.memo ? (
@@ -252,7 +252,7 @@ export default function LogDetailScreen() {
 
             {linkedPersons.length > 0 && (
               <>
-                <Text className="text-app-label text-[13px] font-semibold mt-5 uppercase tracking-[0.5px]">
+                <Text className="text-app-label text-sm font-semibold mt-5 uppercase tracking-[0.5px]">
                   함께한 프로필
                 </Text>
                 <View className="flex-row flex-wrap gap-2 mt-1">
@@ -267,7 +267,7 @@ export default function LogDetailScreen() {
                       }
                       className="bg-app-surface rounded-[20px] px-3 py-1.5"
                     >
-                      <Text className="text-app-label text-[13px]">
+                      <Text className="text-app-label text-sm">
                         {person.name}
                       </Text>
                     </Pressable>

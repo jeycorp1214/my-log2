@@ -25,7 +25,7 @@ export function PinnedMemosWidget() {
     <View className="mx-4 mb-4 bg-app-surface rounded-[16px] overflow-hidden">
       <View className="px-4 pt-4 pb-2 flex-row items-center gap-1.5">
         <Pin size={11} color="#888" fill="#888" />
-        <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
           고정 메모
         </Text>
       </View>
@@ -37,7 +37,7 @@ export function PinnedMemosWidget() {
           style={({ pressed }) => pressed ? { opacity: 0.7 } : undefined}
         >
           <Text
-            className="text-white text-[14px]"
+            className="text-white text-sm"
             numberOfLines={2}
             style={{ opacity: memo.checkedAt ? 0.4 : 1, textDecorationLine: memo.checkedAt ? "line-through" : "none" }}
           >

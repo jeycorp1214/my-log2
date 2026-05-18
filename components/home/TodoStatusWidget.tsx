@@ -51,11 +51,11 @@ export function TodoStatusWidget() {
       style={({ pressed }) => pressed ? { opacity: 0.7 } : undefined}
     >
       <View className="flex-row items-center justify-between mb-3">
-        <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
           할 일 현황
         </Text>
         {totalUndone > 0 && (
-          <Text className="text-[#f59e0b] text-[11px] font-semibold">
+          <Text className="text-[#f59e0b] text-xs font-semibold">
             미완료 {totalUndone}개
           </Text>
         )}

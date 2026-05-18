@@ -106,7 +106,7 @@ export function MemoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
   return (
     <>
       <View className="flex-row items-center px-5 py-2 border-b border-[#1e1e1e]">
-        <Text className="text-app-muted text-[13px]">
+        <Text className="text-app-muted text-sm">
           총 {allMemos.length}개 · 완료 {memoDoneCount}개
         </Text>
       </View>
@@ -140,7 +140,7 @@ export function MemoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
                   {item.content}
                 </Text>
                 {showDate && (
-                  <Text className="text-app-muted text-[11px] mt-1">
+                  <Text className="text-app-muted text-xs mt-1">
                     {fromNow(item.createdAt)}
                   </Text>
                 )}
@@ -155,7 +155,7 @@ export function MemoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
           );
         }}
         ListEmptyComponent={
-          <Text className="text-app-muted text-center mt-16 text-[14px]">메모가 없습니다.</Text>
+          <Text className="text-app-muted text-center mt-16 text-sm">메모가 없습니다.</Text>
         }
       />
 

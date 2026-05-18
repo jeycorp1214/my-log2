@@ -54,10 +54,10 @@ export function BirthDateInput({ value, onChange }: Props) {
   return (
     <View>
       <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-app-label text-[13px]">생년월일</Text>
+        <Text className="text-app-label text-sm">생년월일</Text>
         {value && !text && (
           <Pressable onPress={handleClear} hitSlop={8}>
-            <Text className="text-app-muted text-[12px]">지우기</Text>
+            <Text className="text-app-muted text-xs">지우기</Text>
           </Pressable>
         )}
       </View>
@@ -82,7 +82,7 @@ export function BirthDateInput({ value, onChange }: Props) {
       {previewStr && (
         <Text
           className={cn(
-            "text-[13px] mt-2 px-1",
+            "text-sm mt-2 px-1",
             showError ? "text-[#ff6b6b]" : "text-[#4ecdc4]",
           )}
         >
@@ -91,7 +91,7 @@ export function BirthDateInput({ value, onChange }: Props) {
       )}
 
       {showError && (
-        <Text className="text-[#ff6b6b] text-[11px] mt-1 px-1">
+        <Text className="text-[#ff6b6b] text-xs mt-1 px-1">
           인식 불가 — 나이 2자리 / 연도 4자리 / 날짜 6자리(YYMMDD) /
           8자리(YYYYMMDD)
         </Text>

@@ -55,8 +55,8 @@ export function PersonStatsCard({ logDates }: StatsCardProps) {
     <View className="bg-app-surface rounded-[12px] p-4 mt-3 flex-row flex-wrap gap-y-3">
       {stats.map((s) => (
         <View key={s.label} style={{ width: "50%" }}>
-          <Text className="text-app-muted text-[11px] mb-0.5">{s.label}</Text>
-          <Text className="text-white text-[14px] font-semibold">
+          <Text className="text-app-muted text-xs mb-0.5">{s.label}</Text>
+          <Text className="text-white text-sm font-semibold">
             {s.value}
           </Text>
         </View>

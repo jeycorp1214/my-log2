@@ -34,7 +34,7 @@ function SummaryTable({
     <View className="bg-[#141414] rounded-[10px] overflow-hidden">
       {exportedAt && (
         <View className="px-4 py-2.5 border-b border-[#1e1e1e]">
-          <Text className="text-app-muted text-[11px]">
+          <Text className="text-app-muted text-xs">
             내보낸 날짜: {dayjs(exportedAt).format("YYYY-MM-DD HH:mm")}
           </Text>
         </View>
@@ -47,9 +47,9 @@ function SummaryTable({
             i > 0 ? { borderTopWidth: 1, borderColor: "#1e1e1e" } : undefined
           }
         >
-          <Text className="flex-1 text-[#aaa] text-[13px]">{row.label}</Text>
+          <Text className="flex-1 text-[#aaa] text-sm">{row.label}</Text>
           <Text
-            className="text-[13px] font-semibold tabular-nums"
+            className="text-sm font-semibold tabular-nums"
             style={{ color: row.accent ? "#4ecdc4" : "#666" }}
           >
             {row.count}개
@@ -154,7 +154,7 @@ export default function BackupScreen() {
       >
         {/* ── 내보내기 ── */}
         <View className="gap-3">
-          <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px]">
+          <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
             내보내기
           </Text>
           <SummaryTable rows={currentRows} />
@@ -165,7 +165,7 @@ export default function BackupScreen() {
             style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
           >
             <Upload size={16} color="#4ecdc4" />
-            <Text className="text-app-teal text-[14px] font-semibold">
+            <Text className="text-app-teal text-sm font-semibold">
               {isExporting ? "내보내는 중…" : "JSON 파일로 내보내기"}
             </Text>
           </Pressable>
@@ -175,7 +175,7 @@ export default function BackupScreen() {
 
         {/* ── 불러오기 ── */}
         <View className="gap-3">
-          <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px]">
+          <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
             불러오기
           </Text>
 
@@ -188,7 +188,7 @@ export default function BackupScreen() {
               />
 
               <View className="bg-[#1a0e0e] rounded-[10px] px-4 py-3">
-                <Text className="text-app-danger text-[12px] leading-5">
+                <Text className="text-app-danger text-xs leading-5">
                   위 데이터로 교체됩니다. 현재 데이터 전체가 삭제됩니다.{"\n"}이
                   작업은 되돌릴 수 없습니다.
                 </Text>
@@ -202,7 +202,7 @@ export default function BackupScreen() {
                     pressed ? { opacity: 0.7 } : undefined
                   }
                 >
-                  <Text className="text-[#888] text-[14px] font-semibold">
+                  <Text className="text-[#888] text-sm font-semibold">
                     취소
                   </Text>
                 </Pressable>
@@ -214,7 +214,7 @@ export default function BackupScreen() {
                     pressed ? { opacity: 0.7 } : undefined
                   }
                 >
-                  <Text className="text-app-danger text-[14px] font-semibold">
+                  <Text className="text-app-danger text-sm font-semibold">
                     {isImporting ? "불러오는 중…" : "교체 확인"}
                   </Text>
                 </Pressable>
@@ -233,13 +233,13 @@ export default function BackupScreen() {
               >
                 <Download size={16} color="#c9922a" />
                 <Text
-                  className="text-[14px] font-semibold"
+                  className="text-sm font-semibold"
                   style={{ color: "#c9922a" }}
                 >
                   {isPicking ? "파일 선택 중…" : "백업 파일 선택"}
                 </Text>
               </Pressable>
-              <Text className="text-[#555] text-[11px] text-center">
+              <Text className="text-[#555] text-xs text-center">
                 파일 선택 후 내용을 확인한 뒤 불러올 수 있습니다.
               </Text>
             </>

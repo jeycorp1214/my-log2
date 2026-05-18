@@ -70,10 +70,10 @@ export function MiniHeatmapWidget() {
       style={({ pressed }) => (pressed ? { opacity: 0.8 } : undefined)}
     >
       <View className="flex-row items-center justify-between mb-3">
-        <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
           최근 12주
         </Text>
-        <Text className="text-app-teal text-[11px]">{totalInRange}개 →</Text>
+        <Text className="text-app-teal text-xs">{totalInRange}개 →</Text>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -103,14 +103,14 @@ export function MiniHeatmapWidget() {
       </ScrollView>
 
       <View className="flex-row items-center gap-2 mt-3">
-        <Text className="text-[#555] text-[10px]">적음</Text>
+        <Text className="text-[#555] text-xs">적음</Text>
         {["#1e1e1e", "#0e2419", "#1a3a2e", "#2d5a40", "#4ecdc4"].map((c) => (
           <View
             key={c}
             style={{ width: CELL, height: CELL, borderRadius: 2, backgroundColor: c }}
           />
         ))}
-        <Text className="text-[#555] text-[10px]">많음</Text>
+        <Text className="text-[#555] text-xs">많음</Text>
       </View>
     </Pressable>
   );

@@ -354,7 +354,7 @@ export default function CalendarScreen() {
       {/* 선택 날짜 레이블 — 축소 모드에서만 표시 */}
       {!isExpanded && (
         <View className="flex-row items-center px-4 mt-1 mb-2">
-          <Text className="flex-1 text-app-label text-[10px] uppercase tracking-widest">
+          <Text className="flex-1 text-app-label text-xs uppercase tracking-widest">
             {selectedLabel}
           </Text>
           {dayItems.length > 0 && (

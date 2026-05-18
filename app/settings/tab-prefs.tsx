@@ -16,14 +16,14 @@ import {
 
 function SectionLabel({ label }: { label: string }) {
   return (
-    <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mt-6 mb-3">
+    <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mt-6 mb-3">
       {label}
     </Text>
   );
 }
 
 function RowLabel({ label }: { label: string }) {
-  return <Text className="text-app-muted text-[12px] mb-2">{label}</Text>;
+  return <Text className="text-app-muted text-xs mb-2">{label}</Text>;
 }
 
 function Chips<T extends string>({
@@ -48,7 +48,7 @@ function Chips<T extends string>({
         >
           <Text
             className={cn(
-              "text-[13px] font-semibold",
+              "text-sm font-semibold",
               current === opt.value ? "text-[#111]" : "text-[#888]",
             )}
           >
@@ -71,7 +71,7 @@ function SwitchRow({
 }) {
   return (
     <View className="flex-row items-center justify-between mb-4">
-      <Text className="text-white text-[14px]">{label}</Text>
+      <Text className="text-white text-sm">{label}</Text>
       <Switch
         value={value}
         onValueChange={onValueChange}
@@ -188,7 +188,7 @@ export default function TabPrefsScreen() {
             >
               <Text
                 className={cn(
-                  "text-[13px] font-semibold",
+                  "text-sm font-semibold",
                   list.groupFilter === opt.value
                     ? "text-[#111]"
                     : "text-[#888]",
@@ -235,7 +235,7 @@ export default function TabPrefsScreen() {
             >
               <Text
                 className={cn(
-                  "text-[13px] font-semibold",
+                  "text-sm font-semibold",
                   persons.groupFilter === opt.value
                     ? "text-[#111]"
                     : "text-[#888]",

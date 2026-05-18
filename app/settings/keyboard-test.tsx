@@ -43,7 +43,7 @@ export default function KeyboardTestScreen() {
       >
         {submitted.length > 0 && (
           <View className="mb-4">
-            <Text className="text-app-label text-[11px] uppercase tracking-widest mb-2">
+            <Text className="text-app-label text-xs uppercase tracking-widest mb-2">
               입력된 텍스트
             </Text>
             {submitted.map((s, i) => (
@@ -54,7 +54,7 @@ export default function KeyboardTestScreen() {
           </View>
         )}
 
-        <Text className="text-app-label text-[11px] uppercase tracking-widest mb-2">
+        <Text className="text-app-label text-xs uppercase tracking-widest mb-2">
           더미 목록 (스크롤 테스트)
         </Text>
         {DUMMY_ITEMS.map((item) => (
@@ -63,7 +63,7 @@ export default function KeyboardTestScreen() {
             className="bg-app-surface rounded-xl px-4 py-3 mb-2"
           >
             <Text className="text-white text-sm font-medium">{item.label}</Text>
-            <Text className="text-app-muted text-[11px] mt-0.5">{item.desc}</Text>
+            <Text className="text-app-muted text-xs mt-0.5">{item.desc}</Text>
           </View>
         ))}
       </KeyboardAwareScrollView>
@@ -76,7 +76,7 @@ export default function KeyboardTestScreen() {
             paddingTop: 10,
           }}
         >
-          <Text className="text-app-muted text-[10px] mb-1 text-center">
+          <Text className="text-app-muted text-xs mb-1 text-center">
             포커스 시 즉시 올라오고 · 키보드 내리면 즉시 내려와야 함
           </Text>
           <View className="flex-row items-center gap-2">

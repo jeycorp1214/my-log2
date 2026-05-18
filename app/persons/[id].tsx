@@ -1,4 +1,4 @@
-// 프로필 상세 / 편집 / 삭제 모달 화면
+﻿// 프로필 상세 / 편집 / 삭제 모달 화면
 import { DraftAnniversary, PersonForm } from "@/components/persons/PersonForm";
 import { PersonStatsCard } from "@/components/persons/PersonStatsCard";
 import { TimelineItem } from "@/components/persons/TimelineItem";
@@ -230,19 +230,19 @@ export default function PersonDetailScreen() {
                 onPress={startEditing}
                 className="bg-app-surface rounded-lg px-3 py-1.5"
               >
-                <Text className="text-app-teal text-[14px]">편집</Text>
+                <Text className="text-app-teal text-sm">편집</Text>
               </Pressable>
             </View>
 
             <View className="flex-row gap-2 mb-2 flex-wrap">
               {age !== null && (
-                <Text className="text-[#888] text-[14px]">{age}세</Text>
+                <Text className="text-[#888] text-sm">{age}세</Text>
               )}
               {person.mbti && (
-                <Text className="text-[#888] text-[14px]">{person.mbti}</Text>
+                <Text className="text-[#888] text-sm">{person.mbti}</Text>
               )}
               {person.metAt && (
-                <Text className="text-[#888] text-[14px]">
+                <Text className="text-[#888] text-sm">
                   함께한 지 {formatDuration(person.metAt)}
                 </Text>
               )}
@@ -257,7 +257,7 @@ export default function PersonDetailScreen() {
                       key={tag}
                       className="bg-[#1a2e2c] rounded-[8px] px-2.5 py-1"
                     >
-                      <Text className="text-app-teal text-[12px]">{tag}</Text>
+                      <Text className="text-app-teal text-xs">{tag}</Text>
                     </View>
                   ))}
                 </View>
@@ -272,8 +272,8 @@ export default function PersonDetailScreen() {
 
             {lastLog && (
               <View className="bg-app-surface rounded-[12px] p-[14px] flex-row justify-between mt-3">
-                <Text className="text-app-muted text-[13px]">마지막 기록</Text>
-                <Text className="text-app-teal text-[13px]">
+                <Text className="text-app-muted text-sm">마지막 기록</Text>
+                <Text className="text-app-teal text-sm">
                   {fromNow(new Date(lastLog.logDate))}
                 </Text>
               </View>
@@ -282,7 +282,7 @@ export default function PersonDetailScreen() {
             <PersonStatsCard logDates={personLogs.map((p) => p.log.logDate)} />
 
             <View className="flex-row justify-between items-center mt-6 mb-3">
-              <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px]">
+              <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px]">
                 타임라인 ({timelineEntries.length})
               </Text>
               <Pressable
@@ -293,11 +293,11 @@ export default function PersonDetailScreen() {
                   })
                 }
               >
-                <Text className="text-app-teal text-[13px]">+ 기록 추가</Text>
+                <Text className="text-app-teal text-sm">+ 기록 추가</Text>
               </Pressable>
             </View>
             {timelineEntries.length === 0 ? (
-              <Text className="text-app-muted text-[13px]">
+              <Text className="text-app-muted text-sm">
                 아직 일정이 없습니다.
               </Text>
             ) : (

@@ -441,7 +441,7 @@ export default function PersonsScreen() {
                 paddingBottom: 96,
               }}
               ListEmptyComponent={
-                <Text className="text-app-muted text-center mt-12 text-[14px]">
+                <Text className="text-app-muted text-center mt-12 text-sm">
                   일치하는 프로필이 없습니다.
                 </Text>
               }
@@ -471,14 +471,14 @@ export default function PersonsScreen() {
             <>
               {/* 요약 바 */}
               <View className="flex-row items-center justify-between px-5 py-2.5 border-b border-[#1e1e1e]">
-                <Text className="text-app-muted text-[13px]">
+                <Text className="text-app-muted text-sm">
                   총 {allPersons.length}명
                   {visiblePersonCount !== allPersons.length &&
                     ` · 표시 ${visiblePersonCount}명`}
                 </Text>
                 {allGroupIds.length > 0 && (
                   <Pressable onPress={toggleAllCollapse} hitSlop={8}>
-                    <Text className="text-[#555] text-[12px]">
+                    <Text className="text-[#555] text-xs">
                       {isAllCollapsed ? "전체 펼치기" : "전체 접기"}
                     </Text>
                   </Pressable>
@@ -508,7 +508,7 @@ export default function PersonsScreen() {
                               style={{ backgroundColor: section.color }}
                             />
                           )}
-                          <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
+                          <Text className="text-[#aaa] text-sm font-semibold uppercase tracking-[0.5px]">
                             {section.titleText}
                             {"  "}
                             <Text className="text-[#555] font-normal">
@@ -523,7 +523,7 @@ export default function PersonsScreen() {
                         )}
                       </Pressable>
                     ) : (
-                      <Text className="text-[#aaa] text-[13px] font-semibold uppercase tracking-[0.5px]">
+                      <Text className="text-[#aaa] text-sm font-semibold uppercase tracking-[0.5px]">
                         {section.titleText}
                         {"  "}
                         <Text className="text-[#555] font-normal">
@@ -559,7 +559,7 @@ export default function PersonsScreen() {
                     </Text>
                   ) : (
                     <View className="items-center mt-16 gap-3">
-                      <Text className="text-app-muted text-[14px]">
+                      <Text className="text-app-muted text-sm">
                         조건에 맞는 프로필이 없습니다.
                       </Text>
                       {filterBadge > 0 && (
@@ -574,7 +574,7 @@ export default function PersonsScreen() {
                           }}
                           className="bg-[#222] rounded-full px-4 py-2"
                         >
-                          <Text className="text-app-teal text-[13px]">
+                          <Text className="text-app-teal text-sm">
                             필터 초기화
                           </Text>
                         </Pressable>
@@ -620,7 +620,7 @@ export default function PersonsScreen() {
                 >
                   <Text
                     className={cn(
-                      "text-[13px] font-semibold",
+                      "text-sm font-semibold",
                       annPreset === item.key ? "text-[#111]" : "text-[#888]",
                     )}
                   >
@@ -635,26 +635,26 @@ export default function PersonsScreen() {
           {annPreset === "custom" && (
             <View className="flex-row gap-2 px-4 pb-2">
               <View className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center">
-                <Text className="text-white text-[13px]">
+                <Text className="text-white text-sm">
                   {dayjs(annCustomStart).format("YYYY년 M월")}
                 </Text>
-                <Text className="text-app-muted text-[11px] mt-0.5">시작</Text>
+                <Text className="text-app-muted text-xs mt-0.5">시작</Text>
               </View>
               <View className="justify-center px-1">
                 <Text className="text-app-muted">—</Text>
               </View>
               <View className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center">
-                <Text className="text-white text-[13px]">
+                <Text className="text-white text-sm">
                   {dayjs(annCustomEnd).format("YYYY년 M월")}
                 </Text>
-                <Text className="text-app-muted text-[11px] mt-0.5">종료</Text>
+                <Text className="text-app-muted text-xs mt-0.5">종료</Text>
               </View>
             </View>
           )}
 
           {/* 요약 */}
           <View className="flex-row items-center px-5 py-2.5 border-b border-[#1e1e1e]">
-            <Text className="text-app-muted text-[13px]">
+            <Text className="text-app-muted text-sm">
               총 {filteredAnniversaries.length}개
             </Text>
           </View>
@@ -667,7 +667,7 @@ export default function PersonsScreen() {
             }
             renderSectionHeader={({ section }) => (
               <View className="bg-[#111] px-5 py-2">
-                <Text className="text-app-dim text-[13px] font-semibold">
+                <Text className="text-app-dim text-sm font-semibold">
                   {section.title}
                 </Text>
               </View>
@@ -693,7 +693,7 @@ export default function PersonsScreen() {
             }}
             ListEmptyComponent={
               <View className="items-center mt-16 gap-3">
-                <Text className="text-app-muted text-[14px]">
+                <Text className="text-app-muted text-sm">
                   해당 기간에 기념일이 없습니다.
                 </Text>
                 {annGroupFilter !== "all" && (
@@ -701,7 +701,7 @@ export default function PersonsScreen() {
                     onPress={() => setAnnGroupFilter("all")}
                     className="bg-[#222] rounded-full px-4 py-2"
                   >
-                    <Text className="text-app-teal text-[13px]">
+                    <Text className="text-app-teal text-sm">
                       필터 초기화
                     </Text>
                   </Pressable>
@@ -743,7 +743,7 @@ export default function PersonsScreen() {
               {/* ── 프로필 모드 필터 ── */}
               {tabMode === "persons" && (
                 <>
-                  <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                  <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
                     그룹
                   </Text>
                   <ScrollView
@@ -761,7 +761,7 @@ export default function PersonsScreen() {
                       }}
                     >
                       <Text
-                        className="text-[13px] font-semibold"
+                        className="text-sm font-semibold"
                         style={{
                           color: groupFilter === "all" ? "#111" : "#888",
                         }}
@@ -780,7 +780,7 @@ export default function PersonsScreen() {
                         }}
                       >
                         <Text
-                          className="text-[13px] font-semibold"
+                          className="text-sm font-semibold"
                           style={{
                             color: groupFilter === String(g.id) ? "#111" : "#888",
                           }}
@@ -791,7 +791,7 @@ export default function PersonsScreen() {
                     ))}
                   </ScrollView>
 
-                  <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                  <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
                     MBTI
                   </Text>
                   <View className="flex-row gap-2 mb-3">
@@ -812,7 +812,7 @@ export default function PersonsScreen() {
                           }}
                         >
                           <Text
-                            className="text-[13px] font-semibold"
+                            className="text-sm font-semibold"
                             style={{
                               color: mbtiFilter === v ? "#111" : "#888",
                             }}
@@ -832,7 +832,7 @@ export default function PersonsScreen() {
 
                   {allTags.length > 0 && (
                     <>
-                      <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                      <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
                         관계 태그
                       </Text>
                       <ScrollView
@@ -852,7 +852,7 @@ export default function PersonsScreen() {
                             }}
                           >
                             <Text
-                              className="text-[13px] font-semibold"
+                              className="text-sm font-semibold"
                               style={{
                                 color: tagFilter === tag ? "#111" : "#888",
                               }}
@@ -865,7 +865,7 @@ export default function PersonsScreen() {
                     </>
                   )}
 
-                  <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                  <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
                     연락 주기
                   </Text>
                   <View className="flex-row gap-2 mb-5">
@@ -882,7 +882,7 @@ export default function PersonsScreen() {
                           }}
                         >
                           <Text
-                            className="text-[13px] font-semibold"
+                            className="text-sm font-semibold"
                             style={{
                               color: overdueFilter === v ? "#111" : "#888",
                             }}
@@ -894,7 +894,7 @@ export default function PersonsScreen() {
                     })}
                   </View>
 
-                  <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                  <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
                     정렬
                   </Text>
                   <View className="flex-row gap-2">
@@ -917,7 +917,7 @@ export default function PersonsScreen() {
                             }}
                           >
                             <Text
-                              className="text-[13px] font-semibold"
+                              className="text-sm font-semibold"
                               style={{
                                 color: sortOrder === v ? "#111" : "#888",
                               }}
@@ -935,7 +935,7 @@ export default function PersonsScreen() {
               {/* ── 기념일 모드 필터 ── */}
               {tabMode === "anniversary" && (
                 <>
-                  <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+                  <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
                     그룹
                   </Text>
                   <ScrollView
@@ -952,7 +952,7 @@ export default function PersonsScreen() {
                       }}
                     >
                       <Text
-                        className="text-[13px] font-semibold"
+                        className="text-sm font-semibold"
                         style={{
                           color: annGroupFilter === "all" ? "#111" : "#888",
                         }}
@@ -971,7 +971,7 @@ export default function PersonsScreen() {
                         }}
                       >
                         <Text
-                          className="text-[13px] font-semibold"
+                          className="text-sm font-semibold"
                           style={{
                             color: annGroupFilter === String(g.id) ? "#111" : "#888",
                           }}

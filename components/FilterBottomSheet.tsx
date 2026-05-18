@@ -49,7 +49,7 @@ export function FilterChipGroup<T extends string | boolean>({
 }: FilterChipGroupProps<T>) {
   return (
     <View className={className}>
-      <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+      <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
         {label}
       </Text>
       <View className="flex-row gap-2">
@@ -63,7 +63,7 @@ export function FilterChipGroup<T extends string | boolean>({
               style={{ backgroundColor: isSelected ? "#4ecdc4" : "#2a2a2a" }}
             >
               <Text
-                className="text-[13px] font-semibold"
+                className="text-sm font-semibold"
                 style={{ color: isSelected ? "#111" : "#888" }}
               >
                 {opt.label}

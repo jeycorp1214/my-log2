@@ -30,7 +30,7 @@ export function ListEventItem({
         {isRepeat ? (
           <View className="w-6 h-6 items-center justify-center">
             <View className="bg-[#1a3a2e] rounded-full px-1.5 py-0.5">
-              <Text className="text-app-teal text-[9px] font-bold">반복</Text>
+              <Text className="text-app-teal text-xs font-bold">반복</Text>
             </View>
           </View>
         ) : (
@@ -58,7 +58,7 @@ export function ListEventItem({
             >
               {log.title}
             </Text>
-            <Text className="text-app-muted text-[12px] mt-0.5">
+            <Text className="text-app-muted text-xs mt-0.5">
               {formatLogDate(displayDate)}
             </Text>
           </View>

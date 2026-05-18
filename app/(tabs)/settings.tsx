@@ -119,7 +119,7 @@ export default function SettingsScreen() {
       >
         {/* 관리 섹션 */}
         <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+          <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
             관리
           </Text>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
@@ -154,7 +154,7 @@ export default function SettingsScreen() {
 
         {/* 백업 */}
         <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+          <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
             백업
           </Text>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
@@ -171,7 +171,7 @@ export default function SettingsScreen() {
 
         {/* 통계 */}
         <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+          <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
             통계
           </Text>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
@@ -197,7 +197,7 @@ export default function SettingsScreen() {
 
         {/* 보안 */}
         <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+          <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
             보안
           </Text>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
@@ -214,7 +214,7 @@ export default function SettingsScreen() {
 
         {/* 탭 설정 */}
         <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+          <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
             탭 설정
           </Text>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
@@ -231,7 +231,7 @@ export default function SettingsScreen() {
 
         {/* 테스트 */}
         <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+          <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
             테스트
           </Text>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
@@ -259,14 +259,14 @@ export default function SettingsScreen() {
 
         {/* 개발자 옵션 */}
         <View className="mb-8">
-          <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+          <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
             개발자 옵션
           </Text>
           <View className="bg-app-surface rounded-[12px] overflow-hidden">
             <View className="flex-row items-center px-[14px] py-[16px]">
               <View className="flex-1">
                 <Text className="text-white text-sm">디버그 모드</Text>
-                <Text className="text-app-muted text-[12px] mt-0.5">
+                <Text className="text-app-muted text-xs mt-0.5">
                   캘린더 상단에 쿼리 정보 표시
                 </Text>
               </View>
@@ -283,7 +283,7 @@ export default function SettingsScreen() {
         {/* 개발 도구 — 디버그 모드일 때만 표시 */}
         {debugMode && (
           <View className="mb-8">
-            <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+            <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
               개발 도구
             </Text>
 
@@ -296,7 +296,7 @@ export default function SettingsScreen() {
                 <Text className="text-app-teal text-sm font-semibold">
                   전체 샘플 삽입
                 </Text>
-                <Text className="text-app-muted text-[11px] mt-0.5">
+                <Text className="text-app-muted text-xs mt-0.5">
                   프로필 100명 · 기록 80개 · 할 일 60개 · 메모 60개
                 </Text>
               </Pressable>
@@ -389,7 +389,7 @@ export default function SettingsScreen() {
               <Text className="text-app-danger text-sm font-semibold">
                 전체 데이터 초기화
               </Text>
-              <Text className="text-app-muted text-[11px] mt-0.5">
+              <Text className="text-app-muted text-xs mt-0.5">
                 스키마 유지 · 데이터만 삭제
               </Text>
             </Pressable>
@@ -401,7 +401,7 @@ export default function SettingsScreen() {
               <Text className="text-app-danger text-sm font-semibold">
                 테이블 초기화 (DROP + 재생성)
               </Text>
-              <Text className="text-app-muted text-[11px] mt-0.5">
+              <Text className="text-app-muted text-xs mt-0.5">
                 스키마까지 완전 초기화 · 마이그레이션 재실행
               </Text>
             </Pressable>

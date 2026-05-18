@@ -31,7 +31,7 @@ export function LogCard({ log, onPress }: Props) {
           {hasRepeat && (
             <View className="bg-app-teal-dark rounded-[10px] px-2 flex-row items-center gap-1">
               <RotateCw size={10} color="#4ECDC4" />
-              <Text className="text-[#4ECDC4] text-[10px] font-semibold">
+              <Text className="text-[#4ECDC4] text-xs font-semibold">
                 반복
               </Text>
             </View>
@@ -39,7 +39,7 @@ export function LogCard({ log, onPress }: Props) {
         </View>
         {log.memo ? (
           <Text
-            className="text-[#888] text-[13px] leading-[18px]"
+            className="text-[#888] text-sm leading-[18px]"
             numberOfLines={2}
           >
             {log.memo}

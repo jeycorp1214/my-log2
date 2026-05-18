@@ -38,7 +38,7 @@ export default function NoteScreen() {
             style={{ borderBottomWidth: activeTab === tab ? 2 : 0, borderColor: "#4ecdc4" }}
           >
             <Text
-              className="text-[14px] font-semibold"
+              className="text-sm font-semibold"
               style={{ color: activeTab === tab ? "#4ecdc4" : "#666" }}
             >
               {tab === "memo" ? "메모" : "할 일"}

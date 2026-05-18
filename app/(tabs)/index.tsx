@@ -138,18 +138,18 @@ export default function HomeScreen() {
       >
         {/* 오늘 날짜 */}
         <View className="px-5 pt-4 pb-3">
-          <Text className="text-white text-[18px] font-bold">{todayStr}</Text>
+          <Text className="text-white text-lg font-bold">{todayStr}</Text>
         </View>
 
         {/* 이번달 요약 카드 */}
         {home.showMonthSummary && (
           <View className="mx-4 mb-4 bg-app-surface rounded-[16px] p-4">
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+            <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-3">
               이번 달 요약
             </Text>
             <View className="flex-row items-center mb-3">
               <View className="flex-1">
-                <Text className="text-app-muted text-[13px]">
+                <Text className="text-app-muted text-sm">
                   총{" "}
                   <Text className="text-white font-semibold">{monthTotal}</Text>
                   개 · 완료{" "}
@@ -157,7 +157,7 @@ export default function HomeScreen() {
                   개
                 </Text>
               </View>
-              <Text className="text-app-teal text-[22px] font-bold">
+              <Text className="text-app-teal text-xl font-bold">
                 {monthRate}%
               </Text>
             </View>
@@ -179,31 +179,31 @@ export default function HomeScreen() {
             style={({ pressed }) => (pressed ? { opacity: 0.8 } : undefined)}
           >
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+              <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
                 스트릭
               </Text>
-              <Text className="text-[#555] text-[11px]">통계 →</Text>
+              <Text className="text-[#555] text-xs">통계 →</Text>
             </View>
             <View className="flex-row gap-4">
               <View className="flex-1 items-center">
-                <Text className="text-[26px] font-bold text-white">
+                <Text className="text-2xl font-bold text-white">
                   {streakCurrent}
                 </Text>
-                <Text className="text-app-muted text-[11px] mt-0.5">현재</Text>
+                <Text className="text-app-muted text-xs mt-0.5">현재</Text>
               </View>
               <View className="w-px bg-[#2a2a2a]" />
               <View className="flex-1 items-center">
-                <Text className="text-[26px] font-bold text-white">
+                <Text className="text-2xl font-bold text-white">
                   {streakBest}
                 </Text>
-                <Text className="text-app-muted text-[11px] mt-0.5">최장</Text>
+                <Text className="text-app-muted text-xs mt-0.5">최장</Text>
               </View>
               <View className="w-px bg-[#2a2a2a]" />
               <View className="flex-1 items-center">
-                <Text className="text-[26px] font-bold text-white">
+                <Text className="text-2xl font-bold text-white">
                   {longestGap}
                 </Text>
-                <Text className="text-app-muted text-[11px] mt-0.5">
+                <Text className="text-app-muted text-xs mt-0.5">
                   최장 공백
                 </Text>
               </View>
@@ -232,7 +232,7 @@ export default function HomeScreen() {
         {/* 임박 기념일 */}
         {home.showUpcomingAnn && upcomingAnn.length > 0 && (
           <View className="mx-4 mb-4">
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-2 px-1">
+            <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2 px-1">
               다가오는 기념일
             </Text>
             <View className="bg-app-surface rounded-[16px] overflow-hidden">
@@ -257,10 +257,10 @@ export default function HomeScreen() {
                         : "flex-row items-center px-4 py-3"
                     }
                   >
-                    <Text className="flex-1 text-white text-[14px]">
+                    <Text className="flex-1 text-white text-sm">
                       {ann.displayTitle}
                     </Text>
-                    <Text className="text-app-teal text-[13px] font-semibold">
+                    <Text className="text-app-teal text-sm font-semibold">
                       {dLabel}
                     </Text>
                   </Pressable>
@@ -274,15 +274,15 @@ export default function HomeScreen() {
         {home.showRecentLogs && (
           <View className="mx-4">
             <View className="flex-row items-center justify-between mb-2 px-1">
-              <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+              <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
                 최근 기록
               </Text>
               <Pressable onPress={() => router.push("/(tabs)/list")}>
-                <Text className="text-app-teal text-[12px]">전체 보기</Text>
+                <Text className="text-app-teal text-xs">전체 보기</Text>
               </Pressable>
             </View>
             {recentLogs.length === 0 ? (
-              <Text className="text-app-muted text-center py-8 text-[14px]">
+              <Text className="text-app-muted text-center py-8 text-sm">
                 일정이 없습니다.
               </Text>
             ) : (
@@ -328,7 +328,7 @@ export default function HomeScreen() {
             onPress={(e) => e.stopPropagation()}
           >
             <View className="w-10 h-1 bg-[#444] rounded-full self-center mb-5" />
-            <Text className="text-white text-[16px] font-bold mb-4">
+            <Text className="text-white text-base font-bold mb-4">
               홈 화면 구성
             </Text>
             {WIDGET_LABELS.map(({ key, label }) => (
@@ -336,7 +336,7 @@ export default function HomeScreen() {
                 key={key}
                 className="flex-row items-center justify-between py-3 border-b border-[#1e1e1e]"
               >
-                <Text className="text-white text-[14px]">{label}</Text>
+                <Text className="text-white text-sm">{label}</Text>
                 <Switch
                   value={home[key]}
                   onValueChange={(v) => setHomePrefs({ [key]: v })}

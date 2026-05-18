@@ -1,4 +1,4 @@
-// 할 일 상세/편집 화면 — 제목, 노트, 기한, 사분면 편집
+﻿// 할 일 상세/편집 화면 — 제목, 노트, 기한, 사분면 편집
 import { DateInput } from "@/components/DateInput";
 import { db } from "@/db/client";
 import { todos, type Quadrant } from "@/db/schema";
@@ -88,13 +88,13 @@ export default function TodoDetailScreen() {
     >
       {/* 제목 */}
       <View>
-        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
           제목
         </Text>
         <TextInput
           value={title}
           onChangeText={setTitle}
-          className="bg-app-surface text-white rounded-[10px] px-4 py-3 text-[15px]"
+          className="bg-app-surface text-white rounded-[10px] px-4 py-3 text-sm"
           placeholderTextColor="#555"
           placeholder="할 일 제목"
           autoFocus
@@ -103,7 +103,7 @@ export default function TodoDetailScreen() {
 
       {/* 사분면 */}
       <View>
-        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
           분류
         </Text>
         <View className="flex-row gap-2 flex-wrap">
@@ -135,7 +135,7 @@ export default function TodoDetailScreen() {
 
       {/* 기한 */}
       <View>
-        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
           기한
         </Text>
         <DateInput
@@ -149,13 +149,13 @@ export default function TodoDetailScreen() {
 
       {/* 노트 */}
       <View>
-        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
           노트
         </Text>
         <TextInput
           value={note}
           onChangeText={setNote}
-          className="bg-app-surface text-white rounded-[10px] px-4 py-3 text-[14px]"
+          className="bg-app-surface text-white rounded-[10px] px-4 py-3 text-sm"
           placeholderTextColor="#555"
           placeholder="추가 메모 (선택)"
           multiline

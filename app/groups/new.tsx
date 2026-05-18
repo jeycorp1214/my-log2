@@ -35,7 +35,7 @@ export default function GroupNewScreen() {
       contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
     >
-      <Text className="text-app-label text-[13px] mt-3">그룹 이름 *</Text>
+      <Text className="text-app-label text-sm mt-3">그룹 이름 *</Text>
       <TextInput
         className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
         value={name}
@@ -44,7 +44,7 @@ export default function GroupNewScreen() {
         placeholderTextColor="#555"
       />
 
-      <Text className="text-app-label text-[13px] mt-3">이모지</Text>
+      <Text className="text-app-label text-sm mt-3">이모지</Text>
       <TextInput
         className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
         value={emoji}
@@ -53,7 +53,7 @@ export default function GroupNewScreen() {
         placeholderTextColor="#555"
       />
 
-      <Text className="text-app-label text-[13px] mt-3">색상</Text>
+      <Text className="text-app-label text-sm mt-3">색상</Text>
       <View className="flex-row flex-wrap gap-3 mt-2">
         {PRESET_COLORS.map((c) => (
           <Pressable

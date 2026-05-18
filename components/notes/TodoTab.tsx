@@ -178,7 +178,7 @@ export function TodoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
                 </Text>
                 {item.dueDate && !isChecked && (
                   <Text
-                    className="text-[11px] mt-0.5"
+                    className="text-xs mt-0.5"
                     style={{
                       color: dDayLabel(item.dueDate, false).includes("전") ? "#ff6b6b"
                         : dDayLabel(item.dueDate, false) === "D-Day" ? "#f59e0b"
@@ -189,7 +189,7 @@ export function TodoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
                   </Text>
                 )}
                 {item.note && (
-                  <Text className="text-app-muted text-[11px] mt-0.5" numberOfLines={1}>
+                  <Text className="text-app-muted text-xs mt-0.5" numberOfLines={1}>
                     {item.note}
                   </Text>
                 )}
@@ -201,7 +201,7 @@ export function TodoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
           );
         }}
         ListEmptyComponent={
-          <Text className="text-app-muted text-center mt-10 text-[14px]">
+          <Text className="text-app-muted text-center mt-10 text-sm">
             {QUADRANTS.find((q) => q.key === selectedQuadrant)?.label} 항목이 없습니다.
           </Text>
         }
@@ -215,7 +215,7 @@ export function TodoTab({ searchQuery, filterSheetVisible, onFilterSheetClose, o
       />
 
       <FilterBottomSheet visible={filterSheetVisible} onClose={onFilterSheetClose}>
-        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-3">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-3">
           전체 현황
         </Text>
         <View className="flex-row flex-wrap gap-2 mb-5">

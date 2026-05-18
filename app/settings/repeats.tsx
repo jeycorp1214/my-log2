@@ -72,7 +72,7 @@ export default function RepeatsScreen() {
                   <HStack className="items-center justify-between">
                     <VStack className="flex-1 mr-3">
                       <Text
-                        className="text-white text-[14px] font-semibold"
+                        className="text-white text-sm font-semibold"
                         numberOfLines={1}
                       >
                         {log.title}

@@ -60,13 +60,13 @@ export function MonthPickerModal({ visible, value, onChange, onClose }: Props) {
           {/* 헤더 영역 */}
           <View className="flex-row justify-between items-center px-5 pt-4 pb-1">
             <Pressable onPress={onClose} hitSlop={12}>
-              <Text className="text-app-muted text-[15px]">취소</Text>
+              <Text className="text-app-muted text-sm">취소</Text>
             </Pressable>
-            <Text className="text-white text-[15px] font-semibold">
+            <Text className="text-white text-sm font-semibold">
               {year}년 {month}월
             </Text>
             <Pressable onPress={handleConfirm} hitSlop={12}>
-              <Text className="text-app-teal text-[15px] font-semibold">
+              <Text className="text-app-teal text-sm font-semibold">
                 확인
               </Text>
             </Pressable>

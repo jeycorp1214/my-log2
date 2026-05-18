@@ -134,7 +134,7 @@ export default function DataViewerScreen() {
           >
             <ChevronLeft size={16} color="#aaa" />
           </Pressable>
-          <Text className="text-white text-[13px] font-semibold flex-1 text-center">
+          <Text className="text-white text-sm font-semibold flex-1 text-center">
             {formatLogDate(viewMonthStart).substring(0, 9)} {/* YYYY-MM 형식 */}
           </Text>
           <Pressable
@@ -147,11 +147,11 @@ export default function DataViewerScreen() {
 
         {/* 범위 정보 */}
         <View className="bg-[#1a2a2a] rounded-[8px] p-2">
-          <Text className="text-[#888] text-[10px] font-mono">
+          <Text className="text-[#888] text-xs font-mono">
             📅 보는 기간: {formatLogDate(viewMonthStart)} ~{" "}
             {formatLogDate(viewMonthEnd)}
           </Text>
-          <Text className="text-[#666] text-[10px] font-mono mt-1">
+          <Text className="text-[#666] text-xs font-mono mt-1">
             💡 이 범위 내의 logDate를 가진 기록을 확인할 수 있습니다.
           </Text>
         </View>
@@ -187,7 +187,7 @@ export default function DataViewerScreen() {
             {expanded === table.name && (
               <View className="mt-2 bg-app-surface rounded-[10px] p-3">
                 {table.data.length === 0 ? (
-                  <Text className="text-app-muted text-[13px] text-center py-2">
+                  <Text className="text-app-muted text-sm text-center py-2">
                     데이터 없음
                   </Text>
                 ) : (
@@ -206,18 +206,18 @@ export default function DataViewerScreen() {
                           className={`py-2 ${idx < table.data.length - 1 ? "border-b border-[#2a2a2a]" : ""}`}
                         >
                           {table.name === "logs" && recordMonth && (
-                            <Text className="text-[10px] font-mono mb-1 text-app-teal">
+                            <Text className="text-xs font-mono mb-1 text-app-teal">
                               📅 {recordMonth}
                             </Text>
                           )}
                           <View className="flex-row flex-wrap gap-1">
                             {Object.entries(item).map(([key, value]) => (
                               <View key={key} className="w-full mb-1">
-                                <Text className="text-[#666] text-[11px] font-mono">
+                                <Text className="text-[#666] text-xs font-mono">
                                   {key}
                                 </Text>
                                 <Text
-                                  className="text-app-label text-[11px] font-mono"
+                                  className="text-app-label text-xs font-mono"
                                   numberOfLines={4}
                                   selectable
                                 >
@@ -237,7 +237,7 @@ export default function DataViewerScreen() {
         ))}
 
         <View className="mt-4 bg-app-teal-dark rounded-[10px] p-3">
-          <Text className="text-app-teal text-[13px]">
+          <Text className="text-app-teal text-sm">
             💡 팁: 각 테이블을 탭하면 데이터를 펼쳐볼 수 있습니다. 텍스트를 길게
             누르면 복사 가능합니다.
           </Text>

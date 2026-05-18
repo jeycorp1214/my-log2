@@ -99,7 +99,7 @@ export function PersonCard({
                   key={tag}
                   className="bg-[#1a2e2c] rounded-[6px] px-1.5 py-0.5"
                 >
-                  <Text className="text-app-teal text-[11px]">{tag}</Text>
+                  <Text className="text-app-teal text-xs">{tag}</Text>
                 </View>
               ))}
             </View>
@@ -116,18 +116,18 @@ export function PersonCard({
 
           {/* 2줄: 나이 · MBTI · 마지막 연락 */}
           {metaLine.length > 0 && (
-            <Text className="text-[#888] text-[13px]">{metaLine}</Text>
+            <Text className="text-[#888] text-sm">{metaLine}</Text>
           )}
 
           {/* 3줄: 메모 */}
           {person.memo ? (
-            <Text className="text-app-muted text-[13px]" numberOfLines={1}>
+            <Text className="text-app-muted text-sm" numberOfLines={1}>
               {person.memo}
             </Text>
           ) : null}
 
           {logCount !== undefined && logCount > 0 && (
-            <Text className="text-app-teal text-[12px] mt-0.5">
+            <Text className="text-app-teal text-xs mt-0.5">
               관련 기록 {logCount}개 →
             </Text>
           )}

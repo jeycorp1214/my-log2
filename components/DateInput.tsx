@@ -41,7 +41,7 @@ export function DateInput({
           onPress={() => setShowPicker(true)}
           className="flex-1 bg-[#1a1a1a] rounded-[8px] px-2 py-1.5"
         >
-          <Text className={cn("text-[13px]", value ? "text-[#ccc]" : "text-[#555]")}>
+          <Text className={cn("text-sm", value ? "text-[#ccc]" : "text-[#555]")}>
             {value ? formatLogDate(value) : placeholder}
           </Text>
         </Pressable>
@@ -59,10 +59,10 @@ export function DateInput({
     <View className={className}>
       {label && (
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-app-label text-[13px]">{label}</Text>
+          <Text className="text-app-label text-sm">{label}</Text>
           {onClear && value && (
             <Pressable onPress={onClear} hitSlop={8}>
-              <Text className="text-app-muted text-[12px]">지우기</Text>
+              <Text className="text-app-muted text-xs">지우기</Text>
             </Pressable>
           )}
         </View>

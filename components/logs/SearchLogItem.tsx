@@ -21,7 +21,7 @@ export function SearchLogItem({ log, onPress }: Props) {
       className="bg-app-surface rounded-[14px] p-[14px] mb-2"
       style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
     >
-      <Text className="text-app-muted text-[11px] mb-1">
+      <Text className="text-app-muted text-xs mb-1">
         {formatLogDate(new Date(log.logDate))}
       </Text>
       <View className="flex-row items-center gap-[6px]">
@@ -34,14 +34,14 @@ export function SearchLogItem({ log, onPress }: Props) {
         {hasRepeat && (
           <View className="bg-app-teal-dark rounded-[10px] px-2 flex-row items-center gap-1">
             <RotateCw size={10} color="#4ECDC4" />
-            <Text className="text-[#4ECDC4] text-[10px] font-semibold">
+            <Text className="text-[#4ECDC4] text-xs font-semibold">
               반복
             </Text>
           </View>
         )}
       </View>
       {log.memo ? (
-        <Text className="text-[#888] text-[13px] mt-1" numberOfLines={1}>
+        <Text className="text-[#888] text-sm mt-1" numberOfLines={1}>
           {log.memo}
         </Text>
       ) : null}

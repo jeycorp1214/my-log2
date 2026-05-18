@@ -471,7 +471,7 @@ export default function CalendarTestScreen() {
                   }`}
                 >
                   <Text
-                    className={`text-[11px] font-medium ${
+                    className={`text-xs font-medium ${
                       markingMode === mode ? "text-app-teal" : "text-app-label"
                     }`}
                   >
@@ -491,7 +491,7 @@ export default function CalendarTestScreen() {
           {/* Period 안내 */}
           {markingMode === "period" && (
             <View className="mx-4 mb-2 bg-app-surface rounded-[8px] px-3 py-2 flex-row items-center">
-              <Text className="flex-1 text-app-label text-[11px]">
+              <Text className="flex-1 text-app-label text-xs">
                 {!rangeStart
                   ? "시작 날짜를 선택하세요"
                   : !rangeEnd
@@ -505,7 +505,7 @@ export default function CalendarTestScreen() {
                     setRangeEnd(null);
                   }}
                 >
-                  <Text className="text-app-teal text-[11px] ml-2">초기화</Text>
+                  <Text className="text-app-teal text-xs ml-2">초기화</Text>
                 </Pressable>
               )}
             </View>
@@ -530,7 +530,7 @@ export default function CalendarTestScreen() {
 
           {/* 인터랙션 컨트롤 */}
           <View className="mx-4 mt-3 bg-app-surface rounded-[12px] px-4 py-3">
-            <Text className="text-app-label text-[10px] uppercase tracking-widest mb-2">
+            <Text className="text-app-label text-xs uppercase tracking-widest mb-2">
               인터랙션 제어
             </Text>
             <View className="flex-row gap-2 mb-2">
@@ -543,14 +543,14 @@ export default function CalendarTestScreen() {
                 }`}
               >
                 <Text
-                  className={`text-[11px] font-medium ${
+                  className={`text-xs font-medium ${
                     minDateEnabled ? "text-[#3b82f6]" : "text-app-label"
                   }`}
                 >
                   최소 날짜 {minDateEnabled ? "ON" : "OFF"}
                 </Text>
                 {minDateEnabled && (
-                  <Text className="text-[#3b82f6]/70 text-[10px] mt-0.5">
+                  <Text className="text-[#3b82f6]/70 text-xs mt-0.5">
                     -30일 이전 비활성
                   </Text>
                 )}
@@ -564,14 +564,14 @@ export default function CalendarTestScreen() {
                 }`}
               >
                 <Text
-                  className={`text-[11px] font-medium ${
+                  className={`text-xs font-medium ${
                     maxDateEnabled ? "text-[#3b82f6]" : "text-app-label"
                   }`}
                 >
                   최대 날짜 {maxDateEnabled ? "ON" : "OFF"}
                 </Text>
                 {maxDateEnabled && (
-                  <Text className="text-[#3b82f6]/70 text-[10px] mt-0.5">
+                  <Text className="text-[#3b82f6]/70 text-xs mt-0.5">
                     +30일 이후 비활성
                   </Text>
                 )}
@@ -579,11 +579,11 @@ export default function CalendarTestScreen() {
             </View>
             {lastEvent ? (
               <View className="bg-[#181818] rounded-[6px] px-3 py-2">
-                <Text className="text-app-teal text-[11px]">{lastEvent}</Text>
+                <Text className="text-app-teal text-xs">{lastEvent}</Text>
               </View>
             ) : (
               <View className="bg-[#181818] rounded-[6px] px-3 py-2">
-                <Text className="text-app-muted text-[11px]">
+                <Text className="text-app-muted text-xs">
                   날짜 또는 월 변경 시 이벤트가 여기에 표시됩니다
                 </Text>
               </View>
@@ -593,7 +593,7 @@ export default function CalendarTestScreen() {
           {/* 일정 목록 (CRUD) */}
           <View className="mx-4 mt-3">
             <View className="flex-row items-center mb-2">
-              <Text className="flex-1 text-app-label text-[10px] uppercase tracking-widest">
+              <Text className="flex-1 text-app-label text-xs uppercase tracking-widest">
                 {selectedDate} 일정 ({selectedDateEvents.length})
               </Text>
               <Pressable
@@ -643,7 +643,7 @@ export default function CalendarTestScreen() {
                           {event.title}
                         </Text>
                         <Text
-                          className="text-[11px] mt-0.5"
+                          className="text-xs mt-0.5"
                           style={{ color: CATEGORY_COLORS[event.category] }}
                         >
                           {CATEGORY_LABELS[event.category]}
@@ -683,7 +683,7 @@ export default function CalendarTestScreen() {
 
           {/* 카테고리 범례 */}
           <View className="mx-4 mt-3 bg-app-surface rounded-[12px] px-4 py-3">
-            <Text className="text-app-label text-[10px] uppercase tracking-widest mb-2">
+            <Text className="text-app-label text-xs uppercase tracking-widest mb-2">
               카테고리 컬러 코딩
             </Text>
             <View className="flex-row flex-wrap gap-2">
@@ -694,7 +694,7 @@ export default function CalendarTestScreen() {
                       className="w-2.5 h-2.5 rounded-full"
                       style={{ backgroundColor: CATEGORY_COLORS[cat] }}
                     />
-                    <Text className="text-app-dim text-[12px]">
+                    <Text className="text-app-dim text-xs">
                       {CATEGORY_LABELS[cat]}
                     </Text>
                   </View>
@@ -708,7 +708,7 @@ export default function CalendarTestScreen() {
       {/* ── Infinite Scroll View ──────────────────────────────────── */}
       {viewMode === "infinite" && (
         <View className="flex-1 px-4">
-          <Text className="text-app-label text-[10px] uppercase tracking-widest mb-2">
+          <Text className="text-app-label text-xs uppercase tracking-widest mb-2">
             위아래로 스크롤하여 월 이동 (±6개월)
           </Text>
           <View className="flex-1 rounded-[12px] overflow-hidden">
@@ -740,7 +740,7 @@ export default function CalendarTestScreen() {
           </View>
           {lastEvent ? (
             <View className="mt-2 mb-4 bg-app-surface rounded-[8px] px-3 py-2">
-              <Text className="text-app-teal text-[11px]">{lastEvent}</Text>
+              <Text className="text-app-teal text-xs">{lastEvent}</Text>
             </View>
           ) : null}
         </View>
@@ -766,7 +766,7 @@ export default function CalendarTestScreen() {
 
           {/* 선택 날짜 헤더 */}
           <View className="flex-row items-center px-4 mt-3 mb-2">
-            <Text className="flex-1 text-app-label text-[10px] uppercase tracking-widest">
+            <Text className="flex-1 text-app-label text-xs uppercase tracking-widest">
               {agendaDate} 일정
             </Text>
             <Pressable
@@ -825,7 +825,7 @@ export default function CalendarTestScreen() {
                         {event.title}
                       </Text>
                       <Text
-                        className="text-[11px] mt-0.5"
+                        className="text-xs mt-0.5"
                         style={{ color: CATEGORY_COLORS[event.category] }}
                       >
                         {CATEGORY_LABELS[event.category]}
@@ -898,7 +898,7 @@ export default function CalendarTestScreen() {
               </Pressable>
             </View>
 
-            <Text className="text-app-label text-[10px] uppercase tracking-widest mb-1.5">
+            <Text className="text-app-label text-xs uppercase tracking-widest mb-1.5">
               제목
             </Text>
             <TextInput
@@ -912,7 +912,7 @@ export default function CalendarTestScreen() {
               onSubmitEditing={saveEvent}
             />
 
-            <Text className="text-app-label text-[10px] uppercase tracking-widest mb-1.5">
+            <Text className="text-app-label text-xs uppercase tracking-widest mb-1.5">
               카테고리
             </Text>
             <View className="flex-row gap-2 mb-5">
@@ -933,7 +933,7 @@ export default function CalendarTestScreen() {
                     }
                   >
                     <Text
-                      className="text-[11px] font-medium"
+                      className="text-xs font-medium"
                       style={{
                         color:
                           inputCategory === cat ? CATEGORY_COLORS[cat] : "#777",
@@ -946,7 +946,7 @@ export default function CalendarTestScreen() {
               )}
             </View>
 
-            <Text className="text-app-label text-[10px] uppercase tracking-widest mb-1.5">
+            <Text className="text-app-label text-xs uppercase tracking-widest mb-1.5">
               반복
             </Text>
             <View className="flex-row gap-1.5 mb-5">
@@ -968,7 +968,7 @@ export default function CalendarTestScreen() {
                   }
                 >
                   <Text
-                    className="text-[10px] font-medium"
+                    className="text-xs font-medium"
                     style={{
                       color: inputRepeatType === type ? "#4ECDC4" : "#777",
                     }}

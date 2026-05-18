@@ -1,4 +1,4 @@
-// 전체 텍스트 검색 화면 — 기록/프로필/메모/할일 LIKE 검색 + 필터 칩
+﻿// 전체 텍스트 검색 화면 — 기록/프로필/메모/할일 LIKE 검색 + 필터 칩
 import { SearchLogItem } from "@/components/logs/SearchLogItem";
 import { PersonCard } from "@/components/persons/PersonCard";
 import { SearchMemoItem } from "@/components/search/SearchMemoItem";
@@ -230,7 +230,7 @@ export default function SearchScreen() {
                 style={{ backgroundColor: isSelected ? "#4ECDC4" : "#222" }}
               >
                 <Text
-                  className="text-[13px] font-semibold"
+                  className="text-sm font-semibold"
                   style={{ color: isSelected ? "#111" : "#888" }}
                 >
                   {f.label}
@@ -248,7 +248,7 @@ export default function SearchScreen() {
           <Text className="text-app-muted text-sm mt-4">
             기록, 프로필, 메모, 할 일을 검색합니다.
           </Text>
-          <Text className="text-[#444] text-[13px] mt-1">
+          <Text className="text-[#444] text-sm mt-1">
             2글자 이상 입력해 주세요.
           </Text>
         </View>
@@ -273,7 +273,7 @@ export default function SearchScreen() {
           }}
           renderSectionHeader={({ section }) => (
             <View className="px-4 py-2 bg-app-bg">
-              <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px]">
+              <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
                 {section.title}
               </Text>
             </View>

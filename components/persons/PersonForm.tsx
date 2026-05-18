@@ -184,7 +184,7 @@ export function PersonForm({
 
   return (
     <>
-      <Text className="text-app-label text-[13px] mt-3">이름 *</Text>
+      <Text className="text-app-label text-sm mt-3">이름 *</Text>
       <TextInput
         className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
         value={name}
@@ -201,7 +201,7 @@ export function PersonForm({
         <MbtiPicker value={mbti} onChange={onMbtiChange} />
       </View>
 
-      <Text className="text-app-label text-[13px] mt-3">메모</Text>
+      <Text className="text-app-label text-sm mt-3">메모</Text>
       <TextInput
         className="bg-app-surface text-white rounded-[10px] p-3 text-sm min-h-[80px]"
         value={memo}
@@ -212,7 +212,7 @@ export function PersonForm({
         style={{ textAlignVertical: "top" }}
       />
 
-      <Text className="text-app-label text-[13px] mt-3">그룹</Text>
+      <Text className="text-app-label text-sm mt-3">그룹</Text>
       <View className="flex-row flex-wrap gap-2 mt-1">
         {allGroups.map((g) => (
           <Pressable
@@ -221,7 +221,7 @@ export function PersonForm({
             className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? "bg-app-teal" : "bg-app-surface"}`}
           >
             <Text
-              className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}
+              className={`text-sm ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}
             >
               {g.emoji} {g.name}
             </Text>
@@ -232,11 +232,11 @@ export function PersonForm({
           className="flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 bg-app-surface"
         >
           <Plus size={12} color="#4ecdc4" />
-          <Text className="text-app-teal text-[13px]">직접 입력</Text>
+          <Text className="text-app-teal text-sm">직접 입력</Text>
         </Pressable>
       </View>
 
-      <Text className="text-app-label text-[13px] mt-4">연락 주기</Text>
+      <Text className="text-app-label text-sm mt-4">연락 주기</Text>
       <View className="flex-row gap-2 mt-1 flex-wrap">
         {CONTACT_PRESETS.map((preset) => {
           const active = !isCustomInterval && contactInterval === preset.value;
@@ -247,7 +247,7 @@ export function PersonForm({
               className={`rounded-[20px] px-3 py-1.5 ${active ? "bg-app-teal" : "bg-app-surface"}`}
             >
               <Text
-                className={`text-[13px] ${active ? "text-[#111] font-semibold" : "text-app-label"}`}
+                className={`text-sm ${active ? "text-[#111] font-semibold" : "text-app-label"}`}
               >
                 {preset.label}
               </Text>
@@ -260,14 +260,14 @@ export function PersonForm({
         >
           {!isCustomInterval && <Plus size={12} color="#4ecdc4" />}
           <Text
-            className={`text-[13px] ${isCustomInterval ? "text-[#111] font-semibold" : "text-app-teal"}`}
+            className={`text-sm ${isCustomInterval ? "text-[#111] font-semibold" : "text-app-teal"}`}
           >
             {isCustomInterval ? `${contactInterval}일` : "직접 입력"}
           </Text>
         </Pressable>
       </View>
 
-      <Text className="text-app-label text-[13px] mt-4">관계 태그</Text>
+      <Text className="text-app-label text-sm mt-4">관계 태그</Text>
       <View className="flex-row flex-wrap gap-2 mt-1">
         {TAG_PRESETS.map((tag) => {
           const active = tags.includes(tag);
@@ -278,7 +278,7 @@ export function PersonForm({
               className={`rounded-[20px] px-3 py-1.5 ${active ? "bg-app-teal" : "bg-app-surface"}`}
             >
               <Text
-                className={`text-[13px] ${active ? "text-[#111] font-semibold" : "text-app-label"}`}
+                className={`text-sm ${active ? "text-[#111] font-semibold" : "text-app-label"}`}
               >
                 {tag}
               </Text>
@@ -291,7 +291,7 @@ export function PersonForm({
             onPress={() => toggleTag(tag)}
             className="flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 bg-app-teal"
           >
-            <Text className="text-[13px] text-[#111] font-semibold">{tag}</Text>
+            <Text className="text-sm text-[#111] font-semibold">{tag}</Text>
             <X size={11} color="#111" />
           </Pressable>
         ))}
@@ -300,16 +300,16 @@ export function PersonForm({
           className="flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 bg-app-surface"
         >
           <Plus size={12} color="#4ecdc4" />
-          <Text className="text-app-teal text-[13px]">직접 입력</Text>
+          <Text className="text-app-teal text-sm">직접 입력</Text>
         </Pressable>
       </View>
 
-      <Text className="text-app-label text-[13px] mt-4">첫 만남 날짜</Text>
+      <Text className="text-app-label text-sm mt-4">첫 만남 날짜</Text>
       <View className="mt-1">
         <BirthDateInput value={metAt} onChange={onMetAtChange} />
       </View>
 
-      <Text className="text-app-label text-[13px] mt-5">기념일</Text>
+      <Text className="text-app-label text-sm mt-5">기념일</Text>
       <View className="flex-row flex-wrap gap-2 mt-1">
         {ANNIVERSARY_PRESETS.map((preset) => (
           <Pressable
@@ -317,7 +317,7 @@ export function PersonForm({
             onPress={() => addPreset(preset)}
             className="bg-app-surface rounded-[20px] px-3 py-1.5"
           >
-            <Text className="text-app-label text-[13px]">{preset}</Text>
+            <Text className="text-app-label text-sm">{preset}</Text>
           </Pressable>
         ))}
         <Pressable
@@ -325,7 +325,7 @@ export function PersonForm({
           className="flex-row items-center gap-1 rounded-[20px] px-3 py-1.5 bg-app-surface"
         >
           <Plus size={12} color="#4ecdc4" />
-          <Text className="text-app-teal text-[13px]">직접 입력</Text>
+          <Text className="text-app-teal text-sm">직접 입력</Text>
         </Pressable>
       </View>
 
@@ -333,7 +333,7 @@ export function PersonForm({
         <View key={ann.id} className="bg-app-surface rounded-[10px] p-3 mt-1">
           <View className="flex-row items-center gap-2">
             <TextInput
-              className="flex-1 text-white text-[14px]"
+              className="flex-1 text-white text-sm"
               value={ann.title}
               onChangeText={(v) => updateAnniversary(ann.id, "title", v)}
               placeholder="기념일 이름"
@@ -361,7 +361,7 @@ export function PersonForm({
                   ann.isRepeat ? "bg-[#4ecdc4]" : "bg-[#444]",
                 )}
               />
-              <Text className="text-[12px] text-app-muted">매년</Text>
+              <Text className="text-xs text-app-muted">매년</Text>
             </Pressable>
           </View>
         </View>
@@ -371,11 +371,11 @@ export function PersonForm({
       <FilterBottomSheet visible={activeSheet !== null} onClose={closeSheet}>
         {activeSheet !== null && (
           <>
-            <Text className="text-white text-[16px] font-semibold mb-4">
+            <Text className="text-white text-base font-semibold mb-4">
               {sheetMeta[activeSheet].title}
             </Text>
             <TextInput
-              className="bg-[#1a1a1a] text-white rounded-[10px] px-4 py-3 text-[15px]"
+              className="bg-[#1a1a1a] text-white rounded-[10px] px-4 py-3 text-sm"
               value={sheetInput}
               onChangeText={setSheetInput}
               placeholder={sheetMeta[activeSheet].placeholder}
@@ -386,7 +386,7 @@ export function PersonForm({
               onSubmitEditing={handleSheetConfirm}
             />
             {activeSheet === "interval" && (
-              <Text className="text-app-muted text-[12px] mt-2">
+              <Text className="text-app-muted text-xs mt-2">
                 숫자만 입력하세요 (예: 14, 60)
               </Text>
             )}
@@ -395,13 +395,13 @@ export function PersonForm({
                 onPress={closeSheet}
                 className="flex-1 rounded-[10px] py-3 items-center bg-[#1a1a1a]"
               >
-                <Text className="text-app-label text-[14px]">취소</Text>
+                <Text className="text-app-label text-sm">취소</Text>
               </Pressable>
               <Pressable
                 onPress={handleSheetConfirm}
                 className="flex-1 rounded-[10px] py-3 items-center bg-app-teal"
               >
-                <Text className="text-[#111] text-[14px] font-semibold">
+                <Text className="text-[#111] text-sm font-semibold">
                   확인
                 </Text>
               </Pressable>

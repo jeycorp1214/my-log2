@@ -43,10 +43,10 @@ export function TodayRepeatWidget() {
   return (
     <View className="mx-4 mb-4 bg-app-surface rounded-[16px] overflow-hidden">
       <View className="px-4 pt-4 pb-2 flex-row items-center justify-between">
-        <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
           오늘의 반복
         </Text>
-        <Text className="text-[#555] text-[11px]">{todayItems.length}개</Text>
+        <Text className="text-[#555] text-xs">{todayItems.length}개</Text>
       </View>
       {todayItems.map(({ log, groupColor }, idx) => (
         <Pressable
@@ -56,10 +56,10 @@ export function TodayRepeatWidget() {
           style={({ pressed }) => pressed ? { opacity: 0.7 } : undefined}
         >
           <View className="w-2 h-2 rounded-full" style={{ backgroundColor: groupColor ?? "#4ecdc4" }} />
-          <Text className="flex-1 text-white text-[14px]" numberOfLines={1}>
+          <Text className="flex-1 text-white text-sm" numberOfLines={1}>
             {log.title}
           </Text>
-          <Text className="text-[#f59e0b] text-[11px]">반복</Text>
+          <Text className="text-[#f59e0b] text-xs">반복</Text>
         </Pressable>
       ))}
     </View>

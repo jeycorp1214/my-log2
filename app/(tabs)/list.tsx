@@ -323,7 +323,7 @@ export default function ListScreen() {
             >
               <Text
                 className={cn(
-                  "text-[13px] font-semibold",
+                  "text-sm font-semibold",
                   preset === item.key ? "text-[#111]" : "text-[#888]",
                 )}
               >
@@ -338,19 +338,19 @@ export default function ListScreen() {
       {preset === "custom" && (
         <View className="flex-row gap-2 px-4 pb-2">
           <View className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center">
-            <Text className="text-white text-[13px]">
+            <Text className="text-white text-sm">
               {dayjs(customStart).format("YYYY년 M월")}
             </Text>
-            <Text className="text-app-muted text-[11px] mt-0.5">시작</Text>
+            <Text className="text-app-muted text-xs mt-0.5">시작</Text>
           </View>
           <View className="justify-center px-1">
             <Text className="text-app-muted">—</Text>
           </View>
           <View className="flex-1 bg-app-surface rounded-[10px] py-2.5 items-center">
-            <Text className="text-white text-[13px]">
+            <Text className="text-white text-sm">
               {dayjs(customEnd).format("YYYY년 M월")}
             </Text>
-            <Text className="text-app-muted text-[11px] mt-0.5">종료</Text>
+            <Text className="text-app-muted text-xs mt-0.5">종료</Text>
           </View>
         </View>
       )}
@@ -358,11 +358,11 @@ export default function ListScreen() {
       {/* 요약 + 진행률 바 */}
       <View className="px-5 py-2.5 border-b border-[#1e1e1e] gap-1.5">
         <View className="flex-row items-center justify-between">
-          <Text className="text-app-muted text-[13px]">
+          <Text className="text-app-muted text-sm">
             총 {totalCount}개 · 완료 {doneCount}개
           </Text>
           {totalCount > 0 && (
-            <Text className="text-app-teal text-[13px] font-semibold">
+            <Text className="text-app-teal text-sm font-semibold">
               {Math.round((doneCount / totalCount) * 100)}%
             </Text>
           )}
@@ -390,11 +390,11 @@ export default function ListScreen() {
         onEndReachedThreshold={0.3}
         renderSectionHeader={({ section }) => (
           <View className="bg-[#111] px-5 py-2 flex-row items-center justify-between">
-            <Text className="text-app-dim text-[13px] font-semibold">
+            <Text className="text-app-dim text-sm font-semibold">
               {section.title}
             </Text>
             {section.sectionTotal > 0 && (
-              <Text className="text-[#555] text-[11px]">
+              <Text className="text-[#555] text-xs">
                 {section.sectionDone}/{section.sectionTotal}
               </Text>
             )}
@@ -438,7 +438,7 @@ export default function ListScreen() {
         }}
         ListEmptyComponent={
           <View className="items-center mt-16 gap-3">
-            <Text className="text-app-muted text-[14px]">
+            <Text className="text-app-muted text-sm">
               해당 기간에 일정이 없습니다.
             </Text>
             {filterBadge > 0 && (
@@ -453,7 +453,7 @@ export default function ListScreen() {
                 }}
                 className="bg-[#222] rounded-full px-4 py-2"
               >
-                <Text className="text-app-teal text-[13px]">필터 초기화</Text>
+                <Text className="text-app-teal text-sm">필터 초기화</Text>
               </Pressable>
             )}
           </View>
@@ -515,7 +515,7 @@ export default function ListScreen() {
         />
 
         {/* 그룹 — horizontal scroll이라 커스텀 유지 */}
-        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
           그룹
         </Text>
         <ScrollView
@@ -532,7 +532,7 @@ export default function ListScreen() {
             }}
           >
             <Text
-              className="text-[13px] font-semibold"
+              className="text-sm font-semibold"
               style={{ color: groupFilter === "all" ? "#111" : "#888" }}
             >
               전체
@@ -548,7 +548,7 @@ export default function ListScreen() {
               }}
             >
               <Text
-                className="text-[13px] font-semibold"
+                className="text-sm font-semibold"
                 style={{ color: groupFilter === String(g.id) ? "#111" : "#888" }}
               >
                 {g.emoji ? `${g.emoji} ${g.name}` : g.name}
@@ -558,7 +558,7 @@ export default function ListScreen() {
         </ScrollView>
 
         {/* 기념일 — 토글이라 커스텀 유지 */}
-        <Text className="text-app-label text-[12px] font-semibold uppercase tracking-[0.5px] mb-2">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-2">
           기념일
         </Text>
         <Pressable
@@ -566,7 +566,7 @@ export default function ListScreen() {
           className="flex-row items-center justify-between rounded-[10px] px-4 py-3"
           style={{ backgroundColor: "#2a2a2a" }}
         >
-          <Text className="text-[13px]" style={{ color: "#ccc" }}>
+          <Text className="text-sm" style={{ color: "#ccc" }}>
             기념일 함께 표시
           </Text>
           <View

@@ -59,7 +59,7 @@ export function LogForm({
         className="mt-3"
       />
 
-      <Text className="text-app-label text-[13px] mt-3">제목 *</Text>
+      <Text className="text-app-label text-sm mt-3">제목 *</Text>
       <TextInput
         className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
         value={title}
@@ -68,7 +68,7 @@ export function LogForm({
         placeholderTextColor="#555"
       />
 
-      <Text className="text-app-label text-[13px] mt-3">메모</Text>
+      <Text className="text-app-label text-sm mt-3">메모</Text>
       <TextInput
         className="bg-app-surface text-white rounded-[10px] p-3 text-sm"
         value={memo}
@@ -82,7 +82,7 @@ export function LogForm({
 
       {showRepeat && (
         <>
-          <Text className="text-app-label text-[13px] mt-3">반복</Text>
+          <Text className="text-app-label text-sm mt-3">반복</Text>
           <View className="flex-row flex-wrap gap-2 mt-1">
             {REPEAT_OPTIONS.map(({ label, value }) => (
               <Pressable
@@ -94,7 +94,7 @@ export function LogForm({
                 className={`rounded-[20px] px-3 py-1.5 ${repeatType === value ? "bg-app-teal" : "bg-app-surface"}`}
               >
                 <Text
-                  className={`text-[13px] ${repeatType === value ? "text-[#111] font-semibold" : "text-app-label"}`}
+                  className={`text-sm ${repeatType === value ? "text-[#111] font-semibold" : "text-app-label"}`}
                 >
                   {label}
                 </Text>
@@ -104,7 +104,7 @@ export function LogForm({
 
           {repeatType !== "none" && (
             <View className="mt-1">
-              <Text className="text-app-label text-[13px] mb-2">
+              <Text className="text-app-label text-sm mb-2">
                 반복 종료일
               </Text>
               <View className="flex-row gap-2">
@@ -113,7 +113,7 @@ export function LogForm({
                   className={`rounded-[20px] px-3 py-1.5 ${!repeatUntil ? "bg-app-teal" : "bg-app-surface"}`}
                 >
                   <Text
-                    className={`text-[13px] ${!repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}
+                    className={`text-sm ${!repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}
                   >
                     영구
                   </Text>
@@ -130,7 +130,7 @@ export function LogForm({
                   className={`flex-1 rounded-[20px] px-3 py-1.5 ${repeatUntil ? "bg-app-teal" : "bg-app-surface"}`}
                 >
                   <Text
-                    className={`text-[13px] ${repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}
+                    className={`text-sm ${repeatUntil ? "text-[#111] font-semibold" : "text-app-label"}`}
                   >
                     {repeatUntil ? formatLogDate(repeatUntil) : "종료일 지정"}
                   </Text>
@@ -141,7 +141,7 @@ export function LogForm({
         </>
       )}
 
-      <Text className="text-app-label text-[13px] mt-3">그룹</Text>
+      <Text className="text-app-label text-sm mt-3">그룹</Text>
       <View className="flex-row flex-wrap gap-2 mt-1">
         {allGroups.map((g) => (
           <Pressable
@@ -150,7 +150,7 @@ export function LogForm({
             className={`rounded-[20px] px-3 py-1.5 ${groupId === g.id ? "bg-app-teal" : "bg-app-surface"}`}
           >
             <Text
-              className={`text-[13px] ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}
+              className={`text-sm ${groupId === g.id ? "text-[#111] font-semibold" : "text-app-label"}`}
             >
               {g.emoji} {g.name}
             </Text>
@@ -158,7 +158,7 @@ export function LogForm({
         ))}
       </View>
 
-      <Text className="text-app-label text-[13px] mt-3">관련 프로필</Text>
+      <Text className="text-app-label text-sm mt-3">관련 프로필</Text>
       <View className="flex-row flex-wrap gap-2 mt-1">
         {allPersons.map((p) => (
           <Pressable
@@ -167,7 +167,7 @@ export function LogForm({
             className={`rounded-[20px] px-3 py-1.5 ${selectedPersonIds.includes(p.id) ? "bg-app-teal" : "bg-app-surface"}`}
           >
             <Text
-              className={`text-[13px] ${selectedPersonIds.includes(p.id) ? "text-[#111] font-semibold" : "text-app-label"}`}
+              className={`text-sm ${selectedPersonIds.includes(p.id) ? "text-[#111] font-semibold" : "text-app-label"}`}
             >
               {p.name}
             </Text>

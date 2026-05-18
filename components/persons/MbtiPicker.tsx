@@ -70,10 +70,10 @@ export function MbtiPicker({ value, onChange }: Props) {
   return (
     <View>
       <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-app-label text-[13px]">MBTI</Text>
+        <Text className="text-app-label text-sm">MBTI</Text>
         {hasAny && (
           <Pressable onPress={clearAll} hitSlop={8}>
-            <Text className="text-app-muted text-[12px]">초기화</Text>
+            <Text className="text-app-muted text-xs">초기화</Text>
           </Pressable>
         )}
       </View>
@@ -90,7 +90,7 @@ export function MbtiPicker({ value, onChange }: Props) {
               }}
             >
               <Text
-                className="font-bold text-[16px]"
+                className="font-bold text-base"
                 style={{
                   color: choices[idx] === axis.a.key ? "#111" : "#aaa",
                 }}
@@ -98,7 +98,7 @@ export function MbtiPicker({ value, onChange }: Props) {
                 {axis.a.key}
               </Text>
               <Text
-                className="text-[10px] mt-0.5"
+                className="text-xs mt-0.5"
                 style={{
                   color: choices[idx] === axis.a.key ? "#111" : "#555",
                 }}
@@ -118,7 +118,7 @@ export function MbtiPicker({ value, onChange }: Props) {
               }}
             >
               <Text
-                className="font-bold text-[16px]"
+                className="font-bold text-base"
                 style={{
                   color: choices[idx] === axis.b.key ? "#111" : "#aaa",
                 }}
@@ -126,7 +126,7 @@ export function MbtiPicker({ value, onChange }: Props) {
                 {axis.b.key}
               </Text>
               <Text
-                className="text-[10px] mt-0.5"
+                className="text-xs mt-0.5"
                 style={{
                   color: choices[idx] === axis.b.key ? "#111" : "#555",
                 }}
@@ -140,10 +140,10 @@ export function MbtiPicker({ value, onChange }: Props) {
 
       {mbtiResult ? (
         <View className="mt-3 bg-[#1a3a2e] rounded-[10px] px-3 py-2.5">
-          <Text className="text-app-teal text-[14px] font-bold">
+          <Text className="text-app-teal text-sm font-bold">
             {mbtiResult}
           </Text>
-          <Text className="text-app-teal text-[12px] mt-0.5 opacity-80">
+          <Text className="text-app-teal text-xs mt-0.5 opacity-80">
             {choices.map((c) => DESC_MAP[c]).join(", ")} 사람
           </Text>
         </View>

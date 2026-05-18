@@ -134,8 +134,8 @@ export default function HeatmapScreen() {
             key={stat.label}
             className="flex-1 bg-app-surface rounded-[12px] py-3 items-center"
           >
-            <Text className="text-white text-[18px] font-bold">{stat.value}</Text>
-            <Text className="text-app-muted text-[11px] mt-0.5">{stat.label}</Text>
+            <Text className="text-white text-lg font-bold">{stat.value}</Text>
+            <Text className="text-app-muted text-xs mt-0.5">{stat.label}</Text>
           </View>
         ))}
       </View>
@@ -209,11 +209,11 @@ export default function HeatmapScreen() {
 
         {/* 범례 */}
         <View className="flex-row items-center gap-2 mt-4">
-          <Text className="text-app-muted text-[11px]">적음</Text>
+          <Text className="text-app-muted text-xs">적음</Text>
           {["#1e1e1e", "#0e2419", "#1a3a2e", "#2d5a40", "#4ecdc4"].map((c) => (
             <View key={c} style={{ width: CELL, height: CELL, borderRadius: 2, backgroundColor: c }} />
           ))}
-          <Text className="text-app-muted text-[11px]">많음</Text>
+          <Text className="text-app-muted text-xs">많음</Text>
         </View>
       </ScrollView>
     </View>

@@ -48,10 +48,10 @@ export function OverduePersonsWidget() {
   return (
     <View className="mx-4 mb-4 bg-app-surface rounded-[16px] overflow-hidden">
       <View className="px-4 pt-4 pb-2 flex-row items-center justify-between">
-        <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px]">
+        <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px]">
           연락 필요
         </Text>
-        <Text className="text-[#555] text-[11px]">{overdue.length}명</Text>
+        <Text className="text-[#555] text-xs">{overdue.length}명</Text>
       </View>
       {overdue.map((p, idx) => (
         <Pressable
@@ -62,8 +62,8 @@ export function OverduePersonsWidget() {
           className={`flex-row items-center px-4 py-3 ${idx < overdue.length - 1 ? "border-b border-[#1e1e1e]" : "pb-4"}`}
           style={({ pressed }) => (pressed ? { opacity: 0.7 } : undefined)}
         >
-          <Text className="flex-1 text-white text-[14px]">{p.name}</Text>
-          <Text className="text-[#ff6b6b] text-[12px] font-semibold">
+          <Text className="flex-1 text-white text-sm">{p.name}</Text>
+          <Text className="text-[#ff6b6b] text-xs font-semibold">
             {p.daysSince === null ? "기록 없음" : `${p.daysSince}일 경과`}
           </Text>
         </Pressable>

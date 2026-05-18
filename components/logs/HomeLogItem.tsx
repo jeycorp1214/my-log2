@@ -55,7 +55,7 @@ export function HomeLogItem({
       <View className="flex-1 gap-0.5">
         <View className="flex-row items-center gap-1.5">
           <Text
-            className="flex-1 text-[14px] font-semibold"
+            className="flex-1 text-sm font-semibold"
             numberOfLines={1}
             style={{
               color: isChecked ? "#555" : "#fff",
@@ -66,7 +66,7 @@ export function HomeLogItem({
           </Text>
           {hasRepeat && <RotateCw size={11} color="#4ECDC4" />}
         </View>
-        <Text className="text-app-muted text-[12px]">
+        <Text className="text-app-muted text-xs">
           {relativeDateLabel(logDate)}
           {groupEmoji ? `  ·  ${groupEmoji} ${groupName}` : `  ·  ${groupName}`}
         </Text>

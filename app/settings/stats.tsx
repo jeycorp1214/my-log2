@@ -29,7 +29,7 @@ const PERIOD_CHIPS: { key: Period; label: string }[] = [
 
 function SectionTitle({ children }: { children: string }) {
   return (
-    <Text className="text-app-label text-[13px] font-semibold uppercase tracking-[0.5px] mb-3">
+    <Text className="text-app-label text-sm font-semibold uppercase tracking-[0.5px] mb-3">
       {children}
     </Text>
   );
@@ -38,8 +38,8 @@ function SectionTitle({ children }: { children: string }) {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-1 bg-app-surface rounded-[12px] py-3 items-center">
-      <Text className="text-white text-[18px] font-bold">{value}</Text>
-      <Text className="text-app-muted text-[11px] mt-0.5">{label}</Text>
+      <Text className="text-white text-lg font-bold">{value}</Text>
+      <Text className="text-app-muted text-xs mt-0.5">{label}</Text>
     </View>
   );
 }
@@ -64,7 +64,7 @@ function PeriodChips({
         >
           <Text
             className={cn(
-              "text-[12px] font-medium",
+              "text-xs font-medium",
               period === key ? "text-[#0a0a0a]" : "text-app-muted",
             )}
           >
@@ -128,7 +128,7 @@ export default function StatsScreen() {
                 <View key={item.personId}>
                   {i > 0 && <View className="h-[1px] bg-[#2a2a2a] mx-[14px]" />}
                   <View className="flex-row items-center px-[14px] py-[13px] gap-3">
-                    <Text className="text-app-muted text-[13px] w-5 text-center">
+                    <Text className="text-app-muted text-sm w-5 text-center">
                       {i + 1}
                     </Text>
                     <Text className="flex-1 text-white text-sm">
@@ -138,7 +138,7 @@ export default function StatsScreen() {
                       {item.logCount}회
                     </Text>
                     {item.lastDate && (
-                      <Text className="text-app-muted text-[11px] ml-1">
+                      <Text className="text-app-muted text-xs ml-1">
                         {dayjs(item.lastDate).format("M/D")}
                       </Text>
                     )}
@@ -167,7 +167,7 @@ export default function StatsScreen() {
                     <Text className="flex-1 text-white text-sm">
                       {item.name}
                     </Text>
-                    <Text className="text-app-muted text-[12px]">
+                    <Text className="text-app-muted text-xs">
                       {item.lastDate
                         ? fromNow(new Date(item.lastDate))
                         : "기록 없음"}
@@ -203,10 +203,10 @@ export default function StatsScreen() {
                           marginRight: 6,
                         }}
                       />
-                      <Text className="flex-1 text-white text-[13px]">
+                      <Text className="flex-1 text-white text-sm">
                         {g.name}
                       </Text>
-                      <Text className="text-app-muted text-[12px]">
+                      <Text className="text-app-muted text-xs">
                         {g.logCount}개 ({pct}%)
                       </Text>
                     </View>
@@ -233,41 +233,41 @@ export default function StatsScreen() {
             style={{ flex: 2 }}
             className="bg-app-surface rounded-[12px] p-[14px]"
           >
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+            <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-3">
               기록 스트릭
             </Text>
             <View className="flex-row gap-2">
               <View className="flex-1 items-center">
-                <Text className="text-white text-[22px] font-bold">
+                <Text className="text-white text-xl font-bold">
                   {currentStreak}
                 </Text>
-                <Text className="text-app-muted text-[10px] mt-0.5">현재</Text>
+                <Text className="text-app-muted text-xs mt-0.5">현재</Text>
               </View>
               <View className="w-[1px] bg-[#2a2a2a]" />
               <View className="flex-1 items-center">
-                <Text className="text-white text-[22px] font-bold">
+                <Text className="text-white text-xl font-bold">
                   {bestStreak}
                 </Text>
-                <Text className="text-app-muted text-[10px] mt-0.5">최장</Text>
+                <Text className="text-app-muted text-xs mt-0.5">최장</Text>
               </View>
               <View className="w-[1px] bg-[#2a2a2a]" />
               <View className="flex-1 items-center">
-                <Text className="text-white text-[22px] font-bold">
+                <Text className="text-white text-xl font-bold">
                   {longestGap}
                 </Text>
-                <Text className="text-app-muted text-[10px] mt-0.5">공백</Text>
+                <Text className="text-app-muted text-xs mt-0.5">공백</Text>
               </View>
             </View>
           </View>
 
           <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+            <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-3">
               평균 간격
             </Text>
-            <Text className="text-white text-[22px] font-bold">
+            <Text className="text-white text-xl font-bold">
               {avgInterval}
             </Text>
-            <Text className="text-app-muted text-[10px] mt-0.5">
+            <Text className="text-app-muted text-xs mt-0.5">
               일마다 1회
             </Text>
           </View>
@@ -276,10 +276,10 @@ export default function StatsScreen() {
         {/* 완료율 + 반복 기록 비율 */}
         <View className="flex-row gap-3 mb-8">
           <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+            <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-3">
               완료율
             </Text>
-            <Text className="text-white text-[22px] font-bold mb-2">
+            <Text className="text-white text-xl font-bold mb-2">
               {completion.rate}%
             </Text>
             <View className="h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden mb-1.5">
@@ -292,16 +292,16 @@ export default function StatsScreen() {
                 }}
               />
             </View>
-            <Text className="text-app-muted text-[10px]">
+            <Text className="text-app-muted text-xs">
               {completion.completed}/{completion.total}개
             </Text>
           </View>
 
           <View className="flex-1 bg-app-surface rounded-[12px] p-[14px]">
-            <Text className="text-app-label text-[11px] font-semibold uppercase tracking-[0.5px] mb-3">
+            <Text className="text-app-label text-xs font-semibold uppercase tracking-[0.5px] mb-3">
               반복 기록 비율
             </Text>
-            <Text className="text-white text-[22px] font-bold mb-2">
+            <Text className="text-white text-xl font-bold mb-2">
               {repeatRatio.rate}%
             </Text>
             <View className="h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden mb-1.5">
@@ -314,7 +314,7 @@ export default function StatsScreen() {
                 }}
               />
             </View>
-            <Text className="text-app-muted text-[10px]">
+            <Text className="text-app-muted text-xs">
               {repeatRatio.repeated}/{repeatRatio.total}개
             </Text>
           </View>
@@ -328,10 +328,10 @@ export default function StatsScreen() {
               {quadrantStats.map((q) => (
                 <View key={q.quadrant}>
                   <View className="flex-row items-center mb-1.5">
-                    <Text className="flex-1 text-white text-[13px]">
+                    <Text className="flex-1 text-white text-sm">
                       {q.label}
                     </Text>
-                    <Text className="text-app-muted text-[12px]">
+                    <Text className="text-app-muted text-xs">
                       {q.completed}/{q.total}개 ({q.rate}%)
                     </Text>
                   </View>
@@ -386,7 +386,7 @@ export default function StatsScreen() {
                 return (
                   <View key={item.mbti}>
                     <View className="flex-row items-center mb-1.5">
-                      <Text className="text-white text-[13px] font-medium w-14">
+                      <Text className="text-white text-sm font-medium w-14">
                         {item.mbti}
                       </Text>
                       <View className="flex-1 h-1.5 bg-[#2a2a2a] rounded-full overflow-hidden mx-3">
@@ -399,7 +399,7 @@ export default function StatsScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-app-muted text-[12px] w-12 text-right">
+                      <Text className="text-app-muted text-xs w-12 text-right">
                         {item.count}명 ({pct}%)
                       </Text>
                     </View>

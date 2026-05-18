@@ -29,8 +29,8 @@ export const headingStyle = tva({
       true: 'bg-yellow-500',
     },
     size: {
-      '5xl': 'text-6xl',
-      '4xl': 'text-5xl',
+      '5xl': 'text-4xl',
+      '4xl': 'text-4xl',
       '3xl': 'text-4xl',
       '2xl': 'text-3xl',
       'xl': 'text-2xl',

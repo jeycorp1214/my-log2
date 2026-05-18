@@ -222,7 +222,7 @@ export default function PasswordSettingsScreen() {
           <View className="flex-row items-center px-[14px] py-[16px]">
             <View className="flex-1">
               <Text className="text-white text-sm">비밀번호 잠금</Text>
-              <Text className="text-app-muted text-[12px] mt-0.5">
+              <Text className="text-app-muted text-xs mt-0.5">
                 앱 시작 시 비밀번호 입력 요구
               </Text>
             </View>
@@ -241,7 +241,7 @@ export default function PasswordSettingsScreen() {
             <View className="flex-1">
               <Text className="text-white text-sm">PIN 자릿수</Text>
               {isPinEnabled && (
-                <Text className="text-app-muted text-[12px] mt-0.5">
+                <Text className="text-app-muted text-xs mt-0.5">
                   변경 시 재설정 필요
                 </Text>
               )}

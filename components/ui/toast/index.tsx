@@ -69,8 +69,8 @@ const toastTitleStyle = tva({
       "2xl": "text-2xl",
       "3xl": "text-3xl",
       "4xl": "text-4xl",
-      "5xl": "text-5xl",
-      "6xl": "text-6xl",
+      "5xl": "text-4xl",
+      "6xl": "text-4xl",
     },
   },
   parentVariants: {
@@ -140,8 +140,8 @@ const toastDescriptionStyle = tva({
       "2xl": "text-2xl",
       "3xl": "text-3xl",
       "4xl": "text-4xl",
-      "5xl": "text-5xl",
-      "6xl": "text-6xl",
+      "5xl": "text-4xl",
+      "6xl": "text-4xl",
     },
   },
   parentVariants: {

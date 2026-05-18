@@ -76,7 +76,7 @@ export function PinPad({
                     className={cn(
                       key === "C"
                         ? "text-app-danger text-sm font-medium"
-                        : "text-white text-[22px] font-light",
+                        : "text-white text-xl font-light",
                     )}
                   >
                     {key}

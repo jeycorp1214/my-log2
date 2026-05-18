@@ -37,11 +37,11 @@ export function AnniversaryItem({ title, date, groupColor, onPress }: Props) {
       <View className="flex-1 flex-row items-center gap-2 py-2.5 px-3">
       <Cake size={14} color="#c084fc" />
       <View className="flex-1">
-        <Text className="text-[14px]" style={{ color: "#c084fc" }}>
+        <Text className="text-sm" style={{ color: "#c084fc" }}>
           {title}
         </Text>
         {dateStr && (
-          <Text className="text-[12px] mt-0.5" style={{ color: "#9b6fd4" }}>
+          <Text className="text-xs mt-0.5" style={{ color: "#9b6fd4" }}>
             {dateStr}
           </Text>
         )}
@@ -58,7 +58,7 @@ export function AnniversaryItem({ title, date, groupColor, onPress }: Props) {
           }}
         >
           <Text
-            className="text-[11px] font-semibold"
+            className="text-xs font-semibold"
             style={{
               color: isDday ? "#fff" : isPast ? "#666" : "#c084fc",
             }}
