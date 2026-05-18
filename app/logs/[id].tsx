@@ -50,6 +50,7 @@ export default function LogDetailScreen() {
   const [logDate, setLogDate] = useState(new Date());
   const [memo, setMemo] = useState("");
   const [repeatType, setRepeatType] = useState("none");
+  const [repeatInterval, setRepeatInterval] = useState<number | null>(null);
   const [repeatUntil, setRepeatUntil] = useState<Date | null>(null);
   const [groupId, setGroupId] = useState<number | null>(null);
   const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>([]);
@@ -60,6 +61,7 @@ export default function LogDetailScreen() {
       setLogDate(new Date(log.logDate));
       setMemo(log.memo ?? "");
       setRepeatType(log.repeatType ?? "none");
+      setRepeatInterval(log.repeatInterval ?? null);
       setRepeatUntil(log.repeatUntil ? new Date(log.repeatUntil) : null);
       setGroupId(log.groupId);
     }
@@ -131,6 +133,8 @@ export default function LogDetailScreen() {
           logDate,
           memo: memo.trim() || null,
           repeatType: repeatType !== "none" ? repeatType : null,
+          repeatInterval:
+            repeatType !== "none" && repeatInterval ? repeatInterval : null,
           repeatUntil: repeatType !== "none" ? repeatUntil : null,
           groupId: groupId!,
           updatedAt: new Date(),
@@ -194,6 +198,8 @@ export default function LogDetailScreen() {
               onMemoChange={setMemo}
               repeatType={repeatType}
               onRepeatTypeChange={setRepeatType}
+              repeatInterval={repeatInterval}
+              onRepeatIntervalChange={setRepeatInterval}
               repeatUntil={repeatUntil}
               onRepeatUntilChange={setRepeatUntil}
               groupId={groupId}

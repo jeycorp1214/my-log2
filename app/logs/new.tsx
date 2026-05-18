@@ -25,6 +25,7 @@ export default function LogNewScreen() {
   const [logDate, setLogDate] = useState(initialDate);
   const [memo, setMemo] = useState("");
   const [repeatType, setRepeatType] = useState("none");
+  const [repeatInterval, setRepeatInterval] = useState<number | null>(null);
   const [repeatUntil, setRepeatUntil] = useState<Date | null>(null);
   const [groupId, setGroupId] = useState<number | null>(null);
   const [selectedPersonIds, setSelectedPersonIds] = useState<number[]>(
@@ -57,6 +58,8 @@ export default function LogNewScreen() {
         logDate,
         memo: memo.trim() || undefined,
         repeatType: repeatType !== "none" ? repeatType : undefined,
+        repeatInterval:
+          repeatType !== "none" && repeatInterval ? repeatInterval : undefined,
         repeatUntil:
           repeatType !== "none" ? (repeatUntil ?? undefined) : undefined,
         groupId,
@@ -93,6 +96,8 @@ export default function LogNewScreen() {
         onMemoChange={setMemo}
         repeatType={repeatType}
         onRepeatTypeChange={setRepeatType}
+        repeatInterval={repeatInterval}
+        onRepeatIntervalChange={setRepeatInterval}
         repeatUntil={repeatUntil}
         onRepeatUntilChange={setRepeatUntil}
         groupId={groupId}
