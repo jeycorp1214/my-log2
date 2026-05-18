@@ -6,8 +6,8 @@ import dayjs from "dayjs";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { Alert, Pressable, Text } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 export default function PersonNewScreen() {
   const router = useRouter();
@@ -95,37 +95,34 @@ export default function PersonNewScreen() {
       contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
     >
-        <PersonForm
-          name={name}
-          onNameChange={setName}
-          birthDate={birthDate}
-          onBirthDateChange={setBirthDate}
-          mbti={mbti}
-          onMbtiChange={setMbti}
-          memo={memo}
-          onMemoChange={setMemo}
-          groupId={groupId}
-          onGroupIdChange={setGroupId}
-          allGroups={allGroups}
-          draftAnniversaries={draftAnniversaries}
-          onAnniversariesChange={setDraftAnniversaries}
-          contactInterval={contactInterval}
-          onContactIntervalChange={setContactInterval}
-          tags={tags}
-          onTagsChange={setTags}
-          metAt={metAt}
-          onMetAtChange={setMetAt}
-        />
+      <PersonForm
+        name={name}
+        onNameChange={setName}
+        birthDate={birthDate}
+        onBirthDateChange={setBirthDate}
+        mbti={mbti}
+        onMbtiChange={setMbti}
+        memo={memo}
+        onMemoChange={setMemo}
+        groupId={groupId}
+        onGroupIdChange={setGroupId}
+        allGroups={allGroups}
+        draftAnniversaries={draftAnniversaries}
+        onAnniversariesChange={setDraftAnniversaries}
+        contactInterval={contactInterval}
+        onContactIntervalChange={setContactInterval}
+        tags={tags}
+        onTagsChange={setTags}
+        metAt={metAt}
+        onMetAtChange={setMetAt}
+      />
 
-        <Pressable
-          onPress={save}
-          className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
-        >
-          <Text className="text-[#111] text-base font-bold">저장</Text>
-        </Pressable>
-        <Pressable onPress={() => router.back()} className="items-center py-3">
-          <Text className="text-app-muted text-[14px]">취소</Text>
-        </Pressable>
+      <Pressable
+        onPress={save}
+        className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
+      >
+        <Text className="text-[#111] text-base font-bold">저장</Text>
+      </Pressable>
     </KeyboardAwareScrollView>
   );
 }

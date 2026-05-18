@@ -5,16 +5,15 @@ import { groups, logPersons, logs, persons } from "@/db/schema";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { Alert, Pressable, Text } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import {
-  Alert,
-  Pressable,
-  Text,
-} from "react-native";
 
 export default function LogNewScreen() {
   const router = useRouter();
-  const { date, personId } = useLocalSearchParams<{ date?: string; personId?: string }>();
+  const { date, personId } = useLocalSearchParams<{
+    date?: string;
+    personId?: string;
+  }>();
 
   const { data: allGroups = [] } = useLiveQuery(db.select().from(groups));
   const { data: allPersons = [] } = useLiveQuery(db.select().from(persons));
@@ -85,34 +84,31 @@ export default function LogNewScreen() {
       contentContainerStyle={{ padding: 20, gap: 8, paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
     >
-        <LogForm
-          title={title}
-          onTitleChange={setTitle}
-          logDate={logDate}
-          onLogDateChange={setLogDate}
-          memo={memo}
-          onMemoChange={setMemo}
-          repeatType={repeatType}
-          onRepeatTypeChange={setRepeatType}
-          repeatUntil={repeatUntil}
-          onRepeatUntilChange={setRepeatUntil}
-          groupId={groupId}
-          onGroupIdChange={setGroupId}
-          allGroups={allGroups}
-          allPersons={allPersons}
-          selectedPersonIds={selectedPersonIds}
-          onTogglePerson={togglePerson}
-        />
+      <LogForm
+        title={title}
+        onTitleChange={setTitle}
+        logDate={logDate}
+        onLogDateChange={setLogDate}
+        memo={memo}
+        onMemoChange={setMemo}
+        repeatType={repeatType}
+        onRepeatTypeChange={setRepeatType}
+        repeatUntil={repeatUntil}
+        onRepeatUntilChange={setRepeatUntil}
+        groupId={groupId}
+        onGroupIdChange={setGroupId}
+        allGroups={allGroups}
+        allPersons={allPersons}
+        selectedPersonIds={selectedPersonIds}
+        onTogglePerson={togglePerson}
+      />
 
-        <Pressable
-          onPress={save}
-          className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
-        >
-          <Text className="text-[#111] text-base font-bold">저장</Text>
-        </Pressable>
-        <Pressable onPress={() => router.back()} className="items-center py-3">
-          <Text className="text-app-muted text-[14px]">취소</Text>
-        </Pressable>
+      <Pressable
+        onPress={save}
+        className="bg-app-teal rounded-[12px] p-4 items-center mt-6"
+      >
+        <Text className="text-[#111] text-base font-bold">저장</Text>
+      </Pressable>
     </KeyboardAwareScrollView>
   );
 }
