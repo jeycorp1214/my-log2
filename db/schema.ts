@@ -30,6 +30,8 @@ export const persons = sqliteTable("persons", {
   contactInterval: int("contact_interval"),
   tags: text("tags"),
   metAt: text("met_at"),
+  phone: text("phone"),
+  email: text("email"),
   createdAt: int("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),

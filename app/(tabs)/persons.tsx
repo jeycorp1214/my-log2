@@ -22,7 +22,7 @@ import dayjs from "dayjs";
 import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useRouter } from "expo-router";
-import { ChevronDown, ChevronRight } from "lucide-react-native";
+import { ChevronDown, ChevronRight, UserRoundPlus } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
   FlatList,
@@ -32,6 +32,7 @@ import {
   ScrollView,
   SectionList,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -422,6 +423,15 @@ export default function PersonsScreen() {
         historyActive={tabMode === "anniversary"}
         slidersOnPress={() => setShowFilterSheet(true)}
         slidersActive={filterBadge > 0}
+        CustomRight={
+          <TouchableOpacity
+            onPress={() => router.push("/contacts-import")}
+            hitSlop={8}
+            className="p-2"
+          >
+            <UserRoundPlus size={22} color="#888" />
+          </TouchableOpacity>
+        }
       />
 
       {/* ── 프로필 모드 ── */}

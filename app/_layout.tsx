@@ -154,6 +154,13 @@ export default function RootLayout() {
                             options={{ title: "통계" }}
                           />
                           <Stack.Screen
+                            name="contacts-import"
+                            options={{
+                              presentation: "modal",
+                              headerShown: false,
+                            }}
+                          />
+                          <Stack.Screen
                             name="search"
                             options={{
                               presentation: "modal",

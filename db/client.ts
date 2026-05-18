@@ -38,6 +38,8 @@ async function ensureAllLegacyColumns() {
     { column: "contact_interval", sql: "ALTER TABLE persons ADD COLUMN contact_interval INTEGER" },
     { column: "tags", sql: "ALTER TABLE persons ADD COLUMN tags TEXT" },
     { column: "met_at", sql: "ALTER TABLE persons ADD COLUMN met_at TEXT" },
+    { column: "phone", sql: "ALTER TABLE persons ADD COLUMN phone TEXT" },
+    { column: "email", sql: "ALTER TABLE persons ADD COLUMN email TEXT" },
   ]);
   await ensureColumns("todos", [
     { column: "note", sql: "ALTER TABLE todos ADD COLUMN note TEXT" },
